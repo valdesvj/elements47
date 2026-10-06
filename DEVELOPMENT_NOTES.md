@@ -77,6 +77,16 @@
   LBL 30 calls XEQ "ELD1" / "ELD2" and splits the record with LBL 62 / 31. ELEM47 is down to 51 labels.
 - elem47sim.split: one simulator file per program (numeric labels local, as on the C47).
 
+## Oct 6, 2026 - Branch optimize (docs/OPTIMIZATIONS.md)
+
+- Same screens as prototype-h pixel for pixel (tests/test_opt.py); steps run: table 20 210 -> 9 307, a move
+  1 540 -> 233, the detail box 5 009 -> 2 119. File about 8 480 -> 7 980 bytes (estimated).
+- Unrolled cell boxes and cursor, the position once per segment, DSE counter for the symbol pieces, no idle
+  CLSTK / DROP, GRMOD / GRFNT from X; the panel and the inside of the detail box cleared by ATEXT in GRMOD 1
+  (spaces); records "name/mass/state letter/boiling point/configuration"; registers renumbered R20-R51 and
+  saved with LocR 32 / given back at the end (as Almanac 47 v2). No outlining: nothing repeats enough.
+- tools/build_elem47.py prints the estimated .p47 size of each program.
+
 ## Next
 - Run on the C47 (rejig, then XEQ "ELEM47"); time the table (TICKS) and compare with docs/ELEM47_*.png.
 - Closing the detail box: redraw only the cells under it instead of the whole table.

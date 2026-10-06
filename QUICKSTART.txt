@@ -12,4 +12,5 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.x: 00.109.05.0
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R54 and a matrix "PT" (9 x 18), deleted at the end. WSIZE is set to 64.
+Uses R20-R51 (your values are saved at the start and given back with 0; not if the program is
+interrupted) and a matrix "PT" (9 x 18), deleted at the end. WSIZE is set to 64.

@@ -3,7 +3,7 @@
   - the DATA part at the end of programs_rem/ELEM47.txt is written from python/elements.py:
     LBL 29 the segments of the table, LBL 36-41 the symbols (20 elements each: a digit, the column
     of the symbol in its cell, then the symbol in 2 characters); then two data programs, ELD1 (Z 1-60)
-    and ELD2 (Z 61-118), one label per element: "state/mass/boiling point/name/configuration"
+    and ELD2 (Z 61-118), one label per element: "name/mass/state letter/boiling point/configuration"
   One file holds the three programs (ELEM47, ELD1, ELD2), each ending with END.
   programs/ELEM47.txt        the program without REM lines (to convert with rejig)
   build/ELEM47.txt           the calculator file (the same steps for now)
@@ -17,6 +17,7 @@ from elements import ELEMENTS, EXTRA, SEGMENTS
 
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
+REG_Z, REG_IND = 30, 43    # ELEM47's registers: Z of the cursor, the label for XEQ IND
 MAXSTR = 64          # the longest text literal used so far on the C47 (Almanac 47: 69)
 
 
@@ -52,10 +53,12 @@ def estimate(steps):
 
 
 def record(z):
-    """The text of element z in ELD1 / ELD2: state/mass/boiling point/name/configuration."""
+    """The text of element z in ELD1 / ELD2: name/mass/state/boiling point/configuration; the state as
+    one letter (S L G -, the order of "SLG-" in ELEM47), the boiling point without " K" (ELEM47 adds it)."""
     sym, name, mass = ELEMENTS[z - 1]
     state, boil, cfg = EXTRA[z - 1]
-    return '/'.join((state, mass, boil, name, cfg))
+    letter = {'Solid': 'S', 'Liquid': 'L', 'Gas': 'G', '-': '-'}[state]
+    return '/'.join((name, mass, letter, boil[:-2] if boil.endswith(' K') else boil, cfg))
 
 
 def data():
@@ -69,11 +72,11 @@ def data():
     out.append('END')
     # the data programs: XEQ "ELD1" (Z 1-60) or "ELD2" (Z 61-118) with Z in R36 returns the text in X
     for name, z0, z1 in (('ELD1', 1, 60), ('ELD2', 61, 118)):
-        out += ['REM ---- %s: the text "state/mass/boiling point/name/configuration" of Z = R36 (%d-%d) ----' % (name, z0, z1),
-                'LBL "%s"' % name, 'RCL 36']
+        out += ['REM ---- %s: the text "name/mass/state/boiling point/configuration" of Z = R36 (%d-%d) ----' % (name, z0, z1),
+                'LBL "%s"' % name, 'RCL %02d' % REG_Z]
         if z0 > 1:
             out += [str(z0 - 1), '-']
-        out += ['STO 49', 'XEQ IND 49', 'RTN']
+        out += ['STO %02d' % REG_IND, 'XEQ IND %02d' % REG_IND, 'RTN']
         for z in range(z0, z1 + 1):
             out += ['LBL %02d' % (z - z0 + 1), '"%s"' % record(z), 'RTN']
         out.append('END')

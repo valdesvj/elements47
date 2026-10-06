@@ -2,7 +2,7 @@
 """ELEM47 in the C47 simulator (python/c47sim.py):
   - programs/ and build/ are up to date with programs_rem/ (tools/build_elem47.py)
   - the table: the frame of every one of the 118 cells, the matrix PT = the positions of python/elements.py
-  - the data lookup (LBL 30, ELD1 / ELD2) for every element: symbol, name, mass, state, boil, config
+  - the detail box data of every element (LBL 45, ELD1 / ELD2): name, symbol, mass, state, boil, group, config
   - the detail texts (symbol, state, group, config; mass, boiling point)
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table
   - 5: the detail box (frame), any key: the table again with the cursor kept; 0: the end
@@ -36,9 +36,23 @@ def cell(r, c):
     return x0, x0 + 22, 239 - (y0 + 25), 239 - y0
 
 
+GROUPS = ['Nonmetal', 'Alkali metals', 'Alkaline earth metals', 'Transition metals', 'Boron group', 'Carbon group',
+          'Pnictogens', 'Chalcogens', 'Halogens', 'Noble gases', 'Lanthanides', 'Actinides']
+
+
+def group(z):
+    """The group text of the detail box: number and name, or the name of the series (rows 8-9)."""
+    r, col = position(z)
+    if r > 7:
+        return GROUPS[r + 2]
+    k = 0 if z == 1 else col if col <= 2 else 3 if col <= 12 else col - 9
+    return '%d  %s' % (col, GROUPS[k])
+
+
 def cursor_after(keys):
-    _, c = E.frames(list(keys) + [E.END])
-    return int(c.reg['36'])
+    """Z under the cursor after the keys (read before the end: key 0 gives the registers back)."""
+    _, c = E.frames(list(keys))
+    return int(c.reg[E.REG['Z']])
 
 
 def main():
@@ -61,28 +75,23 @@ def main():
     check([[int(v) for v in row] for row in pt] == want, 'the matrix PT: the Z of every cell, 0 in the gaps')
     check(all(0 <= x < 400 and 0 <= r < 240 for x, r in table), 'everything on the 400 x 240 screen')
 
-    # LBL 30 for every element: symbol, name, mass, state, boiling point, configuration
+    # the detail box (LBL 45) of every element: name, symbol, and its two value texts:
+    # left R44 symbol, state, group number and name, configuration; right R54 mass, boiling point
+    CR = '\u21b5'
     wrong = []
     for z in range(1, 119):
-        c.s = [D(0)] * 4; c.reg['36'] = D(z)
-        c.run('0_30')
-        s_, n, m = ELEMENTS[z - 1]
-        got = (str(c.reg['35']).strip(), c.reg['43'], c.reg['41'], c.reg['51'], c.reg['52'], c.reg['53'])
-        if got != (s_, n, m) + tuple(EXTRA[z - 1]):
-            wrong.append((z,) + got)
-    check(not wrong, 'data of the 118 elements: symbol, name, mass, state, boil, config %s' % (wrong[:2] or ''))
-
-    # the two value texts of the detail box (LBL 45): left R44 symbol, state, group, config; right R54 mass, boil
-    CR = '\u21b5'
-    for z, group in [(1, '1  Nonmetal'), (2, '18  Noble gases'), (5, '13  Boron group'), (26, '8  Transition metals'),
-                     (56, '2  Alkaline earth metals'), (62, 'Lanthanides'), (92, 'Actinides'), (117, '17  Halogens'),
-                     (118, '18  Noble gases')]:
-        r, col = position(z); sym, _, mass = ELEMENTS[z - 1]; state, boil, cfg = EXTRA[z - 1]
-        c.s = [D(0)] * 4; c.reg.update({'36': D(z), '37': D(r), '38': D(col)})
+        r, col = position(z); sym, name, mass = ELEMENTS[z - 1]; state, boil, cfg = EXTRA[z - 1]
+        c.s = [D(0)] * 4; c.reg.update({E.REG['Z']: D(z), E.REG['ROW']: D(r), E.REG['COL']: D(col)})
         c.run('0_45')
-        left = CR.join(((sym + ' ')[:2], state, group, cfg)); right = CR.join((mass, boil))
-        check(c.reg['44'] == left and c.reg['54'] == right,
-              'detail of %s: %s || %s' % (sym, c.reg['44'].replace(CR, ' | '), c.reg['54'].replace(CR, ' | ')))
+        left = CR.join(((sym + ' ')[:2], state, group(z), cfg)); right = CR.join((mass, boil))
+        if (c.reg[E.REG['NAME']], c.reg[E.REG['LEFT']], c.reg[E.REG['RIGHT']]) != (name, left, right):
+            wrong.append((z, c.reg[E.REG['NAME']], c.reg[E.REG['LEFT']].replace(CR, ' | '), c.reg[E.REG['RIGHT']].replace(CR, ' | ')))
+    check(not wrong, 'detail box data of the 118 elements: name, symbol, state, group, config, mass, boil %s'
+          % (wrong[:2] or ''))
+    for z in (1, 26, 62, 118):
+        c.s = [D(0)] * 4; r, col = position(z); c.reg.update({E.REG['Z']: D(z), E.REG['ROW']: D(r), E.REG['COL']: D(col)})
+        c.run('0_45')
+        print('      %s: %s || %s' % (ELEMENTS[z - 1][0], c.reg[E.REG['LEFT']].replace(CR, ' | '), c.reg[E.REG['RIGHT']].replace(CR, ' | ')))
 
     R, L, U, Dn = E.RIGHT, E.LEFT, E.UP, E.DOWN
     for keys, z, what in [((R,), 2, 'H right: He (the gap of period 1 skipped)'),

@@ -17,6 +17,9 @@ LCD_BG, LCD_ON = (199, 205, 186), (34, 38, 30)
 
 
 UP, DOWN, LEFT, RIGHT, INFO, END = 53, 73, 62, 64, 63, 82     # the keys 8 2 4 6 5 0
+# ELEM47's registers: cursor Z, row, column; name; the detail box's left and right value texts
+REG = dict(Z='30', ROW='31', COL='32', NAME='37', LEFT='38', RIGHT='48')
+REG_V1 = dict(Z='36', ROW='37', COL='38', NAME='43', LEFT='44', RIGHT='54')     # before the optimize branch
 
 
 def split(prog):
@@ -38,11 +41,13 @@ class _Frames(list):
     def append(self, f): self.c.at_steps.append(self.c.steps); super().append(f)
 
 
-def frames(keys=(RIGHT, INFO, 1, END), prog=PROG):
+def frames(keys=(RIGHT, INFO, 1, END), prog=PROG, regs=None):
     """The screens of ELEM47 for the keys pressed. The run ends when the keys run out (or at the end).
     c.at_steps: the steps run before each screen (the work of each key = the difference)."""
     c = c47sim.load(split(prog))
     c.s = [D(0)] * 4; c.pix = []; c.keys = list(keys); c.steps = 0; c.frames = _Frames(c)
+    if regs:
+        c.reg.update(regs)                     # the user's registers before ELEM47 runs
     try:
         c.run('ELEM47', maxsteps=10 ** 6)
     except StopIteration:

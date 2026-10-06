@@ -2,25 +2,24 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47          774   51 local labels: the table, the cursor, the boxes
-          ELD1            186   Z 1-60: one label per element, "state/mass/boiling point/name/configuration"
+ELEM47    ELEM47          830   47 local labels: the table, the cursor, the boxes
+          ELD1            186   Z 1-60: one label per element, "name/mass/state letter/boiling point/configuration"
           ELD2            182   Z 61-118 (the same; XEQ IND Z-60)
 (one file, build/ELEM47.txt: the three programs, each ending with END)
 
 LOCAL LABELS OF ELEM47
-  01  the table (CLLCD, cells, title, cursor, panel)     02  key wait (PAUSE 50 / KEY? 39)
-  05  title and the key legend (two ATEXT with CR)        09  0: the end
-  11-14  8 2 4 6: direction in R47 (rows), R48 (columns)  15  move: cursor off, LBL 18, cursor on, panel
-  16-17  5: the detail box, wait, back to the table      18-19, 49  move the cursor, skip empty cells
-  20  every cell                                         21-22  a segment of the table
-  23  one cell (box, number, symbol, matrix PT)          25, 28  the cursor (XOR)
-  26, 34, 35  the panel (name, Z, mass)                  27  the next piece of symbols
-  29  the segments (data)                                30, 60-61  the data of Z = R36 (XEQ "ELD1" / "ELD2")
-  62  field R27 of the record R50                        31-33  field R27 of the text "a/b/c" in R41
+  01  the table (CLLCD, cells, title, cursor, panel)     02  key wait (PAUSE 50 / KEY?)
+  05  title and the key legend (two ATEXT with CR)        09  0: the end, your registers back
+  11-14  8 2 4 6: direction (rows, columns)              15  move: cursor off, LBL 18, cursor on, panel
+  16-17  5: the detail box, wait, back to the table      18-19  move the cursor, skip empty cells
+  20  every cell                                         21-22  a segment: position once, cells unrolled
+  07, 27  the next piece of symbols (DSE counter)        29  the segments (data)
   36-41  the symbols (data, 20 elements each)            42-43  the position of a cell
-  45-46, 52  the detail box (two columns: symbol, state, group, config | mass, boil) (labels and values: one ATEXT each, lines joined by CR)
+  25  the cursor (XOR, unrolled)                         26  the panel (GRMOD 1 text, spaces after it)
+  30, 60-61  name and mass of Z (XEQ "ELD1" / "ELD2")     32  the next field of the record
+  31, 08  field k of the text "a/b/c"                    45, 46, 52, 53  the detail box
+  54  " K" after a boiling point                         57  the state names
   47, 03, 04, 06, 44  the group-name index               58  the group names
-  50-51  a box with AGRAPH
 
 Folders:
   programs_rem/  the commented source: edit here (the DATA part is written by the build tool)
