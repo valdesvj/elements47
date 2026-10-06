@@ -36,6 +36,21 @@ def offset(sym):
     return o
 
 
+def estimate(steps):
+    """Estimated .p47 bytes of a program: 2.3 bytes per command, 2 + its characters per number and
+    per binary number, 2 + its UTF-8 bytes per text. Calibrated on Almanac 47's MOON47 (4 836 bytes) and
+    NAVFULL (24 160 bytes), within 3 % of both; rejig gives the real size."""
+    b = 0.0
+    for s in steps:
+        if s.startswith('"'):
+            b += 2 + len(s.encode('utf-8')) - 2
+        elif re.fullmatch(r'-?[\d.]+(E-?\d+)?|[01]+#2', s):
+            b += 2 + len(s)
+        else:
+            b += 2.3
+    return int(round(b))
+
+
 def record(z):
     """The text of element z in ELD1 / ELD2: state/mass/boiling point/name/configuration."""
     sym, name, mass = ELEMENTS[z - 1]
@@ -105,6 +120,15 @@ def build():
 
 if __name__ == '__main__':
     st = build()
-    txt = [s for s in st if s.startswith('"')]
-    print('%s: %d steps, %d text literals (%d characters, longest %d)' % (
-        NAME, len(st), len(txt), sum(len(s) - 2 for s in txt), max(len(s) - 2 for s in txt)))
+    progs, cur = [], []
+    for s in st:
+        cur.append(s)
+        if s == 'END':
+            progs.append(cur); cur = []
+    total = 0
+    for p in progs:
+        txt = [s for s in p if s.startswith('"')]
+        n = estimate(p); total += n
+        print('%-8s %5d steps %3d labels %5d text characters  about %5d bytes' % (
+            p[0][5:-1], len(p), sum(1 for s in p if re.fullmatch(r'LBL \d\d', s)), sum(len(s) - 2 for s in txt), n))
+    print('%-8s %5d steps %35s about %5d bytes (.p47, estimated)' % ('file', len(st), '', total))

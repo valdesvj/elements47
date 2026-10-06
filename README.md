@@ -55,6 +55,12 @@ instead of the arrows, ATEXT (not "ATXT") for the text and AGRAPH (not PIXEL) fo
 
 ---
 
+## Author
+
+By Victor Valdes (valdes.vj@gmail.com),
+
+Thank you to the C43/C47 firmware developers and SwissMicros, and to @tangent for rejig, which makes converting the .txt programs to .p47 easy. Written with the help of AI. See `AI_ASSISTANCE.md` for the responsible-use statement.
+
 ## License
 
-Published under the [GNU General Public License v3.0](LICENSE). Free to use, modify, and share for the calculator community.
+Published under the [GNU General Public License v3.0](LICENSE). Free to use, modify, and share for the calculator community. See `NOTICE` for the sources of the element data.
