@@ -4,13 +4,23 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 ---
 
-## Status: prototype 1
+## Status: the full table (simulator-tested, not yet run on the C47)
 
-`build/ELEM47.txt` shows the Hydrogen cell; **`+`** opens its detail box in the middle of the screen.
-Screens from the C47 simulator: `docs/ELEM47_table.png`, `docs/ELEM47_detail.png`. Start with `QUICKSTART.txt`;
-the layout of the repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
+`build/ELEM47.txt` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
+**5** opens the detail box (symbol, mass, group, period, block), any key closes it, **0** ends.
+The empty space of periods 1–3 holds the title and a panel with the selected element's name, Z and mass.
+Screens from the C47 simulator: `docs/ELEM47_*.png`. Start with `QUICKSTART.txt`; the layout of the
+repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
 
-The features below are the plan for the full table.
+| | |
+|---|---|
+| Program | 846 steps (649 logic, 197 data), 88 local labels, 2 135 characters of element data |
+| Memory while running | R20–R49 and the matrix `PT` (9 × 18, deleted at the end) |
+| Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
+| Work (simulator steps) | table 19 700, a cursor move about 1 050, the detail box 3 900, closing it = the table again |
+
+The features below are the plan; the differences so far: 5 instead of + for the details, the 8 4 6 2 keys
+instead of the arrows, ATEXT (not "ATXT") for the text and AGRAPH (not PIXEL) for the lines.
 
 ---
 

@@ -362,6 +362,13 @@ class Calc:
                 if v >= 1<<(getattr(self,'ws',64)-1): raise ValueError('OUT OF RANGE alpha->x %d ws %d'%(v,self.ws))
                 self.push(D(v)); self.rset(arg,k[1:]); continue
             if op == 'αSL': self.rset(arg, self.rget(arg)[int(self.s[0]):]); continue
+            # the C47 index (C47_Full_index.txt): αLEFT keeps the left X characters, X dropped;
+            # αPOS: position (from 0) of the text in X, -1 when not found (X replaced). Added for
+            # Elements 47, not yet checked on the calculator
+            if op == 'αLEFT':
+                self.rset(arg, self.rget(arg)[:int(self.s[0])]); self.s = self.s[1:] + self.s[3:]; continue
+            if op == 'αPOS':
+                self.lastx = self.s[0]; self.s[0] = D(str(self.rget(arg)).find(str(self.s[0]))); continue
             if op == 'REM': continue
             if op == 'GRFNT' and not arg: self.grfnt = int(self.s[0]); continue   # font of ATEXT from X (10 tiny, 20 standard); X stays
             if op == 'SNAP': self.snaps = getattr(self, 'snaps', []) + [list(self.pix)]; continue   # a picture of the screen

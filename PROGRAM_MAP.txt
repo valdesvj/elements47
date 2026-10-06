@@ -1,18 +1,32 @@
 ELEMENTS 47 - PROGRAM MAP
 
-FILE      GLOBAL LABELS   LOCAL LABELS                                              STEPS
------------------------------------------------------------------------------------------
-ELEM47    ELEM47          01 table, 02 key wait, 03 + key, 04 detail key wait,       235
-                          09 end, 40 detail box, 41 header bar, 50/51 box
+FILE      GLOBAL LABELS   STEPS
+--------------------------------
+ELEM47    ELEM47          846   (649 logic, 197 data)
+
+LOCAL LABELS OF ELEM47
+  01  the table (CLLCD, cells, title, cursor, panel)     02  key wait (PAUSE 50 / KEY? 39)
+  05  title                                              09  0: the end
+  11-14  8 2 4 6: direction in R47 (rows), R48 (columns)  15  move: cursor off, LBL 18, cursor on, panel
+  16-17  5: the detail box, wait, back to the table      18-19, 49  move the cursor, skip empty cells
+  20  every cell                                         21-22  a segment of the table
+  23  one cell (box, number, symbol, matrix PT)          25, 28  the cursor (XOR)
+  26, 35  the panel                                      27  the next piece of symbols
+  29  the segments (data)                                30-33  the data of Z = R36
+  36-41  the symbols (data, 20 elements each)            42-43  the position of a cell
+  45-48, 52-57  the detail box                           50-51  a box with AGRAPH
+  60-99  mass and name (data, 3 elements each)
 
 Folders:
-  programs_rem/  the commented source: edit here
-  programs/      the programs without comments (tools/build_elem47.py)
-  build/         the files for the calculator (convert with rejig)
+  programs_rem/  the commented source: edit here (the DATA part is written by the build tool)
+  programs/      the program without comments (tools/build_elem47.py)
+  build/         the file for the calculator (convert with rejig)
   listings/      numbered steps with the comments (step numbers = lines of programs/)
-  python/        c47sim.py (the C47 simulator of Almanac 47), elem47sim.py (runs ELEM47, pictures)
+  python/        c47sim.py (the C47 simulator of Almanac 47), elements.py (the data),
+                 elem47sim.py (runs ELEM47: pictures, step counts)
   tools/         build_elem47.py
   tests/         test_elem47.py
-  docs/          ELEM47_table.png, ELEM47_detail.png (from the simulator)
+  docs/          ELEM47_*.png (from the simulator)
 
-Keys: + = keycode 85. Screen rows: row 0 = bottom (ATEXT and AGRAPH coordinates).
+Keys: 8 = 53, 2 = 73, 4 = 62, 6 = 64, 5 = 63, 0 = 82 (KEY? codes, as Almanac 47's menu).
+Screen rows: row 0 = bottom (ATEXT and AGRAPH coordinates).

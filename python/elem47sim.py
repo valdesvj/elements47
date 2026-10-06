@@ -2,7 +2,7 @@
 screens into pictures.
   frames(keys)  the screens shown while ELEM47 waits for a key, as sets of (x, row), row 0 = top
   png(fn, pix)  a PNG of one screen (LCD colours, 3 pixels per C47 pixel)
-  python3 python/elem47sim.py   writes docs/ELEM47_table.png and docs/ELEM47_detail.png"""
+  python3 python/elem47sim.py   writes the screens in docs/ and prints the step counts"""
 import os, struct, sys, zlib
 from decimal import Decimal as D
 
@@ -16,10 +16,20 @@ W, H = 400, 240
 LCD_BG, LCD_ON = (199, 205, 186), (34, 38, 30)
 
 
-def frames(keys=(85, 85, 82), prog=PROG):
-    """The screens of ELEM47 for the keys pressed (85 = +). The run ends when the keys run out."""
+UP, DOWN, LEFT, RIGHT, INFO, END = 53, 73, 62, 64, 63, 82     # the keys 8 2 4 6 5 0
+
+
+class _Frames(list):
+    """The screens, and the steps run before each one (c.at_steps)."""
+    def __init__(self, c): super().__init__(); self.c = c; c.at_steps = []
+    def append(self, f): self.c.at_steps.append(self.c.steps); super().append(f)
+
+
+def frames(keys=(RIGHT, INFO, 1, END), prog=PROG):
+    """The screens of ELEM47 for the keys pressed. The run ends when the keys run out (or at the end).
+    c.at_steps: the steps run before each screen (the work of each key = the difference)."""
     c = c47sim.load([prog])
-    c.s = [D(0)] * 4; c.frames = []; c.pix = []; c.keys = list(keys)
+    c.s = [D(0)] * 4; c.pix = []; c.keys = list(keys); c.steps = 0; c.frames = _Frames(c)
     try:
         c.run('ELEM47', maxsteps=10 ** 6)
     except StopIteration:
@@ -45,8 +55,19 @@ def png(fn, pix, scale=3, border=12):
                  + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
 
 
+SHOTS = [('ELEM47_table.png', 'the table, cursor on H'), ('ELEM47_fe.png', 'cursor on Fe (2 2 2 6 x7)'),
+         ('ELEM47_detail_fe.png', 'detail box of Fe (5)'), ('ELEM47_sm.png', 'cursor on Sm (2 x4: Ru Os Hs Sm)'),
+         ('ELEM47_detail_sm.png', 'detail box of Sm (5)')]
+KEYS = [DOWN] * 3 + [RIGHT] * 7 + [INFO, 1] + [DOWN] * 4 + [INFO, 1, END]
+
+
 if __name__ == '__main__':
-    shots, _ = frames()
-    png(os.path.join(ROOT, 'docs', 'ELEM47_table.png'), shots[0])
-    png(os.path.join(ROOT, 'docs', 'ELEM47_detail.png'), shots[1])
-    print('docs/ELEM47_table.png, docs/ELEM47_detail.png (%d screens)' % len(shots))
+    shots, c = frames(KEYS)
+    st = c.at_steps
+    idx = [0, 10, 11, 16, 17]          # the screens kept: start, Fe, Fe detail, Sm, Sm detail
+    for (fn, what), i in zip(SHOTS, idx):
+        png(os.path.join(ROOT, 'docs', fn), shots[i])
+        print('docs/%-22s %s' % (fn, what))
+    moves = [st[i] - st[i - 1] for i in list(range(1, 11)) + list(range(13, 17))]
+    print('steps: table %d, move %d-%d (mean %d), detail box %d, table again %d' % (
+        st[0], min(moves), max(moves), sum(moves) // len(moves), st[11] - st[10], st[12] - st[11]))
