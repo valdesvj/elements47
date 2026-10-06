@@ -1,0 +1,18 @@
+ELEMENTS 47 - PROGRAM MAP
+
+FILE      GLOBAL LABELS   LOCAL LABELS                                              STEPS
+-----------------------------------------------------------------------------------------
+ELEM47    ELEM47          01 table, 02 key wait, 03 + key, 04 detail key wait,       235
+                          09 end, 40 detail box, 41 header bar, 50/51 box
+
+Folders:
+  programs_rem/  the commented source: edit here
+  programs/      the programs without comments (tools/build_elem47.py)
+  build/         the files for the calculator (convert with rejig)
+  listings/      numbered steps with the comments (step numbers = lines of programs/)
+  python/        c47sim.py (the C47 simulator of Almanac 47), elem47sim.py (runs ELEM47, pictures)
+  tools/         build_elem47.py
+  tests/         test_elem47.py
+  docs/          ELEM47_table.png, ELEM47_detail.png (from the simulator)
+
+Keys: + = keycode 85. Screen rows: row 0 = bottom (ATEXT and AGRAPH coordinates).

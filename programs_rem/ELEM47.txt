@@ -1,0 +1,265 @@
+REM ELEM47 - Elements 47, prototype 1: Hydrogen only
+REM The H cell at its place in the 18 x 9 grid (top left, 22 x 26 pixels).
+REM + opens the detail box in the middle of the screen; any key closes it.
+REM On the table, any key other than + ends the program.
+REM Screen: 400 x 240, row 0 = bottom (as in Almanac 47). ATEXT in GRFNT 21,
+REM the atomic number in the tinyFont (GRFNT 10).
+REM Registers: R20 inner columns of a box, R21 edge pattern, R22 inner pattern,
+REM R23 column counter, R30 GRMOD mode, R39 key code.
+LBL "ELEM47"
+WSIZE 64
+REM ---- the table (only H for now) ----
+LBL 01
+CLLCD
+REM H cell: x 2-23, rows 212-237 (row 1, column 1 of the grid)
+11111111111111111111111111#2
+STO 21
+10000000000000000000000001#2
+STO 22
+20
+STO 20
+212
+2
+XEQ 50
+CLSTK
+REM atomic number, tinyFont, top left of the cell
+10
+GRFNT
+DROP
+"1"
+228
+4
+ATEXT Z
+CLSTK
+REM key hint at the bottom
+"+ DETAILS     OTHER KEY: END"
+2
+2
+ATEXT Z
+CLSTK
+REM the symbol, GRFNT 21, centred in the cell
+21
+GRFNT
+DROP
+"H"
+211
+9
+ATEXT Z
+CLSTK
+REM title
+"ELEMENTS 47"
+211
+150
+ATEXT Z
+CLSTK
+REM ---- wait for a key (PAUSE 50 + KEY?, as Almanac 47) ----
+LBL 02
+PAUSE 50
+KEY? 39
+GTO 02
+RCL 39
+85
+X=Y?
+GTO 03
+REM any other key: the end
+GTO 09
+REM ---- + : the detail box ----
+LBL 03
+XEQ 40
+LBL 04
+PAUSE 50
+KEY? 39
+GTO 04
+REM any key: back to the table
+GTO 01
+REM ---- end: the C47 as it was ----
+LBL 09
+0
+STO 30
+GRMOD 30
+20
+GRFNT
+DROP
+CLLCD
+CLSTK
+RTN
+REM ---- LBL 40: the detail box, x 80-319, rows 60-179 ----
+REM two halves of 60 rows (the pattern is one 64-bit word)
+LBL 40
+REM clear the inside first (GRMOD 2 = pixels off): it is drawn over the table
+2
+STO 30
+GRMOD 30
+111111111111111111111111111111111111111111111111111111111111#2
+STO 21
+STO 22
+238
+STO 20
+60
+80
+XEQ 50
+CLSTK
+120
+80
+XEQ 50
+CLSTK
+REM the frame (GRMOD 0): sides full, bottom line, top line
+0
+STO 30
+GRMOD 30
+1#2
+STO 22
+60
+80
+XEQ 50
+CLSTK
+100000000000000000000000000000000000000000000000000000000000#2
+STO 22
+120
+80
+XEQ 50
+CLSTK
+REM the key hint at the bottom (GRMOD 1: each character clears its box first; the spaces
+REM clear the rest of the old hint)
+1
+STO 30
+GRMOD 30
+10
+GRFNT
+DROP
+"ANY KEY: BACK               "
+2
+2
+ATEXT Z
+CLSTK
+0
+STO 30
+GRMOD 30
+21
+GRFNT
+DROP
+REM header: number, name, group name
+"1  Hydrogen"
+158
+88
+ATEXT Z
+CLSTK
+"Nonmetal"
+158
+240
+ATEXT Z
+CLSTK
+REM four lines of data: label and value, two columns
+"Mass"
+132
+88
+ATEXT Z
+CLSTK
+"1.008"
+132
+152
+ATEXT Z
+CLSTK
+"Group"
+132
+208
+ATEXT Z
+CLSTK
+"1"
+132
+276
+ATEXT Z
+CLSTK
+"Period"
+112
+88
+ATEXT Z
+CLSTK
+"1"
+112
+152
+ATEXT Z
+CLSTK
+"Block"
+112
+208
+ATEXT Z
+CLSTK
+"s"
+112
+276
+ATEXT Z
+CLSTK
+"State"
+92
+88
+ATEXT Z
+CLSTK
+"Gas"
+92
+152
+ATEXT Z
+CLSTK
+"EN"
+92
+208
+ATEXT Z
+CLSTK
+"2.20"
+92
+276
+ATEXT Z
+CLSTK
+"Config"
+72
+88
+ATEXT Z
+CLSTK
+"1s1"
+72
+152
+ATEXT Z
+CLSTK
+"Boil"
+72
+208
+ATEXT Z
+CLSTK
+"20 K"
+72
+276
+ATEXT Z
+CLSTK
+REM header bar: XOR (GRMOD 3) rows 158-178 over the inside, white text on black
+3
+STO 30
+GRMOD 30
+111111111111111111111#2
+STO 21
+238
+STO 23
+158
+81
+LBL 41
+AGRAPH 21
+DSE 23
+GTO 41
+CLSTK
+0
+STO 30
+GRMOD 30
+RTN
+REM ---- LBL 50: a box. Y = bottom row, X = left column; R21 the edge column,
+REM R22 the inner columns (R20 of them); AGRAPH moves X one column each time ----
+LBL 50
+AGRAPH 21
+RCL 20
+STO 23
+R↓
+LBL 51
+AGRAPH 22
+DSE 23
+GTO 51
+AGRAPH 21
+RTN
+END

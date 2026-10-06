@@ -1,0 +1,265 @@
+      ; ELEM47 - Elements 47, prototype 1: Hydrogen only
+      ; The H cell at its place in the 18 x 9 grid (top left, 22 x 26 pixels).
+      ; + opens the detail box in the middle of the screen; any key closes it.
+      ; On the table, any key other than + ends the program.
+      ; Screen: 400 x 240, row 0 = bottom (as in Almanac 47). ATEXT in GRFNT 21,
+      ; the atomic number in the tinyFont (GRFNT 10).
+      ; Registers: R20 inner columns of a box, R21 edge pattern, R22 inner pattern,
+      ; R23 column counter, R30 GRMOD mode, R39 key code.
+   1  LBL "ELEM47"
+   2  WSIZE 64
+      ; ---- the table (only H for now) ----
+   3  LBL 01
+   4  CLLCD
+      ; H cell: x 2-23, rows 212-237 (row 1, column 1 of the grid)
+   5  11111111111111111111111111#2
+   6  STO 21
+   7  10000000000000000000000001#2
+   8  STO 22
+   9  20
+  10  STO 20
+  11  212
+  12  2
+  13  XEQ 50
+  14  CLSTK
+      ; atomic number, tinyFont, top left of the cell
+  15  10
+  16  GRFNT
+  17  DROP
+  18  "1"
+  19  228
+  20  4
+  21  ATEXT Z
+  22  CLSTK
+      ; key hint at the bottom
+  23  "+ DETAILS     OTHER KEY: END"
+  24  2
+  25  2
+  26  ATEXT Z
+  27  CLSTK
+      ; the symbol, GRFNT 21, centred in the cell
+  28  21
+  29  GRFNT
+  30  DROP
+  31  "H"
+  32  211
+  33  9
+  34  ATEXT Z
+  35  CLSTK
+      ; title
+  36  "ELEMENTS 47"
+  37  211
+  38  150
+  39  ATEXT Z
+  40  CLSTK
+      ; ---- wait for a key (PAUSE 50 + KEY?, as Almanac 47) ----
+  41  LBL 02
+  42  PAUSE 50
+  43  KEY? 39
+  44  GTO 02
+  45  RCL 39
+  46  85
+  47  X=Y?
+  48  GTO 03
+      ; any other key: the end
+  49  GTO 09
+      ; ---- + : the detail box ----
+  50  LBL 03
+  51  XEQ 40
+  52  LBL 04
+  53  PAUSE 50
+  54  KEY? 39
+  55  GTO 04
+      ; any key: back to the table
+  56  GTO 01
+      ; ---- end: the C47 as it was ----
+  57  LBL 09
+  58  0
+  59  STO 30
+  60  GRMOD 30
+  61  20
+  62  GRFNT
+  63  DROP
+  64  CLLCD
+  65  CLSTK
+  66  RTN
+      ; ---- LBL 40: the detail box, x 80-319, rows 60-179 ----
+      ; two halves of 60 rows (the pattern is one 64-bit word)
+  67  LBL 40
+      ; clear the inside first (GRMOD 2 = pixels off): it is drawn over the table
+  68  2
+  69  STO 30
+  70  GRMOD 30
+  71  111111111111111111111111111111111111111111111111111111111111#2
+  72  STO 21
+  73  STO 22
+  74  238
+  75  STO 20
+  76  60
+  77  80
+  78  XEQ 50
+  79  CLSTK
+  80  120
+  81  80
+  82  XEQ 50
+  83  CLSTK
+      ; the frame (GRMOD 0): sides full, bottom line, top line
+  84  0
+  85  STO 30
+  86  GRMOD 30
+  87  1#2
+  88  STO 22
+  89  60
+  90  80
+  91  XEQ 50
+  92  CLSTK
+  93  100000000000000000000000000000000000000000000000000000000000#2
+  94  STO 22
+  95  120
+  96  80
+  97  XEQ 50
+  98  CLSTK
+      ; the key hint at the bottom (GRMOD 1: each character clears its box first; the spaces
+      ; clear the rest of the old hint)
+  99  1
+ 100  STO 30
+ 101  GRMOD 30
+ 102  10
+ 103  GRFNT
+ 104  DROP
+ 105  "ANY KEY: BACK               "
+ 106  2
+ 107  2
+ 108  ATEXT Z
+ 109  CLSTK
+ 110  0
+ 111  STO 30
+ 112  GRMOD 30
+ 113  21
+ 114  GRFNT
+ 115  DROP
+      ; header: number, name, group name
+ 116  "1  Hydrogen"
+ 117  158
+ 118  88
+ 119  ATEXT Z
+ 120  CLSTK
+ 121  "Nonmetal"
+ 122  158
+ 123  240
+ 124  ATEXT Z
+ 125  CLSTK
+      ; four lines of data: label and value, two columns
+ 126  "Mass"
+ 127  132
+ 128  88
+ 129  ATEXT Z
+ 130  CLSTK
+ 131  "1.008"
+ 132  132
+ 133  152
+ 134  ATEXT Z
+ 135  CLSTK
+ 136  "Group"
+ 137  132
+ 138  208
+ 139  ATEXT Z
+ 140  CLSTK
+ 141  "1"
+ 142  132
+ 143  276
+ 144  ATEXT Z
+ 145  CLSTK
+ 146  "Period"
+ 147  112
+ 148  88
+ 149  ATEXT Z
+ 150  CLSTK
+ 151  "1"
+ 152  112
+ 153  152
+ 154  ATEXT Z
+ 155  CLSTK
+ 156  "Block"
+ 157  112
+ 158  208
+ 159  ATEXT Z
+ 160  CLSTK
+ 161  "s"
+ 162  112
+ 163  276
+ 164  ATEXT Z
+ 165  CLSTK
+ 166  "State"
+ 167  92
+ 168  88
+ 169  ATEXT Z
+ 170  CLSTK
+ 171  "Gas"
+ 172  92
+ 173  152
+ 174  ATEXT Z
+ 175  CLSTK
+ 176  "EN"
+ 177  92
+ 178  208
+ 179  ATEXT Z
+ 180  CLSTK
+ 181  "2.20"
+ 182  92
+ 183  276
+ 184  ATEXT Z
+ 185  CLSTK
+ 186  "Config"
+ 187  72
+ 188  88
+ 189  ATEXT Z
+ 190  CLSTK
+ 191  "1s1"
+ 192  72
+ 193  152
+ 194  ATEXT Z
+ 195  CLSTK
+ 196  "Boil"
+ 197  72
+ 198  208
+ 199  ATEXT Z
+ 200  CLSTK
+ 201  "20 K"
+ 202  72
+ 203  276
+ 204  ATEXT Z
+ 205  CLSTK
+      ; header bar: XOR (GRMOD 3) rows 158-178 over the inside, white text on black
+ 206  3
+ 207  STO 30
+ 208  GRMOD 30
+ 209  111111111111111111111#2
+ 210  STO 21
+ 211  238
+ 212  STO 23
+ 213  158
+ 214  81
+ 215  LBL 41
+ 216  AGRAPH 21
+ 217  DSE 23
+ 218  GTO 41
+ 219  CLSTK
+ 220  0
+ 221  STO 30
+ 222  GRMOD 30
+ 223  RTN
+      ; ---- LBL 50: a box. Y = bottom row, X = left column; R21 the edge column,
+      ; R22 the inner columns (R20 of them); AGRAPH moves X one column each time ----
+ 224  LBL 50
+ 225  AGRAPH 21
+ 226  RCL 20
+ 227  STO 23
+ 228  R↓
+ 229  LBL 51
+ 230  AGRAPH 22
+ 231  DSE 23
+ 232  GTO 51
+ 233  AGRAPH 21
+ 234  RTN
+ 235  END
