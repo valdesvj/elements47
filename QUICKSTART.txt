@@ -3,7 +3,8 @@ ELEMENTS 47 - QUICKSTART
 Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.x: 00.109.05.00a0.ALPHA,
 5 Oct 2026, or a build from master on or after 30 Sep 2026).
 
-1. Convert build/ELEM47.txt to ELEM47.p47 with rejig and load it on the C47.
+1. Convert build/ELEM47.txt to ELEM47.p47 with rejig and load it on the C47. The file holds three
+   programs: ELEM47 and its data, ELD1 and ELD2 (keep all three).
 2. XEQ "ELEM47". The table is drawn (a few seconds), the cursor on H.
 3. Keys:
      8 up   2 down   4 left   6 right   (empty cells are skipped; at the edge the cursor stays)
@@ -11,4 +12,4 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.x: 00.109.05.0
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R49 and a matrix "PT" (9 x 18), deleted at the end. WSIZE is set to 64.
+Uses R20-R54 and a matrix "PT" (9 x 18), deleted at the end. WSIZE is set to 64.

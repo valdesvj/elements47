@@ -346,32 +346,41 @@ RCL 36
 1
 -
 STO 34
-3
-÷
-IP
-60
-+
-STO 49
-XEQ IND 49
-STO 41
 CLSTK
-RCL 34
-3
-MOD
+RCL 36
+60
+X<Y?
+GTO 60
+XEQ "ELD1"
+GTO 61
+LBL 60
+XEQ "ELD2"
+LBL 61
+STO 50
+CLSTK
+4
 STO 27
-XEQ 31
-RCL 41
+XEQ 62
+STO 53
+CLSTK
+3
+STO 27
+XEQ 62
 STO 43
 CLSTK
-" "
-αPOS 41
+2
 STO 27
-αLEFT 41
+XEQ 62
+STO 52
 CLSTK
-RCL 27
+0
+STO 27
+XEQ 62
+STO 51
+CLSTK
 1
-+
-αSL 43
+STO 27
+XEQ 62
 CLSTK
 RCL 34
 20
@@ -395,6 +404,13 @@ CLSTK
 2
 αLEFT 35
 CLSTK
+RTN
+LBL 62
+RCL 50
+STO 41
+CLSTK
+XEQ 31
+RCL 41
 RTN
 LBL 31
 RCL 27
@@ -522,9 +538,28 @@ CLSTK
 21
 GRFNT
 DROP
-"Symbol↵Mass↵Group"
-126
+"Symbol↵State↵Group↵Config"
+134
 58
+ATEXT Z
+CLSTK
+"Mass↵Boil"
+134
+226
+ATEXT Z
+CLSTK
+RCL 41
+STO 54
+CLSTK
+"↵"
+x→α 54
+CLSTK
+RCL 52
+x→α 54
+CLSTK
+RCL 54
+134
+272
 ATEXT Z
 CLSTK
 RCL 35
@@ -533,7 +568,7 @@ CLSTK
 "↵"
 x→α 44
 CLSTK
-RCL 41
+RCL 51
 x→α 44
 CLSTK
 "↵"
@@ -557,8 +592,14 @@ XEQ 31
 RCL 41
 x→α 44
 CLSTK
+"↵"
+x→α 44
+CLSTK
+RCL 53
+x→α 44
+CLSTK
 RCL 44
-126
+134
 130
 ATEXT Z
 CLSTK
@@ -730,124 +771,372 @@ RTN
 LBL 41
 "2Md2No3Lr3Rf3Db3Sg3Bh3Hs2Mt3Ds3Rg3Cn2Nh5Fl2Mc3Lv3Ts3Og"
 RTN
+END
+LBL "ELD1"
+RCL 36
+STO 49
+XEQ IND 49
+RTN
+LBL 01
+"Gas/1.0080/20.3 K/Hydrogen/1s1"
+RTN
+LBL 02
+"Gas/4.0026/4.2 K/Helium/1s2"
+RTN
+LBL 03
+"Solid/6.94/1615 K/Lithium/[He] 2s1"
+RTN
+LBL 04
+"Solid/9.0122/2744 K/Beryllium/[He] 2s2"
+RTN
+LBL 05
+"Solid/10.81/4273 K/Boron/[He] 2s2 2p1"
+RTN
+LBL 06
+"Solid/12.011/4098 K/Carbon/[He] 2s2 2p2"
+RTN
+LBL 07
+"Gas/14.007/77.4 K/Nitrogen/[He] 2s2 2p3"
+RTN
+LBL 08
+"Gas/15.999/90.2 K/Oxygen/[He] 2s2 2p4"
+RTN
+LBL 09
+"Gas/18.998/85.0 K/Fluorine/[He] 2s2 2p5"
+RTN
+LBL 10
+"Gas/20.180/27.1 K/Neon/[He] 2s2 2p6"
+RTN
+LBL 11
+"Solid/22.990/1156 K/Sodium/[Ne] 3s1"
+RTN
+LBL 12
+"Solid/24.305/1363 K/Magnesium/[Ne] 3s2"
+RTN
+LBL 13
+"Solid/26.982/2792 K/Aluminium/[Ne] 3s2 3p1"
+RTN
+LBL 14
+"Solid/28.085/3538 K/Silicon/[Ne] 3s2 3p2"
+RTN
+LBL 15
+"Solid/30.974/554 K/Phosphorus/[Ne] 3s2 3p3"
+RTN
+LBL 16
+"Solid/32.06/718 K/Sulfur/[Ne] 3s2 3p4"
+RTN
+LBL 17
+"Gas/35.45/239 K/Chlorine/[Ne] 3s2 3p5"
+RTN
+LBL 18
+"Gas/39.95/87.3 K/Argon/[Ne] 3s2 3p6"
+RTN
+LBL 19
+"Solid/39.098/1032 K/Potassium/[Ar] 4s1"
+RTN
+LBL 20
+"Solid/40.078/1757 K/Calcium/[Ar] 4s2"
+RTN
+LBL 21
+"Solid/44.956/3109 K/Scandium/[Ar] 3d1 4s2"
+RTN
+LBL 22
+"Solid/47.867/3560 K/Titanium/[Ar] 3d2 4s2"
+RTN
+LBL 23
+"Solid/50.942/3680 K/Vanadium/[Ar] 3d3 4s2"
+RTN
+LBL 24
+"Solid/51.996/2944 K/Chromium/[Ar] 3d5 4s1"
+RTN
+LBL 25
+"Solid/54.938/2334 K/Manganese/[Ar] 3d5 4s2"
+RTN
+LBL 26
+"Solid/55.845/3134 K/Iron/[Ar] 3d6 4s2"
+RTN
+LBL 27
+"Solid/58.933/3200 K/Cobalt/[Ar] 3d7 4s2"
+RTN
+LBL 28
+"Solid/58.693/3186 K/Nickel/[Ar] 3d8 4s2"
+RTN
+LBL 29
+"Solid/63.546/2835 K/Copper/[Ar] 3d10 4s1"
+RTN
+LBL 30
+"Solid/65.38/1180 K/Zinc/[Ar] 3d10 4s2"
+RTN
+LBL 31
+"Solid/69.723/2477 K/Gallium/[Ar] 3d10 4s2 4p1"
+RTN
+LBL 32
+"Solid/72.630/3106 K/Germanium/[Ar] 3d10 4s2 4p2"
+RTN
+LBL 33
+"Solid/74.922/887 K/Arsenic/[Ar] 3d10 4s2 4p3"
+RTN
+LBL 34
+"Solid/78.971/958 K/Selenium/[Ar] 3d10 4s2 4p4"
+RTN
+LBL 35
+"Liquid/79.904/332 K/Bromine/[Ar] 3d10 4s2 4p5"
+RTN
+LBL 36
+"Gas/83.798/120 K/Krypton/[Ar] 3d10 4s2 4p6"
+RTN
+LBL 37
+"Solid/85.468/961 K/Rubidium/[Kr] 5s1"
+RTN
+LBL 38
+"Solid/87.62/1655 K/Strontium/[Kr] 5s2"
+RTN
+LBL 39
+"Solid/88.906/3618 K/Yttrium/[Kr] 4d1 5s2"
+RTN
+LBL 40
+"Solid/91.222/4682 K/Zirconium/[Kr] 4d2 5s2"
+RTN
+LBL 41
+"Solid/92.906/5017 K/Niobium/[Kr] 4d4 5s1"
+RTN
+LBL 42
+"Solid/95.95/4912 K/Molybdenum/[Kr] 4d5 5s1"
+RTN
+LBL 43
+"Solid/-/4538 K/Technetium/[Kr] 4d5 5s2"
+RTN
+LBL 44
+"Solid/101.07/4423 K/Ruthenium/[Kr] 4d7 5s1"
+RTN
+LBL 45
+"Solid/102.91/3968 K/Rhodium/[Kr] 4d8 5s1"
+RTN
+LBL 46
+"Solid/106.42/3236 K/Palladium/[Kr] 4d10"
+RTN
+LBL 47
+"Solid/107.87/2435 K/Silver/[Kr] 4d10 5s1"
+RTN
+LBL 48
+"Solid/112.41/1040 K/Cadmium/[Kr] 4d10 5s2"
+RTN
+LBL 49
+"Solid/114.82/2345 K/Indium/[Kr] 4d10 5s2 5p1"
+RTN
+LBL 50
+"Solid/118.71/2875 K/Tin/[Kr] 4d10 5s2 5p2"
+RTN
+LBL 51
+"Solid/121.76/1860 K/Antimony/[Kr] 4d10 5s2 5p3"
+RTN
+LBL 52
+"Solid/127.60/1261 K/Tellurium/[Kr] 4d10 5s2 5p4"
+RTN
+LBL 53
+"Solid/126.90/458 K/Iodine/[Kr] 4d10 5s2 5p5"
+RTN
+LBL 54
+"Gas/131.29/165 K/Xenon/[Kr] 4d10 5s2 5p6"
+RTN
+LBL 55
+"Solid/132.91/944 K/Caesium/[Xe] 6s1"
+RTN
+LBL 56
+"Solid/137.33/2170 K/Barium/[Xe] 6s2"
+RTN
+LBL 57
+"Solid/138.91/3737 K/Lanthanum/[Xe] 5d1 6s2"
+RTN
+LBL 58
+"Solid/140.12/3697 K/Cerium/[Xe] 4f1 5d1 6s2"
+RTN
+LBL 59
+"Solid/140.91/3793 K/Praseodymium/[Xe] 4f3 6s2"
+RTN
 LBL 60
-"1.0080 Hydrogen/4.0026 Helium/6.94 Lithium"
+"Solid/144.24/3347 K/Neodymium/[Xe] 4f4 6s2"
 RTN
-LBL 61
-"9.0122 Beryllium/10.81 Boron/12.011 Carbon"
+END
+LBL "ELD2"
+RCL 36
+60
+-
+STO 49
+XEQ IND 49
 RTN
-LBL 62
-"14.007 Nitrogen/15.999 Oxygen/18.998 Fluorine"
+LBL 01
+"Solid/-/3273 K/Promethium/[Xe] 4f5 6s2"
 RTN
-LBL 63
-"20.180 Neon/22.990 Sodium/24.305 Magnesium"
+LBL 02
+"Solid/150.36/2067 K/Samarium/[Xe] 4f6 6s2"
 RTN
-LBL 64
-"26.982 Aluminium/28.085 Silicon/30.974 Phosphorus"
+LBL 03
+"Solid/151.96/1802 K/Europium/[Xe] 4f7 6s2"
 RTN
-LBL 65
-"32.06 Sulfur/35.45 Chlorine/39.95 Argon"
+LBL 04
+"Solid/157.25/3546 K/Gadolinium/[Xe] 4f7 5d1 6s2"
 RTN
-LBL 66
-"39.098 Potassium/40.078 Calcium/44.956 Scandium"
+LBL 05
+"Solid/158.93/3503 K/Terbium/[Xe] 4f9 6s2"
 RTN
-LBL 67
-"47.867 Titanium/50.942 Vanadium/51.996 Chromium"
+LBL 06
+"Solid/162.50/2840 K/Dysprosium/[Xe] 4f10 6s2"
 RTN
-LBL 68
-"54.938 Manganese/55.845 Iron/58.933 Cobalt"
+LBL 07
+"Solid/164.93/2973 K/Holmium/[Xe] 4f11 6s2"
 RTN
-LBL 69
-"58.693 Nickel/63.546 Copper/65.38 Zinc"
+LBL 08
+"Solid/167.26/3141 K/Erbium/[Xe] 4f12 6s2"
 RTN
-LBL 70
-"69.723 Gallium/72.630 Germanium/74.922 Arsenic"
+LBL 09
+"Solid/168.93/2223 K/Thulium/[Xe] 4f13 6s2"
 RTN
-LBL 71
-"78.971 Selenium/79.904 Bromine/83.798 Krypton"
+LBL 10
+"Solid/173.05/1469 K/Ytterbium/[Xe] 4f14 6s2"
 RTN
-LBL 72
-"85.468 Rubidium/87.62 Strontium/88.906 Yttrium"
+LBL 11
+"Solid/174.97/3675 K/Lutetium/[Xe] 4f14 5d1 6s2"
 RTN
-LBL 73
-"91.222 Zirconium/92.906 Niobium/95.95 Molybdenum"
+LBL 12
+"Solid/178.49/4876 K/Hafnium/[Xe] 4f14 5d2 6s2"
 RTN
-LBL 74
-"- Technetium/101.07 Ruthenium/102.91 Rhodium"
+LBL 13
+"Solid/180.95/5731 K/Tantalum/[Xe] 4f14 5d3 6s2"
 RTN
-LBL 75
-"106.42 Palladium/107.87 Silver/112.41 Cadmium"
+LBL 14
+"Solid/183.84/5828 K/Tungsten/[Xe] 4f14 5d4 6s2"
 RTN
-LBL 76
-"114.82 Indium/118.71 Tin/121.76 Antimony"
+LBL 15
+"Solid/186.21/5869 K/Rhenium/[Xe] 4f14 5d5 6s2"
 RTN
-LBL 77
-"127.60 Tellurium/126.90 Iodine/131.29 Xenon"
+LBL 16
+"Solid/190.23/5285 K/Osmium/[Xe] 4f14 5d6 6s2"
 RTN
-LBL 78
-"132.91 Caesium/137.33 Barium/138.91 Lanthanum"
+LBL 17
+"Solid/192.22/4701 K/Iridium/[Xe] 4f14 5d7 6s2"
 RTN
-LBL 79
-"140.12 Cerium/140.91 Praseodymium/144.24 Neodymium"
+LBL 18
+"Solid/195.08/4098 K/Platinum/[Xe] 4f14 5d9 6s1"
 RTN
-LBL 80
-"- Promethium/150.36 Samarium/151.96 Europium"
+LBL 19
+"Solid/196.97/3129 K/Gold/[Xe] 4f14 5d10 6s1"
 RTN
-LBL 81
-"157.25 Gadolinium/158.93 Terbium/162.50 Dysprosium"
+LBL 20
+"Liquid/200.59/630 K/Mercury/[Xe] 4f14 5d10 6s2"
 RTN
-LBL 82
-"164.93 Holmium/167.26 Erbium/168.93 Thulium"
+LBL 21
+"Solid/204.38/1746 K/Thallium/[Xe] 4f14 5d10 6s2 6p1"
 RTN
-LBL 83
-"173.05 Ytterbium/174.97 Lutetium/178.49 Hafnium"
+LBL 22
+"Solid/207.2/2022 K/Lead/[Xe] 4f14 5d10 6s2 6p2"
 RTN
-LBL 84
-"180.95 Tantalum/183.84 Tungsten/186.21 Rhenium"
+LBL 23
+"Solid/208.98/1837 K/Bismuth/[Xe] 4f14 5d10 6s2 6p3"
 RTN
-LBL 85
-"190.23 Osmium/192.22 Iridium/195.08 Platinum"
+LBL 24
+"Solid/-/1235 K/Polonium/[Xe] 4f14 5d10 6s2 6p4"
 RTN
-LBL 86
-"196.97 Gold/200.59 Mercury/204.38 Thallium"
+LBL 25
+"Solid/-/-/Astatine/[Xe] 4f14 5d10 6s2 6p5"
 RTN
-LBL 87
-"207.2 Lead/208.98 Bismuth/- Polonium"
+LBL 26
+"Gas/-/211 K/Radon/[Xe] 4f14 5d10 6s2 6p6"
 RTN
-LBL 88
-"- Astatine/- Radon/- Francium"
+LBL 27
+"Solid/-/-/Francium/[Rn] 7s1"
 RTN
-LBL 89
-"- Radium/- Actinium/232.04 Thorium"
+LBL 28
+"Solid/-/1413 K/Radium/[Rn] 7s2"
 RTN
-LBL 90
-"231.04 Protactinium/238.03 Uranium/- Neptunium"
+LBL 29
+"Solid/-/3471 K/Actinium/[Rn] 6d1 7s2"
 RTN
-LBL 91
-"- Plutonium/- Americium/- Curium"
+LBL 30
+"Solid/232.04/5061 K/Thorium/[Rn] 6d2 7s2"
 RTN
-LBL 92
-"- Berkelium/- Californium/- Einsteinium"
+LBL 31
+"Solid/231.04/-/Protactinium/[Rn] 5f2 6d1 7s2"
 RTN
-LBL 93
-"- Fermium/- Mendelevium/- Nobelium"
+LBL 32
+"Solid/238.03/4404 K/Uranium/[Rn] 5f3 6d1 7s2"
 RTN
-LBL 94
-"- Lawrencium/- Rutherfordium/- Dubnium"
+LBL 33
+"Solid/-/4175 K/Neptunium/[Rn] 5f4 6d1 7s2"
 RTN
-LBL 95
-"- Seaborgium/- Bohrium/- Hassium"
+LBL 34
+"Solid/-/3501 K/Plutonium/[Rn] 5f6 7s2"
 RTN
-LBL 96
-"- Meitnerium/- Darmstadtium/- Roentgenium"
+LBL 35
+"Solid/-/2284 K/Americium/[Rn] 5f7 7s2"
 RTN
-LBL 97
-"- Copernicium/- Nihonium/- Flerovium"
+LBL 36
+"Solid/-/3400 K/Curium/[Rn] 5f7 6d1 7s2"
 RTN
-LBL 98
-"- Moscovium/- Livermorium/- Tennessine"
+LBL 37
+"Solid/-/-/Berkelium/[Rn] 5f9 7s2"
 RTN
-LBL 99
-"- Oganesson"
+LBL 38
+"Solid/-/-/Californium/[Rn] 5f10 7s2"
+RTN
+LBL 39
+"Solid/-/-/Einsteinium/[Rn] 5f11 7s2"
+RTN
+LBL 40
+"Solid/-/-/Fermium/[Rn] 5f12 7s2"
+RTN
+LBL 41
+"Solid/-/-/Mendelevium/[Rn] 5f13 7s2"
+RTN
+LBL 42
+"Solid/-/-/Nobelium/[Rn] 5f14 7s2"
+RTN
+LBL 43
+"Solid/-/-/Lawrencium/[Rn] 5f14 6d1 7s2"
+RTN
+LBL 44
+"Solid/-/-/Rutherfordium/[Rn] 5f14 6d2 7s2"
+RTN
+LBL 45
+"Solid/-/-/Dubnium/[Rn] 5f14 6d3 7s2"
+RTN
+LBL 46
+"Solid/-/-/Seaborgium/[Rn] 5f14 6d4 7s2"
+RTN
+LBL 47
+"Solid/-/-/Bohrium/[Rn] 5f14 6d5 7s2"
+RTN
+LBL 48
+"Solid/-/-/Hassium/[Rn] 5f14 6d6 7s2"
+RTN
+LBL 49
+"Solid/-/-/Meitnerium/[Rn] 5f14 6d7 7s2"
+RTN
+LBL 50
+"-/-/-/Darmstadtium/[Rn] 5f14 6d8 7s2"
+RTN
+LBL 51
+"-/-/-/Roentgenium/[Rn] 5f14 6d9 7s2"
+RTN
+LBL 52
+"-/-/-/Copernicium/[Rn] 5f14 6d10 7s2"
+RTN
+LBL 53
+"-/-/-/Nihonium/[Rn] 5f14 6d10 7s2 7p1"
+RTN
+LBL 54
+"-/-/-/Flerovium/[Rn] 5f14 6d10 7s2 7p2"
+RTN
+LBL 55
+"-/-/-/Moscovium/[Rn] 5f14 6d10 7s2 7p3"
+RTN
+LBL 56
+"-/-/-/Livermorium/[Rn] 5f14 6d10 7s2 7p4"
+RTN
+LBL 57
+"-/-/-/Tennessine/[Rn] 5f14 6d10 7s2 7p5"
+RTN
+LBL 58
+"-/-/-/Oganesson/[Rn] 5f14 6d10 7s2 7p6"
 RTN
 END

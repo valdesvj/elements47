@@ -2,7 +2,9 @@
 """Build the ELEM47 files from the commented source programs_rem/ELEM47.txt:
   - the DATA part at the end of programs_rem/ELEM47.txt is written from python/elements.py:
     LBL 29 the segments of the table, LBL 36-41 the symbols (20 elements each: a digit, the column
-    of the symbol in its cell, then the symbol in 2 characters), LBL 60-99 "mass name/mass name/mass name" (three elements each)
+    of the symbol in its cell, then the symbol in 2 characters); then two data programs, ELD1 (Z 1-60)
+    and ELD2 (Z 61-118), one label per element: "state/mass/boiling point/name/configuration"
+  One file holds the three programs (ELEM47, ELD1, ELD2), each ending with END.
   programs/ELEM47.txt        the program without REM lines (to convert with rejig)
   build/ELEM47.txt           the calculator file (the same steps for now)
   listings/ELEM47_doc.txt    numbered steps with the comments (step numbers = lines of programs/)
@@ -11,7 +13,7 @@ import os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'python'))
-from elements import ELEMENTS, SEGMENTS
+from elements import ELEMENTS, EXTRA, SEGMENTS
 
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
@@ -34,6 +36,13 @@ def offset(sym):
     return o
 
 
+def record(z):
+    """The text of element z in ELD1 / ELD2: state/mass/boiling point/name/configuration."""
+    sym, name, mass = ELEMENTS[z - 1]
+    state, boil, cfg = EXTRA[z - 1]
+    return '/'.join((state, mass, boil, name, cfg))
+
+
 def data():
     out = ['LBL 29', 'REM the segments: count, row, first column (in the order of Z)']
     for z0, n, r, c in SEGMENTS:
@@ -42,12 +51,21 @@ def data():
     sym = ''.join(str(offset(s)) + (s + ' ')[:2] for s, _, _ in ELEMENTS)
     for k in range(6):
         out += ['LBL %d' % (36 + k), '"%s"' % sym[60 * k:60 * k + 60], 'RTN']
-    for k in range(40):
-        out += ['LBL %d' % (60 + k), '"%s"' % '/'.join('%s %s' % (m, n) for _, n, m in ELEMENTS[3 * k:3 * k + 3]), 'RTN']
+    out.append('END')
+    # the data programs: XEQ "ELD1" (Z 1-60) or "ELD2" (Z 61-118) with Z in R36 returns the text in X
+    for name, z0, z1 in (('ELD1', 1, 60), ('ELD2', 61, 118)):
+        out += ['REM ---- %s: the text "state/mass/boiling point/name/configuration" of Z = R36 (%d-%d) ----' % (name, z0, z1),
+                'LBL "%s"' % name, 'RCL 36']
+        if z0 > 1:
+            out += [str(z0 - 1), '-']
+        out += ['STO 49', 'XEQ IND 49', 'RTN']
+        for z in range(z0, z1 + 1):
+            out += ['LBL %02d' % (z - z0 + 1), '"%s"' % record(z), 'RTN']
+        out.append('END')
     long = [s for s in out if s.startswith('"') and len(s) - 2 > MAXSTR]
     if long:
         raise SystemExit('text longer than %d characters: %s' % (MAXSTR, long))
-    return out + ['END']
+    return out
 
 
 def build():
@@ -66,10 +84,16 @@ def build():
         else:
             steps.append(ln)
             listing.append('%4d  %s' % (len(steps), ln))
-    labels = [s for s in steps if re.fullmatch(r'LBL \d\d', s)]
-    dup = sorted({s for s in labels if labels.count(s) > 1})
-    if dup:
-        raise SystemExit('labels used twice: %s' % ', '.join(dup))
+    prog = []
+    for s in steps:                                  # local labels: once in each program (END ends one)
+        if s == 'END':
+            labels = [t for t in prog if re.fullmatch(r'LBL \d\d', t)]
+            dup = sorted({t for t in labels if labels.count(t) > 1})
+            if dup:
+                raise SystemExit('labels used twice: %s' % ', '.join(dup))
+            prog = []
+        else:
+            prog.append(s)
     plain = '\n'.join(steps) + '\n'
     for d in ('programs', 'build'):
         with open(os.path.join(ROOT, d, NAME + '.txt'), 'w', encoding='utf-8') as fh:

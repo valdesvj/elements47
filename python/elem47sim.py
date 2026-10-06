@@ -19,6 +19,19 @@ LCD_BG, LCD_ON = (199, 205, 186), (34, 38, 30)
 UP, DOWN, LEFT, RIGHT, INFO, END = 53, 73, 62, 64, 63, 82     # the keys 8 2 4 6 5 0
 
 
+def split(prog):
+    """The programs of a file (each ends with END) as separate files, so their numeric labels stay local
+    (c47sim.load: one program per file, as on the C47). Returns the file names."""
+    import tempfile
+    d = tempfile.mkdtemp(prefix='elem47_'); files, cur = [], []
+    for ln in open(prog, encoding='utf-8').read().splitlines():
+        cur.append(ln)
+        if ln.strip() == 'END':
+            files.append(os.path.join(d, 'p%d.txt' % len(files)))
+            open(files[-1], 'w', encoding='utf-8').write('\n'.join(cur) + '\n'); cur = []
+    return files
+
+
 class _Frames(list):
     """The screens, and the steps run before each one (c.at_steps)."""
     def __init__(self, c): super().__init__(); self.c = c; c.at_steps = []
@@ -28,7 +41,7 @@ class _Frames(list):
 def frames(keys=(RIGHT, INFO, 1, END), prog=PROG):
     """The screens of ELEM47 for the keys pressed. The run ends when the keys run out (or at the end).
     c.at_steps: the steps run before each screen (the work of each key = the difference)."""
-    c = c47sim.load([prog])
+    c = c47sim.load(split(prog))
     c.s = [D(0)] * 4; c.pix = []; c.keys = list(keys); c.steps = 0; c.frames = _Frames(c)
     try:
         c.run('ELEM47', maxsteps=10 ** 6)

@@ -63,6 +63,20 @@
 - Period and block removed (Victor): the box shows symbol, mass, group number and name (3 CR lines,
   from row 126). LBL 48 and 53-57 gone: 853 steps, 88 local labels.
 
+## Oct 6, 2026 - State, boiling point, configuration; the data in ELD1 / ELD2
+
+- Detail box (Victor): Symbol | Mass, State | Boil, Group number and name, Config. Two columns, each one
+  ATEXT of labels and one of values (CR lines): left "Symbol↵State↵Group↵Config" at x 58, values at 130;
+  right "Mass↵Boil" at 226, values at 272. Og's configuration ends at x 293.
+- Data from the PubChem periodic table CSV (Victor): StandardState ("Expected to be ..." -> "-"),
+  BoilingPoint in K (one decimal below 100 K), ElectronConfiguration in noble-gas notation with the
+  subshells sorted in shell order ([Ar] 3d6 4s2, as Victor asked; PubChem writes the filling order) and
+  "(predicted)" dropped. Masses stay IUPAC (CIAAW 2024).
+- One label per element now (a record of up to 51 characters), so the data left ELEM47: ELD1 (Z 1-60) and
+  ELD2 (Z 61-118), each with its own 100 local labels and one global label, in the same file as ELEM47.
+  LBL 30 calls XEQ "ELD1" / "ELD2" and splits the record with LBL 62 / 31. ELEM47 is down to 51 labels.
+- elem47sim.split: one simulator file per program (numeric labels local, as on the C47).
+
 ## Next
 - Run on the C47 (rejig, then XEQ "ELEM47"); time the table (TICKS) and compare with docs/ELEM47_*.png.
 - Closing the detail box: redraw only the cells under it instead of the whole table.

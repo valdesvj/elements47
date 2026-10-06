@@ -2,7 +2,10 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47          853   (656 logic, 197 data), 88 local labels
+ELEM47    ELEM47          774   51 local labels: the table, the cursor, the boxes
+          ELD1            186   Z 1-60: one label per element, "state/mass/boiling point/name/configuration"
+          ELD2            182   Z 61-118 (the same; XEQ IND Z-60)
+(one file, build/ELEM47.txt: the three programs, each ending with END)
 
 LOCAL LABELS OF ELEM47
   01  the table (CLLCD, cells, title, cursor, panel)     02  key wait (PAUSE 50 / KEY? 39)
@@ -12,13 +15,12 @@ LOCAL LABELS OF ELEM47
   20  every cell                                         21-22  a segment of the table
   23  one cell (box, number, symbol, matrix PT)          25, 28  the cursor (XOR)
   26, 34, 35  the panel (name, Z, mass)                  27  the next piece of symbols
-  29  the segments (data)                                30  the data of Z = R36
-  31-33  field R27 of the text "a/b/c" in R41
+  29  the segments (data)                                30, 60-61  the data of Z = R36 (XEQ "ELD1" / "ELD2")
+  62  field R27 of the record R50                        31-33  field R27 of the text "a/b/c" in R41
   36-41  the symbols (data, 20 elements each)            42-43  the position of a cell
-  45-46, 52  the detail box (labels and values: one ATEXT each, lines joined by CR)
+  45-46, 52  the detail box (two columns: symbol, state, group, config | mass, boil) (labels and values: one ATEXT each, lines joined by CR)
   47, 03, 04, 06, 44  the group-name index               58  the group names
   50-51  a box with AGRAPH
-  60-99  mass and name (data, 3 elements each)
 
 Folders:
   programs_rem/  the commented source: edit here (the DATA part is written by the build tool)

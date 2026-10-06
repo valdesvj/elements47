@@ -16,6 +16,8 @@ documentation - with this exception:
   - python/stdfont.py and python/tinyfont.py: glyph data from the C43/C47 firmware's
     standardFont and tinyFont, (c) the C43/C47 authors, GPL-3.0.
 python/c47sim.py comes from Almanac 47 (same author, GPL-3.0).
+Element data (python/elements.py): atomic weights from the IUPAC periodic table (CIAAW abridged standard
+atomic weights 2024); state, boiling point and electron configuration from the PubChem periodic table (NCBI).
 
 Written with the help of AI (see AI_ASSISTANCE.md). I reviewed and checked the results and
 take full responsibility for this project, its correctness, and any mistakes in it.

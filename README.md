@@ -7,20 +7,22 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 ## Status: the full table (simulator-tested, not yet run on the C47)
 
 `build/ELEM47.txt` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
-**5** opens the detail box (symbol, mass, group number and name), any key closes it, **0** ends.
+**5** opens the detail box (symbol, mass, state, boiling point, group number and name, electron
+configuration), any key closes it, **0** ends.
 The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
 (the digit cross 8 4 6 2 with 5 and 0, beside the same places in arrows and words).
 Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34
-elements without a standard atomic weight.
+elements without a standard atomic weight. State, boiling point and configuration: the PubChem periodic table
+("-" where PubChem has none, or only an expected state).
 Screens from the C47 simulator: `docs/ELEM47_*.png`. Start with `QUICKSTART.txt`; the layout of the
 repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
 
 | | |
 |---|---|
-| Program | 853 steps (656 logic, 197 data), 88 local labels, 2 001 characters of element data |
-| Memory while running | R20–R49 and the matrix `PT` (9 × 18, deleted at the end) |
+| Programs | one file, three programs: ELEM47 774 steps (51 local labels), the data ELD1 186 and ELD2 182 steps (one label per element, 4 694 characters) |
+| Memory while running | R20–R54 and the matrix `PT` (9 × 18, deleted at the end) |
 | Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
-| Work (simulator steps) | table 20 000, a cursor move about 1 350, the detail box 4 800, closing it = the table again |
+| Work (simulator steps) | table 20 200, a cursor move about 1 540, the detail box 5 000, closing it = the table again |
 
 The features below are the plan; the differences so far: 5 instead of + for the details, the 8 4 6 2 keys
 instead of the arrows, ATEXT (not "ATXT") for the text and AGRAPH (not PIXEL) for the lines.
