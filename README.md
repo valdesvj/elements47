@@ -4,6 +4,16 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 ---
 
+## Status: prototype 1
+
+`build/ELEM47.txt` shows the Hydrogen cell; **`+`** opens its detail box in the middle of the screen.
+Screens from the C47 simulator: `docs/ELEM47_table.png`, `docs/ELEM47_detail.png`. Start with `QUICKSTART.txt`;
+the layout of the repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
+
+The features below are the plan for the full table.
+
+---
+
 ## Features
 
 * **Full 118-Element Support:** Comprehensive coverage from Hydrogen (H) to Oganesson (Og).
