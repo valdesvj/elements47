@@ -1,9 +1,10 @@
 """elements.py - the 118 elements: (symbol, name, standard atomic weight as shown).
-Weights: IUPAC abridged values; [n] = mass number of the longest-lived isotope (no stable isotope).
+Weights: the abridged standard atomic weights of the IUPAC periodic table (CIAAW, Abridged Standard
+Atomic Weights 2024: www.ciaaw.org/abridged-atomic-weights.htm); "-" = no standard atomic weight.
 Index 0 = Z 1. Used by tools/build_elem47.py to write the data labels of ELEM47."""
 
 ELEMENTS = [
-    ('H', 'Hydrogen', '1.008'), ('He', 'Helium', '4.0026'), ('Li', 'Lithium', '6.94'),
+    ('H', 'Hydrogen', '1.0080'), ('He', 'Helium', '4.0026'), ('Li', 'Lithium', '6.94'),
     ('Be', 'Beryllium', '9.0122'), ('B', 'Boron', '10.81'), ('C', 'Carbon', '12.011'),
     ('N', 'Nitrogen', '14.007'), ('O', 'Oxygen', '15.999'), ('F', 'Fluorine', '18.998'),
     ('Ne', 'Neon', '20.180'), ('Na', 'Sodium', '22.990'), ('Mg', 'Magnesium', '24.305'),
@@ -16,33 +17,33 @@ ELEMENTS = [
     ('Ga', 'Gallium', '69.723'), ('Ge', 'Germanium', '72.630'), ('As', 'Arsenic', '74.922'),
     ('Se', 'Selenium', '78.971'), ('Br', 'Bromine', '79.904'), ('Kr', 'Krypton', '83.798'),
     ('Rb', 'Rubidium', '85.468'), ('Sr', 'Strontium', '87.62'), ('Y', 'Yttrium', '88.906'),
-    ('Zr', 'Zirconium', '91.224'), ('Nb', 'Niobium', '92.906'), ('Mo', 'Molybdenum', '95.95'),
-    ('Tc', 'Technetium', '[97]'), ('Ru', 'Ruthenium', '101.07'), ('Rh', 'Rhodium', '102.91'),
+    ('Zr', 'Zirconium', '91.222'), ('Nb', 'Niobium', '92.906'), ('Mo', 'Molybdenum', '95.95'),
+    ('Tc', 'Technetium', '-'), ('Ru', 'Ruthenium', '101.07'), ('Rh', 'Rhodium', '102.91'),
     ('Pd', 'Palladium', '106.42'), ('Ag', 'Silver', '107.87'), ('Cd', 'Cadmium', '112.41'),
     ('In', 'Indium', '114.82'), ('Sn', 'Tin', '118.71'), ('Sb', 'Antimony', '121.76'),
     ('Te', 'Tellurium', '127.60'), ('I', 'Iodine', '126.90'), ('Xe', 'Xenon', '131.29'),
     ('Cs', 'Caesium', '132.91'), ('Ba', 'Barium', '137.33'), ('La', 'Lanthanum', '138.91'),
     ('Ce', 'Cerium', '140.12'), ('Pr', 'Praseodymium', '140.91'), ('Nd', 'Neodymium', '144.24'),
-    ('Pm', 'Promethium', '[145]'), ('Sm', 'Samarium', '150.36'), ('Eu', 'Europium', '151.96'),
+    ('Pm', 'Promethium', '-'), ('Sm', 'Samarium', '150.36'), ('Eu', 'Europium', '151.96'),
     ('Gd', 'Gadolinium', '157.25'), ('Tb', 'Terbium', '158.93'), ('Dy', 'Dysprosium', '162.50'),
     ('Ho', 'Holmium', '164.93'), ('Er', 'Erbium', '167.26'), ('Tm', 'Thulium', '168.93'),
     ('Yb', 'Ytterbium', '173.05'), ('Lu', 'Lutetium', '174.97'), ('Hf', 'Hafnium', '178.49'),
     ('Ta', 'Tantalum', '180.95'), ('W', 'Tungsten', '183.84'), ('Re', 'Rhenium', '186.21'),
     ('Os', 'Osmium', '190.23'), ('Ir', 'Iridium', '192.22'), ('Pt', 'Platinum', '195.08'),
     ('Au', 'Gold', '196.97'), ('Hg', 'Mercury', '200.59'), ('Tl', 'Thallium', '204.38'),
-    ('Pb', 'Lead', '207.2'), ('Bi', 'Bismuth', '208.98'), ('Po', 'Polonium', '[209]'),
-    ('At', 'Astatine', '[210]'), ('Rn', 'Radon', '[222]'), ('Fr', 'Francium', '[223]'),
-    ('Ra', 'Radium', '[226]'), ('Ac', 'Actinium', '[227]'), ('Th', 'Thorium', '232.04'),
-    ('Pa', 'Protactinium', '231.04'), ('U', 'Uranium', '238.03'), ('Np', 'Neptunium', '[237]'),
-    ('Pu', 'Plutonium', '[244]'), ('Am', 'Americium', '[243]'), ('Cm', 'Curium', '[247]'),
-    ('Bk', 'Berkelium', '[247]'), ('Cf', 'Californium', '[251]'), ('Es', 'Einsteinium', '[252]'),
-    ('Fm', 'Fermium', '[257]'), ('Md', 'Mendelevium', '[258]'), ('No', 'Nobelium', '[259]'),
-    ('Lr', 'Lawrencium', '[266]'), ('Rf', 'Rutherfordium', '[267]'), ('Db', 'Dubnium', '[268]'),
-    ('Sg', 'Seaborgium', '[269]'), ('Bh', 'Bohrium', '[270]'), ('Hs', 'Hassium', '[269]'),
-    ('Mt', 'Meitnerium', '[278]'), ('Ds', 'Darmstadtium', '[281]'), ('Rg', 'Roentgenium', '[282]'),
-    ('Cn', 'Copernicium', '[285]'), ('Nh', 'Nihonium', '[286]'), ('Fl', 'Flerovium', '[289]'),
-    ('Mc', 'Moscovium', '[290]'), ('Lv', 'Livermorium', '[293]'), ('Ts', 'Tennessine', '[294]'),
-    ('Og', 'Oganesson', '[294]'),
+    ('Pb', 'Lead', '207.2'), ('Bi', 'Bismuth', '208.98'), ('Po', 'Polonium', '-'),
+    ('At', 'Astatine', '-'), ('Rn', 'Radon', '-'), ('Fr', 'Francium', '-'),
+    ('Ra', 'Radium', '-'), ('Ac', 'Actinium', '-'), ('Th', 'Thorium', '232.04'),
+    ('Pa', 'Protactinium', '231.04'), ('U', 'Uranium', '238.03'), ('Np', 'Neptunium', '-'),
+    ('Pu', 'Plutonium', '-'), ('Am', 'Americium', '-'), ('Cm', 'Curium', '-'),
+    ('Bk', 'Berkelium', '-'), ('Cf', 'Californium', '-'), ('Es', 'Einsteinium', '-'),
+    ('Fm', 'Fermium', '-'), ('Md', 'Mendelevium', '-'), ('No', 'Nobelium', '-'),
+    ('Lr', 'Lawrencium', '-'), ('Rf', 'Rutherfordium', '-'), ('Db', 'Dubnium', '-'),
+    ('Sg', 'Seaborgium', '-'), ('Bh', 'Bohrium', '-'), ('Hs', 'Hassium', '-'),
+    ('Mt', 'Meitnerium', '-'), ('Ds', 'Darmstadtium', '-'), ('Rg', 'Roentgenium', '-'),
+    ('Cn', 'Copernicium', '-'), ('Nh', 'Nihonium', '-'), ('Fl', 'Flerovium', '-'),
+    ('Mc', 'Moscovium', '-'), ('Lv', 'Livermorium', '-'), ('Ts', 'Tennessine', '-'),
+    ('Og', 'Oganesson', '-'),
 ]
 
 # the table: (first Z, count, row, column); rows 1-7 = periods, 8 = lanthanides, 9 = actinides

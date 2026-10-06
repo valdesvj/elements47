@@ -2,19 +2,22 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47          846   (649 logic, 197 data)
+ELEM47    ELEM47          907   (710 logic, 197 data), 94 local labels
 
 LOCAL LABELS OF ELEM47
   01  the table (CLLCD, cells, title, cursor, panel)     02  key wait (PAUSE 50 / KEY? 39)
-  05  title                                              09  0: the end
+  05  title and the key legend (two ATEXT with CR)        09  0: the end
   11-14  8 2 4 6: direction in R47 (rows), R48 (columns)  15  move: cursor off, LBL 18, cursor on, panel
   16-17  5: the detail box, wait, back to the table      18-19, 49  move the cursor, skip empty cells
   20  every cell                                         21-22  a segment of the table
   23  one cell (box, number, symbol, matrix PT)          25, 28  the cursor (XOR)
-  26, 35  the panel                                      27  the next piece of symbols
-  29  the segments (data)                                30-33  the data of Z = R36
+  26, 34, 35  the panel (name, Z, mass)                  27  the next piece of symbols
+  29  the segments (data)                                30  the data of Z = R36
+  31-33  field R27 of the text "a/b/c" in R41
   36-41  the symbols (data, 20 elements each)            42-43  the position of a cell
-  45-48, 52-57  the detail box                           50-51  a box with AGRAPH
+  45-46, 48, 52-57  the detail box (labels and values: one ATEXT each, lines joined by CR)
+  47, 03, 04, 06, 44  the group-name index               58  the group names
+  50-51  a box with AGRAPH
   60-99  mass and name (data, 3 elements each)
 
 Folders:

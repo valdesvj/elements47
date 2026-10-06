@@ -42,6 +42,22 @@
 - Simulator steps: table 19 700, a move about 1 050, detail box 3 900; closing the box draws the whole table
   again. Text literals up to 60 characters (Almanac 47 uses up to 69 on the C47).
 
+## Oct 6, 2026 - Key legend, IUPAC masses, group names, CR texts
+
+- Key legend (Victor): the digit cross (8 above, 4 6, 2 below, 5 left of 4, 0 under 2) and beside it the
+  same places as INFO, arrows and END, in the tinyFont (monospaced: 6 columns for digits, letters, arrows
+  and the space), one ATEXT per cross with CR (U+21B5) between the lines (8-row lines). Drawn once
+  (LBL 05); the panel now clears only the name (x 47-263, rows 209-228) and Z / mass (x 47-147).
+- Masses: CIAAW Abridged Standard Atomic Weights 2024 (the values of the IUPAC periodic table): H 1.0080,
+  Zr 91.222; the 34 elements without a standard atomic weight show "-" (no mass numbers in brackets).
+- Detail box x 50-349: labels in one ATEXT ("Symbol↵Mass↵Group↵Period"), the values built in R44 with
+  x→α (texts) and αIP (numbers) and drawn with one ATEXT: symbol, mass, group number + group name, period
+  and block. Group names (LBL 58, one text of 3 pieces of 64 characters at most, joined with x→α):
+  Nonmetal (H), Alkali metals, Alkaline earth metals, Transition metals, Boron group, Carbon group,
+  Pnictogens, Chalcogens, Halogens, Noble gases, Lanthanides, Actinides; chosen from the cell (LBL 47),
+  no data per element. LBL 31 = field k of a "/" text, used for the element data and the group names.
+- CR texts cut the detail box from 16 ATEXT (with their coordinates) to 2. The element data did not grow.
+
 ## Next
 - Run on the C47 (rejig, then XEQ "ELEM47"); time the table (TICKS) and compare with docs/ELEM47_*.png.
 - Closing the detail box: redraw only the cells under it instead of the whole table.
