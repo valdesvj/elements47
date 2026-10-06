@@ -3,7 +3,7 @@
   - programs/ and build/ are up to date with programs_rem/ (tools/build_elem47.py)
   - the table: the frame of every one of the 118 cells, the matrix PT = the positions of python/elements.py
   - the data lookup (LBL 30) for every element: symbol, name, mass
-  - the detail text (group names, period, block)
+  - the detail text (symbol, mass, group number and name)
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table
   - 5: the detail box (frame), any key: the table again with the cursor kept; 0: the end
   python3 tests/test_elem47.py"""
@@ -69,16 +69,16 @@ def main():
             wrong.append((z, c.reg['35'], c.reg['43'], c.reg['41']))
     check(not wrong, 'data of the 118 elements: symbol, name, mass %s' % (wrong[:3] or ''))
 
-    # the values text of the detail box (LBL 45): symbol, mass, group number and name, period, block
+    # the values text of the detail box (LBL 45): symbol, mass, group number and name
     CR = '↵'
-    for z, want_txt in [(1, 'H ' + CR + '1.0080' + CR + '1  Nonmetal' + CR + '1      Block s'),
-                        (2, 'He' + CR + '4.0026' + CR + '18  Noble gases' + CR + '1      Block s'),
-                        (5, 'B ' + CR + '10.81' + CR + '13  Boron group' + CR + '2      Block p'),
-                        (26, 'Fe' + CR + '55.845' + CR + '8  Transition metals' + CR + '4      Block d'),
-                        (56, 'Ba' + CR + '137.33' + CR + '2  Alkaline earth metals' + CR + '6      Block s'),
-                        (62, 'Sm' + CR + '150.36' + CR + 'Lanthanides' + CR + '6      Block f'),
-                        (92, 'U ' + CR + '238.03' + CR + 'Actinides' + CR + '7      Block f'),
-                        (117, 'Ts' + CR + '-' + CR + '17  Halogens' + CR + '7      Block p')]:
+    for z, want_txt in [(1, 'H ' + CR + '1.0080' + CR + '1  Nonmetal'),
+                        (2, 'He' + CR + '4.0026' + CR + '18  Noble gases'),
+                        (5, 'B ' + CR + '10.81' + CR + '13  Boron group'),
+                        (26, 'Fe' + CR + '55.845' + CR + '8  Transition metals'),
+                        (56, 'Ba' + CR + '137.33' + CR + '2  Alkaline earth metals'),
+                        (62, 'Sm' + CR + '150.36' + CR + 'Lanthanides'),
+                        (92, 'U ' + CR + '238.03' + CR + 'Actinides'),
+                        (117, 'Ts' + CR + '-' + CR + '17  Halogens')]:
         r, col = position(z)
         c.s = [D(0)] * 4; c.reg.update({'36': D(z), '37': D(r), '38': D(col)})
         c.run('0_45')

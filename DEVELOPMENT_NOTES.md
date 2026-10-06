@@ -58,6 +58,11 @@
   no data per element. LBL 31 = field k of a "/" text, used for the element data and the group names.
 - CR texts cut the detail box from 16 ATEXT (with their coordinates) to 2. The element data did not grow.
 
+## Oct 6, 2026 - Detail box: symbol, mass, group
+
+- Period and block removed (Victor): the box shows symbol, mass, group number and name (3 CR lines,
+  from row 126). LBL 48 and 53-57 gone: 853 steps, 88 local labels.
+
 ## Next
 - Run on the C47 (rejig, then XEQ "ELEM47"); time the table (TICKS) and compare with docs/ELEM47_*.png.
 - Closing the detail box: redraw only the cells under it instead of the whole table.

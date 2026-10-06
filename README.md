@@ -7,7 +7,7 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 ## Status: the full table (simulator-tested, not yet run on the C47)
 
 `build/ELEM47.txt` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
-**5** opens the detail box (symbol, mass, group number and name, period, block), any key closes it, **0** ends.
+**5** opens the detail box (symbol, mass, group number and name), any key closes it, **0** ends.
 The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
 (the digit cross 8 4 6 2 with 5 and 0, beside the same places in arrows and words).
 Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34
@@ -17,7 +17,7 @@ repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
 
 | | |
 |---|---|
-| Program | 907 steps (710 logic, 197 data), 94 local labels, 2 001 characters of element data |
+| Program | 853 steps (656 logic, 197 data), 88 local labels, 2 001 characters of element data |
 | Memory while running | R20–R49 and the matrix `PT` (9 × 18, deleted at the end) |
 | Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
 | Work (simulator steps) | table 20 000, a cursor move about 1 350, the detail box 4 800, closing it = the table again |
