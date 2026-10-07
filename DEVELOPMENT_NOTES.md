@@ -275,6 +275,13 @@
   46 moves of 'moves' with the box open) 801.8 M - table = 702 M, about 14 M a move (a plain move 2.7 M).
   ELEM47 816 steps.
 
+- Free42 as the C47: the screen shows only when ELEM47 waits for a key (Almanac 47's RLCD build).
+  tools/build_free42.py: 0 STO "RefLCD" at the start, -1 STO "RefLCD" before each GETKEY (one refresh),
+  7 STO "RefLCD" at the end. tests/test_f42.py takes what the LCD shows (f42run lcd, RefLCD modelled), not
+  the drawing buffer, and films the table being drawn (a capture every 1024 steps): 40 captures, all the
+  screen before it, then the whole table (main's build: 40 different screens, the table building up).
+  Free42 ELEM47 1 022 steps. Free42 on a PC or phone has no RefLCD (and draws only 131 x 16).
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).

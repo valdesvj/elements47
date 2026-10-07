@@ -40,11 +40,11 @@ def f42(cmds, d):
 
 
 def screens(keys, d, pre=()):
-    cmds = ['paste %s' % PROG] + list(pre) + ['xeq ELEM47', 'shot s000.pbm']
+    cmds = ['paste %s' % PROG] + list(pre) + ['xeq ELEM47', 'lcd s000.pbm']
     for i, k in enumerate(keys):
         cmds.append('key %d' % KM[k])
         if k != E.END:
-            cmds.append('shot s%03d.pbm' % (i + 1))
+            cmds.append('lcd s%03d.pbm' % (i + 1))     # what the LCD shows (RefLCD), not the drawing buffer
     out = f42(cmds, d)
     return [pbm(os.path.join(d, 's%03d.pbm' % i)) for i in range(len(keys))], out
 
@@ -91,6 +91,12 @@ def main():
         fs, out = screens(bk, d)
         py, _ = E.frames(bk)
         check(fs == py, 'moves inside the detail box (every cell), 5: %d screens the same as the C47' % len(py))
+        # RefLCD: the LCD shows nothing of the table while it is drawn (a capture every 1024 steps), then the table
+        f42(['paste %s' % PROG, 'film t 1', 'xeq ELEM47', 'stopfilm', 'lcd t_end.pbm'], d)
+        film = [pbm(os.path.join(d, 't_%d.pbm' % i)) for i in range(400) if os.path.exists(os.path.join(d, 't_%d.pbm' % i))]
+        end = pbm(os.path.join(d, 't_end.pbm'))
+        check(len(film) > 5 and all(f == film[0] for f in film) and end != film[0] and end == py[0],
+              'RefLCD: %d captures while the table is drawn, all the screen before it; then the whole table at once' % len(film))
         # your registers: SIZE 100, R00-R99 marked; then SIZE 30
         for size in (100, 30):
             setp = os.path.join(d, 'S.txt')

@@ -19,7 +19,10 @@ Almanac 47 converts NAV (its tools/build_free42.py):
                x→α r: RCL r X<>Y APPEND STO r;  αIP r: CLA AIP ASTO ST X, then the same;
                αSL r: SUBSTR from X;  αLEFT r: SUBSTR 0 to X;  αPOS r: POS;  α→x r: HEAD r C→N.
   matrix       STOSEQ: STOEL J+.
-  keys         PAUSE 50 / KEY? 33 / GTO: GETKEY, STO 33; the key codes of :KEYS: in Free42 codes
+  LCD          as the C47: the screen shows only when ELEM47 waits for a key. RefLCD (DM42 / DM42n virtual
+               variable, as Almanac 47's RLCD build): 0 at the start (no LCD refresh while drawing), -1 before
+               each GETKEY (the screen shown once), 7 at the end (the normal refresh).
+  keys         PAUSE 50 / KEY? 33 / GTO: -1 STO "RefLCD", GETKEY, STO 33; the key codes of :KEYS: in Free42 codes
                (8 20, 2 30, 4 24, 6 26, 5 25, 0 34).
   registers    SIZE 76 if smaller (ELEM47 uses R20-R54, E47T, E47S and E47B R60-R75); at the end
                CLRG and CLST, as CLREGS and CLSTK on the C47.
@@ -201,9 +204,11 @@ def main_program(steps):
     S = list(steps)
     # the registers: SIZE 76 at least; at the end CLRG, CLST (CLREGS, CLSTK on the C47)
     i = S.index('LBL "ELEM47"')
-    S[i + 1:i + 1] = (['RCL "REGS"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"'] + GRMOD[0])
+    S[i + 1:i + 1] = (['RCL "REGS"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"']
+                      + ['0', 'STO "RefLCD"'] + GRMOD[0])
     S = replace(S, ['0', 'GRMOD', '20', 'GRFNT', 'DELITM "PT"'], GRMOD[0] + ['CLV "PT"'])
-    S = replace(S, ['CLLCD', 'CLREGS', 'CLSTK', 'RTN'], ['CLLCD', '0', 'STO "GrMod"', 'CLRG', 'CLST', 'CLD', 'RTN'])
+    S = replace(S, ['CLLCD', 'CLREGS', 'CLSTK', 'RTN'], ['CLLCD', '0', 'STO "GrMod"', '7', 'STO "RefLCD"', 'CLRG', 'CLST',
+                                                       'CLD', 'RTN'])
     # the patterns of the C47 columns: not needed
     for pat in ('111111111111111111111111#2', '11111111111111111111111111#2', '10000000000000000000000001#2'):
         while pat in S:
@@ -231,7 +236,7 @@ def main_program(steps):
     del S[i:j + 2]
     # the key waits and the key codes
     for lab in (':KEYS:',):
-        S = replace(S, ['PAUSE 50', 'KEY? 33', 'GTO ' + lab], ['GETKEY', 'STO 33'])
+        S = replace(S, ['PAUSE 50', 'KEY? 33', 'GTO ' + lab], ['-1', 'STO "RefLCD"', 'GETKEY', 'STO 33'])
     i, j = S.index('LBL :KEYS:'), S.index('LBL :UP:')
     for k in range(i, j):
         if S[k] == 'X=Y?' and re.fullmatch(r'\d+', S[k - 1]) and int(S[k - 1]) in KEYS:

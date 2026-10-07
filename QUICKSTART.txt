@@ -22,4 +22,6 @@ Free42 (DM42 / DM42n stock firmware, Free42 3.3)
    build/free42/ELEM47.txt in Free42 (PRGM mode) and export your own .raw. Five programs: ELEM47,
    ELD1, ELD2 (the data), E47T and E47S (the C47 fonts).
 2. XEQ "ELEM47": the same table and keys. Uses R20-R75 (SIZE 76 if smaller) and PT; at the end
-   CLRG and CLST.
+   CLRG and CLST. As on the C47 the screen changes all at once, when it is finished: ELEM47 sets
+   RefLCD to 0 while it draws and back to 7 at the end (0). If you stop it another way (EXIT, R/S)
+   and the screen does not update, 7 STO "RefLCD" brings back the normal refresh.
