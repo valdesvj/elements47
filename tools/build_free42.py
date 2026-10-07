@@ -21,7 +21,7 @@ Almanac 47 converts NAV (its tools/build_free42.py):
   matrix       STOSEQ: STOEL J+.
   keys         PAUSE 50 / KEY? 33 / GTO: GETKEY, STO 33; the key codes of :KEYS: in Free42 codes
                (8 20, 2 30, 4 24, 6 26, 5 25, 0 34).
-  registers    SIZE 76 if smaller (ELEM47 uses R20-R53, E47T, E47S and E47B R60-R75); at the end
+  registers    SIZE 76 if smaller (ELEM47 uses R20-R54, E47T, E47S and E47B R60-R75); at the end
                CLRG and CLST, as CLREGS and CLSTK on the C47.
   programs     ELEM47, ELD1 and ELD2 as on the C47 (the code; the element records); E47T (the GRFNT 21
                glyphs, and E47B); E47S (the GRFNT 10 glyphs). The glyph labels stay near the text loop that
@@ -120,7 +120,7 @@ def label_of(ch):
     return k - 32 if k >= 32 else k + 80
 
 
-# the registers of E47T, E47S and E47B (Free42 only; ELEM47 uses R20-R53; all cleared by CLRG at the end)
+# the registers of E47T, E47S and E47B (Free42 only; ELEM47 uses R20-R54; all cleared by CLRG at the end)
 TX, T0, TL, TS, TB, TK = range(60, 66)
 BY, BX, BW, BH, BT, BR, BB, BC, BK, BN = range(66, 76)
 SIZE = 76
@@ -273,7 +273,7 @@ def main_program(steps):
             out.append('+/-')
         else:
             out.append(s)
-    k = next(i for i, s in enumerate(out) if s == 'LBL 29')
+    k = next(i for i, s in enumerate(out) if s == 'LBL 36')
     out = out[:k] + cell_routine() + cursor_routine() + out[k:]
     bad = [s for s in out if s.endswith('#2') or s.split(' ')[0] in (
         'GRMOD', 'GRFNT', 'ATEXT', 'KEY?', 'PAUSE', 'LocR', 'WSIZE', 'x→α', 'αIP', 'αSL', 'αLEFT', 'αPOS',

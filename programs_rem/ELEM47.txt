@@ -8,7 +8,8 @@ REM GRMOD and GRFNT take X (rejig writes "GRMOD r" as GRMOD and the number r: Al
 REM Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
 REM At the end (key 0) the registers and the stack are cleared (CLREGS, CLSTK), as Almanac 47 v2.2.0.
 REM Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
-REM Z row column, R33 key, R34-R51 text and work, R52-R53 the rows of the number and the symbol of a cell.
+REM Z row column, R33 key, R34-R51 text and work, R52-R53 the rows of the number and the symbol of a cell,
+REM R54 the column of the number.
 LBL "ELEM47"
 REM the routines of a move first: each RTN goes back by counting the steps from the start of the program
 GTO :INIT:
@@ -386,6 +387,77 @@ XEQ :HLINE:
 0
 GRMOD
 RTN
+REM ---- LBL :CELLS: every cell, the matrix PT filled on the way. The segments in the code (no XEQ to the
+REM end of the program: each RTN of :SEGMENT: counts the steps from the start up to here) ----
+LBL :CELLS:
+11111111111111111111111111#2
+STO 20
+10000000000000000000000001#2
+STO 21
+1
+STO 25
+STO 49
+35
+STO 50
+REM ==== SEGMENTS: written by tools/build_elem47.py from python/elements.py (count, row, first column, in
+REM the order of Z), do not edit up to the RTN ====
+1
+1
+1
+XEQ :SEGMENT:
+1
+1
+18
+XEQ :SEGMENT:
+2
+2
+1
+XEQ :SEGMENT:
+6
+2
+13
+XEQ :SEGMENT:
+2
+3
+1
+XEQ :SEGMENT:
+6
+3
+13
+XEQ :SEGMENT:
+18
+4
+1
+XEQ :SEGMENT:
+18
+5
+1
+XEQ :SEGMENT:
+2
+6
+1
+XEQ :SEGMENT:
+15
+8
+3
+XEQ :SEGMENT:
+15
+6
+4
+XEQ :SEGMENT:
+2
+7
+1
+XEQ :SEGMENT:
+15
+9
+3
+XEQ :SEGMENT:
+15
+7
+4
+XEQ :SEGMENT:
+RTN
 REM ---- the start: the matrix PT, the patterns, the cursor on H ----
 LBL :INIT:
 WSIZE 64
@@ -498,19 +570,6 @@ ATEXT Z
 194
 ATEXT Z
 RTN
-REM ---- LBL :CELLS: every cell (the segments of LBL 29), the matrix PT filled on the way ----
-LBL :CELLS:
-11111111111111111111111111#2
-STO 20
-10000000000000000000000001#2
-STO 21
-1
-STO 25
-STO 49
-35
-STO 50
-XEQ 29
-RTN
 REM LBL :SEGMENT: a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
 REM then 22 columns to the right for each cell
 LBL :SEGMENT:
@@ -521,6 +580,11 @@ R↓
 STO 28
 LBL :SEGPOS:
 XEQ :CELLPOS:
+REM R54 the column of the number (4 to the left of the cell), 22 more for each cell
+RCL 39
+4
+-
+STO 54
 REM PT: the first cell of the segment indexed once, then STOSEQ (STOEL, then J+) for each cell
 RCL 26
 RCL 27
@@ -560,7 +624,7 @@ AGRAPH 21
 AGRAPH 21
 AGRAPH 21
 AGRAPH 21
-REM the number, tinyFont: a space first (no empty string), 4 columns to the left, row R52
+REM the number, tinyFont: a space first (no empty string), row R52, column R54
 10
 GRFNT
 " "
@@ -569,9 +633,7 @@ RCL 25
 αIP 38
 RCL 38
 RCL 52
-RCL 39
-4
--
+RCL 54
 ATEXT Z
 REM the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
 21
@@ -592,6 +654,7 @@ ATEXT Z
 STO+ 25
 22
 STO+ 39
+STO+ 54
 DSE 28
 GTO :SEGLOOP:
 REM the right edge of the last cell
@@ -826,65 +889,6 @@ x→α 35
 x→α 35
 RTN
 REM ==== DATA: written by tools/build_elem47.py from python/elements.py, do not edit below ====
-LBL 29
-REM the segments: count, row, first column (in the order of Z)
-1
-1
-1
-XEQ :SEGMENT:
-1
-1
-18
-XEQ :SEGMENT:
-2
-2
-1
-XEQ :SEGMENT:
-6
-2
-13
-XEQ :SEGMENT:
-2
-3
-1
-XEQ :SEGMENT:
-6
-3
-13
-XEQ :SEGMENT:
-18
-4
-1
-XEQ :SEGMENT:
-18
-5
-1
-XEQ :SEGMENT:
-2
-6
-1
-XEQ :SEGMENT:
-15
-8
-3
-XEQ :SEGMENT:
-15
-6
-4
-XEQ :SEGMENT:
-2
-7
-1
-XEQ :SEGMENT:
-15
-9
-3
-XEQ :SEGMENT:
-15
-7
-4
-XEQ :SEGMENT:
-RTN
 REM the symbols: 65 elements per label
 LBL 36
 "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
