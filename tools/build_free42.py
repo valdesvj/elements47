@@ -8,27 +8,26 @@ Almanac 47 converts NAV (its tools/build_free42.py):
                the left; the C47 counts rows from the bottom, from 0: C47 row r = Free42 row 240 - r).
   AGRAPH       Free42 draws the ALPHA register, one character = one column of 8 pixels, bit 0 at the
                top. The cells, the cursor and the detail box frame (C47 columns of 24 to 60 bits in a
-               register) become bands of 8 rows: :FCELL: (a cell), :FCURS: (the cursor), :FBOX: (any box).
+               register) become bands of 8 rows: :FCELL: (a cell), :FCURS: (the cursor), E47B (any box).
   GRMOD        flags 34 and 35: CF CF = 0 (set the pixels), CF SF = 1 (write the pattern exactly),
                SF SF = 3 (flip). GRMOD 1 text: each character writes its whole box, as the C47 clears it.
-  ATEXT Z      XEQ :FT21: (GRFNT 21) or :FT10: (GRFNT 10, the tinyFont): Z the text, Y the row of the
+  ATEXT Z      XEQ "E47T" (GRFNT 21) or "E47S" (GRFNT 10, the tinyFont): Z the text, Y the row of the
                bottom of the glyph box, X the column, as on the C47 (|X| and |Y|). The glyphs are the C47 fonts
-               (python/stdfont.py, tinyfont.py, drawn by python/c47sim.py) as data: an index text and a table
-               text per font (:FDATA: puts them in registers at the start); each character's record holds its
-               box width, its advance and the columns of the glyph box in bands of 8 rows (20 rows: bands at
-               0, 8 and 12), drawn with CLA, ARCL and AGRAPH.
+               (python/stdfont.py, tinyfont.py, drawn by python/c47sim.py), one local label each (XEQ IND),
+               the columns of the glyph box in bands of 8 rows (20 rows: bands at 0, 8 and 12).
   texts        a C47 "..." goes on the stack: XSTR "..."; the CR glyph is character 13 (€0d).
                x→α r: RCL r X<>Y APPEND STO r;  αIP r: CLA AIP ASTO ST X, then the same;
                αSL r: SUBSTR from X;  αLEFT r: SUBSTR 0 to X;  αPOS r: POS;  α→x r: HEAD r C→N.
   keys         PAUSE 50 / KEY? 33 / GTO: GETKEY, STO 33; the key codes of :KEYS: in Free42 codes
                (8 20, 2 30, 4 24, 6 26, 5 25, 0 34).
-  registers    SIZE 90 if smaller (ELEM47 uses R20-R51, the text and box routines R60-R89); at the end
+  registers    SIZE 76 if smaller (ELEM47 uses R20-R51, E47T, E47S and E47B R60-R75); at the end
                CLRG and CLST, as CLREGS and CLSTK on the C47.
-  one program  one global label, LBL "ELEM47"; everything else local (Free42 has numeric local labels only:
-               the named labels get numbers, as in build/ELEM47_num.txt).
-  labels       the named local labels numbered as in build/ELEM47_num.txt (Free42: 00-99 only).
+  programs     ELEM47, ELD1 and ELD2 as on the C47 (the code; the element records); E47T (the GRFNT 21
+               glyphs, and E47B); E47S (the GRFNT 10 glyphs). The glyph labels stay near the text loop that
+               calls them (the one-program build was slower).
+  labels       the named local labels numbered as in build/ELEM47.txt (Free42: 00-99 only).
 
-Files: build/free42/ELEM47.txt (one program, to paste in Free42), listings/free42/.
+Files: build/free42/ELEM47.txt (ELEM47, ELD1, ELD2, E47T, E47S; paste or rejig to .raw), listings/free42/.
   python3 tools/build_free42.py"""
 import os, re, sys
 from decimal import Decimal as D
@@ -114,97 +113,55 @@ def glyphs(font, chars):
 F42CODE = {'↵': 13, '↓': 14, '→': 15, '←': 16, '↑': 94}
 
 
-def xstr(bs):
-    """Steps that leave a string of these bytes (Free42 codes) in X: XSTR pieces joined with APPEND,
-    cut after the bytes that start a paste alias (<= -> ...) and at 40 bytes."""
-    out, cur = [], []
-
-    def flush():
-        if cur or not out:
-            out.extend(['XSTR "%s"' % ''.join('€%02x' % b for b in cur)] + (['APPEND'] if out else []))
-        del cur[:]
-    for b in bs:
-        cur.append(b)
-        if b in SPLIT or len(cur) == 40:
-            flush()
-    if cur or not out:
-        flush()
-    return out
+def label_of(ch):
+    """The local label of a glyph: the Free42 character code - 32 (the arrows 14-16: 94-96)."""
+    k = F42CODE.get(ch, ord(ch))
+    return k - 32 if k >= 32 else k + 80
 
 
-# the text engine's registers (Free42 only; ELEM47 uses R20-R51; all cleared by CLRG at the end)
-TX, T0, TL, TS, TB, TK, TR, IDX, TAB = 60, 61, 62, 63, 64, 65, 66, 67, 68
-FONTREG = {21: (69, 70), 10: (71, 72)}          # the index text and the glyph table of each font
-LH_, RL_, WM_, W_, ADV_, OFF_, OFC_ = 73, 74, 75, 76, 77, 78, 79
-BY, BX, BW, BH, BT, BR, BB, BC, BK, BN = range(80, 90)
-SIZE = 90
+# the registers of E47T, E47S and E47B (Free42 only; ELEM47 uses R20-R51; all cleared by CLRG at the end)
+TX, T0, TL, TS, TB, TK = range(60, 66)
+BY, BX, BW, BH, BT, BR, BB, BC, BK, BN = range(66, 76)
+SIZE = 76
 
 
-def font_table(font, chars):
-    """The index text (the Free42 codes of the characters, '?' first) and the glyph table: for each
-    character its box width, its advance, then the bands of 8 rows, each WM bytes."""
-    chars = ['?'] + sorted(set(chars) - {'?'})
-    g, LH = glyphs(font, chars)
+def textprog(name, font, chars):
+    """E47T / E47S: ATEXT with Z the text, Y the bottom row of the glyph box, X the column (|X|, |Y|, as
+    the C47). One local label per character, reached with XEQ IND: its bands of 8 rows drawn with AGRAPH."""
+    g, LH = glyphs(font, sorted(chars))
     offs = (0, 8, 12) if LH == 20 else (0,)
-    WM = max(w for _, _, w in g.values())
-    idx, tab = [], []
-    for ch in chars:
+    L = ['LBL "%s"' % name, 'ABS', 'STO %d' % TX, 'STO %d' % T0, 'R↓', 'ABS', 'STO %d' % TL, 'R↓', 'STO %d' % TS,
+         'LBL 99', str(241 - LH), 'RCL %d' % TL, '-', 'STO %d' % TB,
+         'LBL 98', 'RCL %d' % TS, 'LENGTH', 'X=0?', 'RTN', 'HEAD %d' % TS, 'C→N', '13', 'X=Y?', 'GTO 97',
+         'X<>Y', '80', '+', '112', 'MOD', 'STO %d' % TK, 'XEQ IND %d' % TK, 'GTO 98',
+         'LBL 97', 'RCL %d' % T0, 'STO %d' % TX, str(LH), 'STO- %d' % TL, 'GTO 99']
+    # the label: (code + 80) MOD 112 = code - 32, the arrows (14-16) 94-96
+    for ch in sorted(g, key=label_of):
         cols, adv, w = g[ch]
-        idx.append(F42CODE.get(ch, ord(ch)))
-        tab += [w, adv]
+        L.append('LBL %02d' % label_of(ch))
         for o, bs in bands(cols, LH, offs):
-            tab += bs + [0] * (WM - len(bs))
-    return idx, tab, LH, offs, WM
-
-
-def text_routines(tables):
-    """:FT21: / :FT10: = ATEXT Z in GRFNT 21 / 10: Z the text, Y the bottom row of the glyph box, X the
-    column (|X|, |Y|, as the C47). Each character: its place in the index text (POS), its record in the
-    glyph table (SUBSTR), then each band: CLA, ARCL the bytes, AGRAPH (row, column)."""
-    L = []
-    for font in (21, 10):
-        idx, tab, LH, offs, WM = tables[font]
-        L += ['LBL :FT%d:' % font, 'ABS', 'STO %d' % TX, 'STO %d' % T0, 'R↓', 'ABS', 'STO %d' % TL, 'R↓', 'STO %d' % TS,
-              'RCL %d' % FONTREG[font][0], 'STO %d' % IDX, 'RCL %d' % FONTREG[font][1], 'STO %d' % TAB,
-              str(LH), 'STO %d' % LH_, str(2 + len(offs) * WM), 'STO %d' % RL_, str(WM), 'STO %d' % WM_]
-        L += xstr(list(offs)) + ['STO %d' % OFF_, 'GTO :FLINE:']
-    L += ['LBL :FLINE:', '241', 'RCL %d' % LH_, '-', 'RCL %d' % TL, '-', 'STO %d' % TB,
-          'LBL :FCHR:', 'RCL %d' % TS, 'LENGTH', 'X=0?', 'RTN', 'HEAD %d' % TS, 'C→N', '13', 'X=Y?', 'GTO :FNL:',
-          'X<>Y', 'N→C', 'RCL %d' % IDX, 'X<>Y', 'POS', 'X<0?', 'CLX',
-          'RCL %d' % RL_, '×', 'STO %d' % TK, 'RCL %d' % TAB, 'RCL %d' % TK, 'RCL %d' % TK, 'RCL %d' % RL_, '+', 'SUBSTR',
-          'STO %d' % TR, 'HEAD %d' % TR, 'C→N', 'STO %d' % W_, 'HEAD %d' % TR, 'C→N', 'STO %d' % ADV_,
-          'RCL %d' % OFF_, 'STO %d' % OFC_,
-          'LBL :FBAND:', 'RCL %d' % OFC_, 'LENGTH', 'X=0?', 'GTO :FNEXT:',
-          'CLA', 'RCL %d' % TR, '0', 'RCL %d' % W_, 'SUBSTR', 'ARCL ST X',
-          'HEAD %d' % OFC_, 'C→N', 'RCL %d' % TB, '+', 'RCL %d' % TX, '1', '+', 'AGRAPH',
-          'RCL %d' % TR, 'RCL %d' % WM_, 'SUBSTR', 'STO %d' % TR, 'GTO :FBAND:',
-          'LBL :FNEXT:', 'RCL %d' % ADV_, 'STO+ %d' % TX, 'GTO :FCHR:',
-          'LBL :FNL:', 'RCL %d' % T0, 'STO %d' % TX, 'RCL %d' % LH_, 'STO- %d' % TL, 'GTO :FLINE:']
-    # :FDATA: the index texts and the glyph tables into their registers (once, at the start)
-    L.append('LBL :FDATA:')
-    for font in (21, 10):
-        idx, tab, LH, offs, WM = tables[font]
-        L += xstr(idx) + ['STO %d' % FONTREG[font][0]] + xstr(tab) + ['STO %d' % FONTREG[font][1]]
-    return L + ['RTN']
+            L += alpha_literal(bs) + ['RCL %d' % TB] + ([str(o), '+'] if o else []) + ['RCL %d' % TX, '1', '+', 'AGRAPH']
+        L += [str(adv), 'STO+ %d' % TX, 'RTN']
+    return L
 
 
 def box_routine():
-    """:FBOX: a box BW columns x BH rows, bottom row BY, left column BX (C47 coordinates), in the mode
+    """E47B: a box BW columns x BH rows, bottom row BY, left column BX (C47 coordinates), in the mode
     of flags 34 / 35, bands of 8 rows, 44 columns per AGRAPH (Almanac 47's FBX)."""
     r = lambda k: '%02d' % k
-    return ['LBL :FBOX:', '241', 'RCL ' + r(BY), '-', 'RCL ' + r(BH), '-', 'STO ' + r(BT), 'RCL ' + r(BH), 'STO ' + r(BR),
-            'LBL :FB1:', 'RCL ' + r(BR), 'X≤0?', 'RTN', '255', 'STO ' + r(BB), '8', 'RCL ' + r(BR), 'X<Y?', 'XEQ :FB2:',
+    return ['LBL "E47B"', '241', 'RCL ' + r(BY), '-', 'RCL ' + r(BH), '-', 'STO ' + r(BT), 'RCL ' + r(BH), 'STO ' + r(BR),
+            'LBL 01', 'RCL ' + r(BR), 'X≤0?', 'RTN', '255', 'STO ' + r(BB), '8', 'RCL ' + r(BR), 'X<Y?', 'XEQ 02',
             'RCL ' + r(BW), 'STO ' + r(BC), 'RCL ' + r(BX), '1', '+', 'STO ' + r(BK),
-            'LBL :FB3:', 'RCL ' + r(BC), 'X≤0?', 'GTO :FB4:', '44', 'X>Y?', 'X<>Y', 'STO ' + r(BN), 'CLA',
-            'LBL :FB5:', 'RCL ' + r(BB), 'XTOA', 'DSE ' + r(BN), 'GTO :FB5:',
-            'RCL ' + r(BT), 'RCL ' + r(BK), 'AGRAPH', '44', 'STO+ ' + r(BK), '-44', 'STO+ ' + r(BC), 'GTO :FB3:',
-            'LBL :FB4:', '8', 'STO+ ' + r(BT), '-8', 'STO+ ' + r(BR), 'GTO :FB1:',
-            'LBL :FB2:', '2', 'RCL ' + r(BR), 'Y↑X', '1', '-', 'STO ' + r(BB), 'RTN']
+            'LBL 03', 'RCL ' + r(BC), 'X≤0?', 'GTO 04', '44', 'X>Y?', 'X<>Y', 'STO ' + r(BN), 'CLA',
+            'LBL 05', 'RCL ' + r(BB), 'XTOA', 'DSE ' + r(BN), 'GTO 05',
+            'RCL ' + r(BT), 'RCL ' + r(BK), 'AGRAPH', '44', 'STO+ ' + r(BK), '-44', 'STO+ ' + r(BC), 'GTO 03',
+            'LBL 04', '8', 'STO+ ' + r(BT), '-8', 'STO+ ' + r(BR), 'GTO 01',
+            'LBL 02', '2', 'RCL ' + r(BR), 'Y↑X', '1', '-', 'STO ' + r(BB), 'RTN']
 
 
 def fbx(x, y, w, h, mode):
     return GRMOD[mode] + [str(y), 'STO %d' % BY, str(x), 'STO %d' % BX, str(w), 'STO %d' % BW, str(h), 'STO %d' % BH,
-                          'XEQ :FBOX:']
+                          'XEQ "E47B"']
 
 
 # ------------------------------------------------------------------ ELEM47
@@ -239,13 +196,11 @@ def text(s):
     return 'XSTR "%s"' % s[1:-1].replace('↵', '€0d')
 
 
-def main_program(steps, tables):
+def main_program(steps):
     S = list(steps)
-    # the user's registers: REGS saved (SIZE 52 at least), given back at the end
-    # the registers: SIZE 52 at least; at the end CLRG, CLST (CLREGS, CLSTK on the C47)
+    # the registers: SIZE 76 at least; at the end CLRG, CLST (CLREGS, CLSTK on the C47)
     i = S.index('LBL "ELEM47"')
-    S[i + 1:i + 1] = (['RCL "REGS"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"'] + GRMOD[0]
-                      + ['XEQ :FDATA:'])
+    S[i + 1:i + 1] = (['RCL "REGS"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"'] + GRMOD[0])
     S = replace(S, ['0', 'GRMOD', '20', 'GRFNT', 'DELITM "PT"'], GRMOD[0] + ['CLV "PT"'])
     S = replace(S, ['CLLCD', 'CLREGS', 'CLSTK', 'RTN'], ['CLLCD', '0', 'STO "GrMod"', 'CLRG', 'CLST', 'CLD', 'RTN'])
     # the patterns of the C47 columns: not needed
@@ -288,7 +243,7 @@ def main_program(steps, tables):
             font = 21                                   # :BOXCLR: leaves GRFNT 21
         op, _, arg = s.partition(' ')
         if s == 'ATEXT Z':
-            out.append('XEQ :FT%d:' % font)
+            out.append('XEQ "E47T"' if font == 21 else 'XEQ "E47S"')
         elif s.startswith('"'):
             out.append(text(s))
         elif op == 'x→α':
@@ -310,7 +265,7 @@ def main_program(steps, tables):
         else:
             out.append(s)
     k = next(i for i, s in enumerate(out) if s == 'LBL 29')
-    out = out[:k] + cell_routine() + cursor_routine() + box_routine() + text_routines(tables) + out[k:]
+    out = out[:k] + cell_routine() + cursor_routine() + out[k:]
     bad = [s for s in out if s.endswith('#2') or s.split(' ')[0] in (
         'GRMOD', 'GRFNT', 'ATEXT', 'KEY?', 'PAUSE', 'LocR', 'WSIZE', 'x→α', 'αIP', 'αSL', 'αLEFT', 'αPOS',
         'α→𝑥', 'DELITM', 'CLSTK', 'CLREGS', 'CHS') or s.startswith('AGRAPH ') or 'R.' in s]
@@ -337,22 +292,27 @@ def chars_used(steps):
 def build():
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')]
     steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
+    main, num = B.resolve(main_program(steps))
     big, tiny = chars_used(steps)
-    tables = {21: font_table(21, big), 10: font_table(10, tiny)}
-    main, num = B.resolve(main_program(steps, tables))
-    labs = [x for x in main if re.fullmatch(r'LBL \d\d', x)]
-    if len(labs) != len(set(labs)) or sum(1 for x in main if x.startswith('LBL "')) != 1:
-        raise SystemExit('free42: one global label, each local label once')
+    T = textprog('E47T', 21, big) + box_routine() + ['END']
+    S = textprog('E47S', 10, tiny) + ['END']
+    for p in B.programs(main) + [T, S]:
+        labs = [x for x in p if re.fullmatch(r'LBL \d\d', x)]
+        if len(labs) != len(set(labs)):
+            raise SystemExit('free42: a local label twice in %s' % p[0])
     os.makedirs(OUT, exist_ok=True)
     os.makedirs(LST, exist_ok=True)
+    allp = main + T + S
     with open(os.path.join(OUT, 'ELEM47.txt'), 'w', encoding='utf-8') as fh:
-        fh.write('\n'.join(main) + '\n')
+        fh.write('\n'.join(allp) + '\n')
     with open(os.path.join(LST, 'ELEM47_doc.txt'), 'w', encoding='utf-8') as fh:
-        fh.write('\n'.join('%4d  %s' % (i + 1, x) for i, x in enumerate(main)) + '\n')
-    return main, num
+        fh.write('\n'.join('%4d  %s' % (i + 1, x) for i, x in enumerate(allp)) + '\n')
+    return main, T, S
 
 
 if __name__ == '__main__':
-    m, num = build()
-    print('ELEM47 (Free42) %5d steps, 1 global label, %d local labels -> build/free42/ELEM47.txt' % (
-        len(m), sum(1 for x in m if re.fullmatch(r'LBL \d\d', x))))
+    m, t, s = build()
+    for p in B.programs(m) + [t, s]:
+        n = p[0][5:-1]
+        print('%-7s %5d steps  about %5d bytes' % (n, len(p), B.estimate(p)))
+    print('build/free42/ELEM47.txt')

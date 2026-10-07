@@ -15,9 +15,10 @@
 - ELEM47 clears the registers and the stack at the end (CLREGS, CLSTK; Free42: CLRG, CLST), as Almanac 47
   v2.2.0: it does not keep the user's registers.
 - Optimizations must keep the screens: python3 tests/test_opt.py (pixel for pixel against branch optimize).
-- One global label, LBL "ELEM47". Code labels by name in programs_rem (LBL :NAME:, 1-7 letters or digits);
-  data labels reached with XEQ IND stay numeric. build/ELEM47.txt keeps the names;
-  build/ELEM47_num.txt is the numeric fallback (listings/ELEM47_labels.txt).
+- Three programs, global labels: ELEM47 (the code), ELD1 and ELD2 (the element records, Z 1-60 and 61-118).
+  Code labels by name in programs_rem (LBL :NAME:, 1-7 letters or digits); the build numbers them:
+  build/ELEM47.txt has numeric local labels only (listings/ELEM47_labels.txt). Data labels (XEQ IND) stay
+  numeric. Free42 adds E47T (with E47B) and E47S, the fonts.
 - Key waits: LBL n / PAUSE 50 / KEY? r / GTO n (not a bare KEY? loop; see Almanac 47 DEVELOPMENT_NOTES).
 - Before changing a screen, check it in the simulator (python/elem47sim.py writes the pictures in docs/);
   then python3 tests/test_elem47.py, and in the C47 firmware: python3 tests/test_fw.py (T47, see

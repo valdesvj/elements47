@@ -2,14 +2,18 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47           878   one program; all its other labels are local
-(build/ELEM47.txt; build/ELEM47_num.txt the same with numeric labels)
-ELEM47    ELEM47          1447   Free42: build/free42/ELEM47.txt, one program (tools/build_free42.py)
+ELEM47    ELEM47           795   the code (build/ELEM47.txt)
+          ELD1              49   the records of Z 1-60 (LBL 60-74)
+          ELD2              49   the records of Z 61-118 (LBL 75-89)
+ELEM47    ELEM47          1008   Free42: build/free42/ELEM47.txt (tools/build_free42.py)
+          ELD1, ELD2      49 + 49  the records, as on the C47
+          E47T (E47B)     1855   the GRFNT 21 font, one local label per character; E47B the boxes
+          E47S             329   the GRFNT 10 font (tinyFont)
 
 LOCAL LABELS OF ELEM47
-  The code labels are C47 local named labels: LBL :PANEL:, XEQ :PANEL: (rejig 0.30.0 and later).
-  build/ELEM47_num.txt: the same program with a free local number for each name (the fallback);
-  listings/ELEM47_labels.txt lists name, number and job.
+  Written by name in programs_rem (LBL :PANEL:, XEQ :PANEL:); the build gives each a free local number
+  00-99 (the calculator files have numeric local labels only). listings/ELEM47_labels.txt lists name,
+  number and job.
 
   :TABLE: :KEYS:          the table, then the key wait (PAUSE 50 / KEY? 33)
   :UP: :DOWN: :LEFT: :RIGHT: :MOVE:   8 2 4 6: direction, cursor off, :STEP:, cursor on, panel
@@ -31,11 +35,13 @@ LOCAL LABELS OF ELEM47
   Data labels, numeric (XEQ IND):
   29      the segments of the table
   36-37   the symbols, 65 elements each (digit = column in the cell, then 2 characters)
-  60-89   the records, 4 elements each: "name/mass/state letter/boiling point/configuration"
+  60-89   the records, 4 elements each: "name/mass/state letter/boiling point/configuration";
+          60-74 in ELD1, 75-89 in ELD2 (:RECORD: puts the label in R43, XEQ "ELD1" or "ELD2",
+          which does XEQ IND 43)
 
 Folders:
   programs_rem/  the commented source: edit here (the DATA part is written by the build tool)
-  programs/      the program without comments (tools/build_elem47.py)
+  programs/      the programs without comments, numeric labels (tools/build_elem47.py)
   build/         the file for the calculator (convert with rejig)
   listings/      numbered steps with the comments (step numbers = lines of programs/);
                  ELEM47_labels.txt: the named labels and their numbers

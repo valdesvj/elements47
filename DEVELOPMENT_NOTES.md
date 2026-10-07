@@ -208,6 +208,19 @@
   1 447 steps, 93 local labels. XSTR keeps every byte (checked 0-255) except the paste aliases: <= becomes
   one character, so the pieces are cut after < > - ! | \ as for ALPHA.
 
+## Oct 7, 2026 - Global labels again: ELEM47 + ELD1 + ELD2 (C47 and Free42)
+
+- Victor: the one-program builds were slow (the labels far from the code that calls them) and the local
+  named labels did not work well; the compact build is not released. Back to separate programs with
+  global labels, on both calculators:
+- C47: ELEM47 the code (795 steps), ELD1 the records of Z 1-60 (LBL 60-74), ELD2 Z 61-118 (LBL 75-89);
+  :RECORD: puts the label in R43 and calls XEQ "ELD1" or "ELD2" (each starts XEQ IND 43, RTN). The code
+  labels keep their names in programs_rem; build/ELEM47.txt has numeric local labels only (no _num file).
+- Free42: ELEM47, ELD1, ELD2 as on the C47; the fonts back as programs, one local label per character
+  (XEQ IND from the text loop, as in the first port): E47T (GRFNT 21, with E47B the boxes) and E47S
+  (GRFNT 10). Their work registers are R60-R75 (no named variables left behind), SIZE 76; CLRG, CLST at
+  the end as before.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).

@@ -17,10 +17,10 @@ elements without a standard atomic weight. State, boiling point and configuratio
 
 | | C47 / R47 | Free42 (DM42 / DM42n stock firmware) |
 |---|---|---|
-| File (release zip) | `C47_R47/ELEM47.p47`; `ELEM47_num.p47` with numeric local labels (from `build/`, rejig) | `Free42_DM42/ELEM47.raw` (from `build/free42/ELEM47.txt`) |
-| Program | one program, one global label `ELEM47`, 878 steps; 46 local named labels (`:PANEL:`, `:DETAIL:` …) and the numeric data labels (4 elements per text, up to 172 characters); `ELEM47.p47` 25.9 KB | one program, one global label `ELEM47`, 1 447 steps, 93 local labels; the C47 fonts inside as data; `ELEM47.raw` 12.5 KB |
-| Needs | ATEXT, GRFNT and local named labels: firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0 | Free42 3.3 (strings: XSTR, SUBSTR, POS, HEAD) |
-| Memory | R20–R51 and the matrix `PT` (9 × 18) | R20–R89 (SIZE 90 if smaller) and `PT` |
+| File (release zip) | `C47_R47/ELEM47.p47` (from `build/ELEM47.txt`, rejig) | `Free42_DM42/ELEM47.raw` (from `build/free42/ELEM47.txt`) |
+| Programs | `ELEM47` (the code, 795 steps, numeric local labels), `ELD1` and `ELD2` (the element records, Z 1–60 and 61–118, 49 steps each, 4 elements per text) | `ELEM47` (1 008 steps), `ELD1`, `ELD2` as on the C47, `E47T` (with `E47B`) and `E47S`: the C47 fonts, one local label per character |
+| Needs | ATEXT and GRFNT: firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0 | Free42 3.3 (strings: XSTR, SUBSTR, POS, HEAD) |
+| Memory | R20–R51 and the matrix `PT` (9 × 18) | R20–R75 (SIZE 76 if smaller) and `PT` |
 | At the end (0) | `PT` deleted, **the registers and the stack cleared** (CLREGS, CLSTK) | `PT` deleted, CLRG, CLST |
 
 Same screens on both, pixel for pixel. Tested in the C47 firmware itself (T47, built from the firmware

@@ -1,4 +1,4 @@
-ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), what it does
+ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), what it does
 
 :TABLE:    00  the table
 :KEYS:     01  keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored
@@ -26,25 +26,27 @@ ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), wha
 :CURSOR:   23  the cursor, the inside of the cell inverted (XOR, unrolled); twice = off
 :PANEL:    24  the panel: name, Z, mass. GRMOD 1: each character clears its box first, and the
 :RECORD:   25  the record of Z = R30, "name/mass/state/boiling point/configuration", in R44;
-:RECSKIP:  26  
-:RECGOT:   27  
-:FIELD:    28  the next field of R44 in R35 (the last field: all that is left)
-:FIELDK:   30  field R24 (from 0) of the text "a/b/c" in R35, left in R35
-:FCUT:     31  cut at the next "/" (none after the last field)
-:STEP:     32  move the cursor by R41 rows, R42 columns, skipping empty cells
-:STEPLP:   33  
-:DETAIL:   34  the detail box (symbol, mass, state, boiling point, group, configuration),
-:BOXLINE:  35  
-:GRPNAM:   38  
-:HDRBAR:   39  
-:BOXCLR:   40  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
-:KELVIN:   41  " K" after a boiling point
-:STATES:   42  the names of the states, in the order of R51 "SLG-"
-:GROUP:    43  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
-:GRPD:     44  
-:GRPP:     45  
-:GRP0:     46  
-:GRPF:     47  
-:GRPNAME:  48  the names of the groups in R35, "/" between them (texts of 64 characters at most)
+:RECD2:    26  
+:RECIN:    27  
+:RECSKIP:  28  
+:RECGOT:   30  
+:FIELD:    31  the next field of R44 in R35 (the last field: all that is left)
+:FIELDK:   32  field R24 (from 0) of the text "a/b/c" in R35, left in R35
+:FCUT:     33  cut at the next "/" (none after the last field)
+:STEP:     34  move the cursor by R41 rows, R42 columns, skipping empty cells
+:STEPLP:   35  
+:DETAIL:   38  the detail box (symbol, mass, state, boiling point, group, configuration),
+:BOXLINE:  39  
+:GRPNAM:   40  
+:HDRBAR:   41  
+:BOXCLR:   42  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
+:KELVIN:   43  " K" after a boiling point
+:STATES:   44  the names of the states, in the order of R51 "SLG-"
+:GROUP:    45  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
+:GRPD:     46  
+:GRPP:     47  
+:GRP0:     48  
+:GRPF:     49  
+:GRPNAME:  50  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 
-Numeric data labels (XEQ IND): 29 the segments, 36-37 the symbols, 60-89 the records.
+Numeric data labels (XEQ IND): 29 the segments, 36-37 the symbols; the records 60-74 in ELD1, 75-89 in ELD2.

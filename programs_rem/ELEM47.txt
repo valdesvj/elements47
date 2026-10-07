@@ -433,7 +433,8 @@ GRMOD
 RTN
 REM ---- LBL :RECORD: the record of Z = R30, "name/mass/state/boiling point/configuration", in R44;
 REM R37 name, R35 mass (LBL :FIELD: takes the fields in order; R44 keeps the rest).
-REM The records are 4 per label: LBL 60 + (Z-1) div 4, then (Z-1) mod 4 records of 5 fields skipped ----
+REM The records are 4 per label: LBL 60 + (Z-1) div 4 (60-74 in ELD1, 75-89 in ELD2, XEQ IND 43 there),
+REM then (Z-1) mod 4 records of 5 fields skipped ----
 LBL :RECORD:
 RCL 30
 1
@@ -445,7 +446,14 @@ IP
 60
 +
 STO 43
-XEQ IND 43
+74
+X<Y?
+GTO :RECD2:
+XEQ "ELD1"
+GTO :RECIN:
+LBL :RECD2:
+XEQ "ELD2"
+LBL :RECIN:
 STO 44
 RCL 24
 4
@@ -864,7 +872,11 @@ RTN
 LBL 37
 "3Dy3Ho3Er2Tm3Yb3Lu3Hf3Ta6W 3Re3Os5Ir3Pt2Au3Hg5Tl3Pb5Bi3Po3At3Rn3Fr3Ra2Ac3Th3Pa7U 2Np3Pu1Am2Cm3Bk3Cf3Es2Fm2Md2No3Lr3Rf3Db3Sg3Bh3Hs2Mt3Ds3Rg3Cn2Nh5Fl2Mc3Lv3Ts3Og"
 RTN
-REM the records of Z (4 per label): LBL 60 + (Z-1) div 4, then (Z-1) mod 4 records of 5 fields
+END
+REM ==== ELD1: the records of Z 1-60 (4 per label): LBL 60 + (Z-1) div 4, then (Z-1) mod 4 records of 5 fields; R43 the label ====
+LBL "ELD1"
+XEQ IND 43
+RTN
 LBL 60
 "Hydrogen/1.0080/G/20.3/1s1/Helium/4.0026/G/4.2/1s2/Lithium/6.94/S/1615/[He] 2s1/Beryllium/9.0122/S/2744/[He] 2s2"
 RTN
@@ -909,6 +921,11 @@ LBL 73
 RTN
 LBL 74
 "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2/Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2/Praseodymium/140.91/S/3793/[Xe] 4f3 6s2/Neodymium/144.24/S/3347/[Xe] 4f4 6s2"
+RTN
+END
+REM ==== ELD2: the records of Z 61-118 (4 per label): LBL 60 + (Z-1) div 4, then (Z-1) mod 4 records of 5 fields; R43 the label ====
+LBL "ELD2"
+XEQ IND 43
 RTN
 LBL 75
 "Promethium/-/S/3273/[Xe] 4f5 6s2/Samarium/150.36/S/2067/[Xe] 4f6 6s2/Europium/151.96/S/1802/[Xe] 4f7 6s2/Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2"

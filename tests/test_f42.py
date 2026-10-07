@@ -5,8 +5,8 @@ with the keys; a screen at every key wait (GETKEY), compared with python/c47sim.
   - build/free42/ is up to date with programs_rem/ELEM47.txt
   - every command survives Free42 Paste (it leaves out the steps it does not know)
   - the whole table, every row both ways, the detail box opened and closed at each cell
-  - the end: the registers and the stack cleared (CLRG, CLST); SIZE 30 becomes 90 (R20-R51, R60-R89 for
-    the text and box routines); one program, one global label
+  - the end: the registers and the stack cleared (CLRG, CLST); SIZE 30 becomes 76 (R20-R51, R60-R75 for
+    E47T, E47S and E47B); five programs: ELEM47, ELD1, ELD2, E47T (with E47B), E47S
   python3 tests/test_f42.py"""
 import os, re, subprocess, sys, tempfile, shutil
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,8 +73,9 @@ def main():
     d = tempfile.mkdtemp(prefix='elem47f42_')
     try:
         prog = open(PROG, encoding='utf-8').read().split('\n')
-        check(sum(1 for x in prog if x.startswith('LBL "')) == 1 and prog.count('END') == 1,
-              'one program, one global label (ELEM47), the rest local')
+        check([x for x in prog if x.startswith('LBL "')] == ['LBL "ELEM47"', 'LBL "ELD1"', 'LBL "ELD2"', 'LBL "E47T"',
+                                                               'LBL "E47B"', 'LBL "E47S"']
+              and prog.count('END') == 5, 'five programs: ELEM47, ELD1, ELD2, E47T (with E47B), E47S')
         miss, n = pasted(d)
         check(not miss, 'Free42 Paste keeps all %d different commands %s' % (n, miss[:4]))
         rows = [[E.INFO, ANY, E.RIGHT if r % 2 == 0 else E.LEFT] * 18 + [E.INFO, ANY, E.DOWN] for r in range(10)]

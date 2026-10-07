@@ -4,7 +4,6 @@
   - tests/calc/LTEST.txt: a 196-character text in a program (the longest the data may use)
   - the whole table, every row both ways: at each cell 5 (the detail box), then a key (the table again);
     every screen the same as python/c47sim.py, pixel for pixel, and the table back after each box
-  - build/ELEM47_num.txt (the numeric fallback): the same screens
   - the end: R00-R99 and the stack cleared, no error
 The key waits (PAUSE n / KEY? r / GTO) are replaced in a test copy by PAUSE 1 (the firmware puts the drawing
 on the screen at a PAUSE), SNAP (a .bmp) and the next key from the text in the variable TKS (α→x takes its
@@ -119,10 +118,6 @@ def main():
         check(not err and len(fw) == len(py), 'rows %d-%d: %d screens, no error %s' % (r0 + 1, r0 + 2, len(fw), err[:2]))
     check(same == total, 'every screen the same as c47sim, pixel for pixel (%d of %d)' % (same, total))
     check(boxes and back == boxes, 'the detail box opened and closed %d times: the table back every time (%d)' % (boxes, back))
-    keys = [E.RIGHT, E.DOWN, E.INFO, ANY, E.LEFT, E.INFO, ANY, E.END]
-    a, _, _ = run(os.path.join(ROOT, 'build', 'ELEM47_num.txt'), keys)
-    b, _, _ = run(prog, keys)
-    check(a == b and len(a) == len(keys), 'build/ELEM47_num.txt: the same %d screens' % len(a))
     regs = [(r, 1000 + r) for r in range(100)]
     _, got, err = run(prog, [E.RIGHT, E.INFO, ANY, E.END], regs)
     clear = all(got.get('R%02d' % r) == '0' for r, _ in regs) and all(got.get('S' + k) == '0' for k in 'XYZT')
