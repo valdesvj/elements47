@@ -128,7 +128,20 @@
 - Still to check on the C47: XEQ "T" runs to the RTN without an error = GTO :A: finds a label before it
   (the search wraps to the start of the program). ELEM47 needs that (:KEYS:, :SEGLOOP:, :STEPLP: ...).
 
+## Oct 7, 2026 - ELEM47 in the C47 firmware (T47)
+
+- T47 is the PC simulator built from the firmware sources with a Tcl script mode. Built from a copy of
+  ~/opt/c43 (master ef39ddb6c, 6 Oct 2026), never in ~/opt/c43 itself:
+  `rsync -a --exclude=.git --exclude='build.*' --exclude=t47bench ~/opt/c43/ ~/.cache/c47fw/`, then
+  `cd ~/.cache/c47fw && make simc47 t47` (about 10 minutes) gives ~/.cache/c47fw/t47.
+- tests/test_fw.py runs a test copy of build/ELEM47.txt there (rejig for the .p47): each key wait becomes
+  PAUSE 1, SNAP and the next key from the text TKS (α→x). The firmware shows what a program drew only at a
+  PAUSE: a SNAP right after the drawing still has the screen before it.
+- Results: XEQ "T" (GTO :A: backwards) gives 42, so the search wraps; LTEST gives 196; a 508-character text
+  in a program does not come through (the register gets a garbled text of about 196), so the data stays
+  at 196 characters per text. The whole table both ways, 190 detail boxes opened and closed: every screen
+  the same as python/c47sim.py pixel for pixel, the table back each time; ELEM47_num the same; R00-R99 kept.
+
 ## Next
-- On the C47: XEQ "LTEST" (196), then rejig and XEQ "ELEM47"; time the table (TICKS) and compare with docs/ELEM47_*.png.
+- On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
-- On the C47: XEQ "T" (the backward GTO :A:), then ELEM47 from build/ELEM47.txt; if it fails, build/ELEM47_num.txt.
