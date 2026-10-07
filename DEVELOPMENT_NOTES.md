@@ -22,7 +22,7 @@
   (group 3 of periods 6 and 7 left empty). Cells 23 x 26 sharing their edges (pitch 22 x 25): column c from
   x = 22c - 21, period r bottom row 238 - 25r; rows 8-9 9 rows lower (a gap under period 7). The table uses
   x 1-397, rows 4-238 (row 0 = bottom).
-- Drawn in the order of Z by segments (python/elements.py SEGMENTS, LBL 29: count, row, first column); each
+- Drawn in the order of Z by segments (python/elements.py SEGMENTS, written into LBL :CELLS:: count, row, first column); each
   cell fills the matrix PT (STOIJ / STOEL), so the cursor finds its neighbours with RCLEL (0 = empty, go on
   in the same direction; outside the table: stay).
 - Number: tinyFont, written as " " + αIP (a leading space instead of an empty string, 4 columns to the left).
@@ -256,8 +256,12 @@
 | closing it | 6 079 | 4 065 (-33 %) | | |
 | box opened and closed | | | 121 M | 72 M (-41 %) |
 
-- Not done (small): the segment list (LBL 29, 14 XEQ :SEGMENT: at the end of ELEM47, about 2 % of the
-  table) could go in the code; one more register for the number column would save 1 step per cell.
+- Then (branch segments-detail): the segment list is in the code, at the end of LBL :CELLS: (the build writes
+  it after the line "REM ==== SEGMENTS"; no LBL 29 at the end of ELEM47), and :CELLS: sits right after the
+  routines of a move and of the box, so each RTN of :SEGMENT: counts 353-405 steps instead of 745-797. R54 the
+  column of the number (once per segment, then STO+ 54 with the 22 of R39): 1 step less per cell.
+  ELEM47 805 steps (the same). Simulator: the table 7 897 -> 7 833 steps. Firmware (tools/bench_fw.py):
+  the table 101.3 -> 98.3 M (-3 %), moves - table 124.9 -> 124.8 M, boxes - table 429.9 -> 426.4 M (-0.8 %).
 
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).

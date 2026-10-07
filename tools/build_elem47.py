@@ -5,8 +5,8 @@ Three programs, three global labels:
   ELEM47  the code. Its labels are written by name in the source (LBL :PANEL:, XEQ :PANEL:, GTO :KEYS:,
           1-7 letters and digits); the build gives each name a free local number 00-99 (the calculator
           files have numeric local labels only; listings/ELEM47_labels.txt says which number is which).
-          Its data labels stay numeric (reached with XEQ IND): LBL 29 the segments of the table,
-          LBL 36-37 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
+          The segments of the table (count, row, first column) are written into LBL :CELLS:, after the
+          line SEG_MARK. Its data labels stay numeric (reached with XEQ IND): LBL 36-37 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
           the symbol in its cell).
   ELD1    the element records of Z 1-60: LBL 60-74; ELD2 those of Z 61-118: LBL 75-89. 4 elements per
   ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
@@ -29,6 +29,7 @@ from elements import ELEMENTS, EXTRA, SEGMENTS
 
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
+SEG_MARK = 'REM ==== SEGMENTS'
 SYM0, SYMS = 36, 65  # the symbol pieces: LBL 36, 37; 65 elements (195 characters) each
 REC0, PER = 60, 4    # the element records: LBL 60-89, 4 elements each (176 characters at most)
 SPLIT = 60           # ELD1: Z 1-60 (LBL 60-74), ELD2: Z 61-118 (LBL 75-89)
@@ -79,11 +80,16 @@ def record(z):
     return '/'.join((name, mass, letter, boil[:-2] if boil.endswith(' K') else boil, cfg))
 
 
-def data():
-    out = ['LBL 29', 'REM the segments: count, row, first column (in the order of Z)']
+def segments():
+    """The steps of the segment list in LBL :CELLS: (the RTN after them stays in the source)."""
+    out = []
     for z0, n, r, c in SEGMENTS:
         out += [str(n), str(r), str(c), 'XEQ :SEGMENT:']
-    out.append('RTN')
+    return out
+
+
+def data():
+    out = []
     sym = ''.join((s + ' ')[:2] + str(offset(s)) for s, _, _ in ELEMENTS)
     out.append('REM the symbols: %d elements per label' % SYMS)
     for k in range((len(ELEMENTS) + SYMS - 1) // SYMS):
@@ -138,7 +144,7 @@ def labels_text(lines, num):
             note = re.sub(r'^(LBL )?:%s:\s*' % m.group(2), '', note)
             out.append(':%s:%s %s  %s' % (m.group(2), ' ' * (8 - len(m.group(2))),
                                           '%02d' % num[m.group(2)], note[:90]))
-    out += ['', 'Numeric data labels (XEQ IND): 29 the segments, %d-%d the symbols; the records %d-%d in ELD1, '
+    out += ['', 'Numeric data labels (XEQ IND): %d-%d the symbols; the records %d-%d in ELD1, '
             '%d-%d in ELD2.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + SPLIT // PER - 1,
                                 REC0 + SPLIT // PER, REC0 + (len(ELEMENTS) - 1) // PER)]
     return '\n'.join(out) + '\n'
@@ -149,6 +155,11 @@ def build():
     lines = [ln.rstrip() for ln in open(src, encoding='utf-8')]
     k = next(i for i, ln in enumerate(lines) if ln.startswith(MARK))
     lines = lines[:k + 1] + data()
+    a = next(i for i, ln in enumerate(lines) if ln.startswith(SEG_MARK))
+    while lines[a].startswith('REM'):
+        a += 1
+    b = lines.index('RTN', a)
+    lines[a:b] = segments()
     r = lines.index('LBL :RECORD:')
     if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 21:r + 22] != [str(PER)] \
             or lines[r + 11:r + 12] != [str(REC0 + SPLIT // PER - 1)] or SPLIT % PER:
