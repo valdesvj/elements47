@@ -56,7 +56,7 @@ Folders:
                  elem47sim.py (runs ELEM47: pictures, step counts)
   tools/         build_elem47.py; build_free42.py (Free42); build_dev.py (programs_rem/dev -> build/dev);
                  bench_fw.py (the speed in the C47 firmware: T47 instructions, perf)
-  tests/         test_elem47.py, test_opt.py (screens against branch optimize), test_fw.py (the C47
+  tests/         test_elem47.py, test_opt.py (screens against the optimize build, tests/ref/), test_fw.py (the C47
                  firmware, T47), test_f42.py (Free42, f42run), test_dev.py (the dev programs);
                  calc/LTEST.txt (on the C47: the 196-character text)
   docs/          ELEM47_*.png (from the simulator)

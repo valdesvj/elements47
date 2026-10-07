@@ -14,7 +14,8 @@
 - GRMOD and GRFNT take X: write `3 GRMOD`, not `3 STO r GRMOD r` (rejig writes "GRMOD r" as GRMOD and r).
 - ELEM47 clears the registers and the stack at the end (CLREGS, CLSTK; Free42: CLRG, CLST), as Almanac 47
   v2.2.0: it does not keep the user's registers.
-- Optimizations must keep the screens: python3 tests/test_opt.py (pixel for pixel against branch optimize).
+- Optimizations must keep the screens: python3 tests/test_opt.py (pixel for pixel against the build of branch optimize,
+  kept in tests/ref/ELEM47_optimize.txt).
 - Three programs, global labels: ELEM47 (the code), ELD1 and ELD2 (the element records, Z 1-60 and 61-118).
   Code labels by name in programs_rem (LBL :NAME:, 1-7 letters or digits); the build numbers them:
   build/ELEM47.txt has numeric local labels only (listings/ELEM47_labels.txt). Data labels (XEQ IND) stay

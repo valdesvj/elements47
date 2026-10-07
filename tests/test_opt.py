@@ -2,8 +2,9 @@
 """ELEM47 (this branch) against the reference build of another branch (default optimize), as Almanac 47's
 test_v2: the same screens pixel for pixel for many key sequences, the same data for every element
 (LBL 30 / the detail box), the same end state, and the step counts of both.
-  python3 tests/test_opt.py [REF]     REF: a git branch or commit (default optimize; prototype-h no longer
-  matches since c47sim stores the αLEFT result as the firmware does)"""
+  python3 tests/test_opt.py [REF]     REF: a git branch or commit (default optimize: the build/ELEM47.txt of
+  branch optimize, a9ed243, kept in tests/ref/ELEM47_optimize.txt; prototype-h no longer matches since c47sim
+  stores the αLEFT result as the firmware does)"""
 import os, subprocess, sys, tempfile
 from decimal import Decimal as D
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +27,8 @@ def check(ok, msg):
 
 
 def ref_file():
+    if REF == 'optimize':                # the branch is gone: its build/ELEM47.txt is kept in tests/ref
+        return os.path.join(ROOT, 'tests', 'ref', 'ELEM47_optimize.txt')
     txt = subprocess.run(['git', '-C', ROOT, 'show', '%s:build/ELEM47.txt' % REF], capture_output=True, text=True,
                          check=True).stdout
     fn = os.path.join(tempfile.mkdtemp(prefix='elem47ref_'), 'ELEM47.txt')
