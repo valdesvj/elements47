@@ -17,8 +17,10 @@
 - Key waits: LBL n / PAUSE 50 / KEY? r / GTO n (not a bare KEY? loop; see Almanac 47 DEVELOPMENT_NOTES).
 - Before changing a screen, check it in the simulator (python/elem47sim.py writes the pictures in docs/);
   then python3 tests/test_elem47.py.
-- python/c47sim.py, stdfont.py, tinyfont.py come from Almanac 47: fix them there first, then copy.
-- ~/opt/c43 (C47 firmware, git) and ~/opt/rpn (rejig, fossil): only read their files; never branch,
-  build or write there.
+- python/c47sim.py, stdfont.py, tinyfont.py come from Almanac 47: a fix is made there first (in a session
+  working on Almanac 47), then copied here.
+- Work in one repository at a time (this one); the others are for reference only: ~/opt/almanac47,
+  ~/opt/c43 (C47 firmware, git), ~/opt/rpn and ~/opt/rejig (rejig). Read their files and run their tests;
+  never edit, branch, commit, build or write there. A change they need: tell Victor.
 - Ask before anything that can't be undone.
 - Pull requests only for elements47.

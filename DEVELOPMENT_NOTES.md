@@ -128,6 +128,16 @@
 - Still to check on the C47: XEQ "T" runs to the RTN without an error = GTO :A: finds a label before it
   (the search wraps to the start of the program). ELEM47 needs that (:KEYS:, :SEGLOOP:, :STEPLP: ...).
 
+## Oct 7, 2026 - Checked in the firmware sources (~/opt/c43 master)
+
+- The local label search wraps: manage.c findNamedLabelWithDuplicate takes the first matching label after
+  the current step, else the first one in the program. So GTO :KEYS:, :SEGLOOP:, :STEPLP: backwards work;
+  XEQ "T" on the C47 only confirms it.
+- The string limit is 508 glyphs (defines.h MAX_NUMBER_OF_GLYPHS_IN_STRING, since January 2024; 196 was
+  the WP43 value). Longer data strings (fewer labels) are possible; to be tried on the C47 (LTEST).
+- Closing the detail box, checked in the simulator over the whole table (190 open / close, every row
+  both ways): the screen after closing is the screen before opening, pixel for pixel.
+
 ## Next
 - On the C47: XEQ "LTEST" (196), then rejig and XEQ "ELEM47"; time the table (TICKS) and compare with docs/ELEM47_*.png.
 - More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
