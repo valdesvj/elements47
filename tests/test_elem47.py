@@ -3,7 +3,7 @@
   - programs/ and build/ are up to date with programs_rem/ (tools/build_elem47.py)
   - the table: the frame of every one of the 118 cells, the matrix PT = the positions of python/elements.py
   - one program, one global label (ELEM47); the others local
-  - the detail box data of every element (LBL :DETAIL:, the records 3 per label): name, symbol, mass, state,
+  - the detail box data of every element (LBL :DETAIL:, the records 4 per label): name, symbol, mass, state,
     boil, group, config
   - the detail texts (symbol, state, group, config; mass, boiling point)
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table

@@ -47,4 +47,4 @@ ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), wha
 :GRPF:     47  
 :GRPNAME:  48  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 
-Numeric data labels (XEQ IND): 29 the segments, 36-37 the symbols, 60-99 the records.
+Numeric data labels (XEQ IND): 29 the segments, 36-37 the symbols, 60-89 the records.

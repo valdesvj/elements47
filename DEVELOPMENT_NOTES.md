@@ -142,6 +142,15 @@
   at 196 characters per text. The whole table both ways, 190 detail boxes opened and closed: every screen
   the same as python/c47sim.py pixel for pixel, the table back each time; ELEM47_num the same; R00-R99 kept.
 
+## Oct 7, 2026 - The records 4 per label
+
+- With 196 characters confirmed in the firmware, the element records go 4 per label (LBL 60-89, 172
+  characters at most; 5 per label would be 210): 1 036 -> 1 006 steps, 90 -> 80 labels. :RECORD: divides
+  by 4 (the build stops if it does not match PER). The screens are the same (test_opt, test_fw); a cursor
+  move runs 1-2 % more steps (on average 7.5 fields skipped in place of 5).
+- Branch detail-redraw packed 8 elements in 175 characters, but its records had less in them (no state,
+  boiling point or configuration then); with today's five fields 4 is the most.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).

@@ -6,7 +6,7 @@ One program, one global label: LBL "ELEM47". Everything else is local to it:
     LBL :PANEL:, XEQ :PANEL:, GTO :KEYS: (at most 7 characters, letters and digits)
   - the data labels stay numeric (they are reached with XEQ IND): LBL 29 the segments of the table,
     LBL 36-37 the symbols (65 elements each: a digit, the column of the symbol in its cell, then the
-    symbol in 2 characters), LBL 60-99 the element records, 3 elements each,
+    symbol in 2 characters), LBL 60-89 the element records, 4 elements each,
     "name/mass/state letter/boiling point/configuration" joined by "/" (15 fields).
 The DATA part at the end of programs_rem/ELEM47.txt is written from python/elements.py.
 
@@ -31,7 +31,7 @@ from elements import ELEMENTS, EXTRA, SEGMENTS
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
 SYM0, SYMS = 36, 65  # the symbol pieces: LBL 36, 37; 65 elements (195 characters) each
-REC0, PER = 60, 3    # the element records: LBL 60-99, 3 elements each
+REC0, PER = 60, 4    # the element records: LBL 60-89, 4 elements each (172 characters at most)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
@@ -88,8 +88,8 @@ def data():
     out.append('REM the symbols: %d elements per label' % SYMS)
     for k in range((len(ELEMENTS) + SYMS - 1) // SYMS):
         out += ['LBL %02d' % (SYM0 + k), '"%s"' % sym[3 * SYMS * k:3 * SYMS * (k + 1)], 'RTN']
-    out.append('REM the records of Z (3 per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records of 5 fields'
-               % (REC0, PER, PER))
+    out.append('REM the records of Z (%d per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records of 5 fields'
+               % (PER, REC0, PER, PER))
     for k in range((len(ELEMENTS) + PER - 1) // PER):
         recs = [record(z) for z in range(PER * k + 1, min(PER * k + PER, len(ELEMENTS)) + 1)]
         out += ['LBL %02d' % (REC0 + k), '"%s"' % '/'.join(recs), 'RTN']
@@ -145,6 +145,9 @@ def build():
     lines = [ln.rstrip() for ln in open(src, encoding='utf-8')]
     k = next(i for i, ln in enumerate(lines) if ln.startswith(MARK))
     lines = lines[:k + 1] + data()
+    r = lines.index('LBL :RECORD:')
+    if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 14:r + 15] != [str(PER)]:
+        raise SystemExit('LBL :RECORD: must divide by PER = %d (the records per label)' % PER)
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
     steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
