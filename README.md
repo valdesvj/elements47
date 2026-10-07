@@ -17,8 +17,8 @@ elements without a standard atomic weight. State, boiling point and configuratio
 
 | | C47 / R47 | Free42 (DM42 / DM42n stock firmware) |
 |---|---|---|
-| File | `build/ELEM47.txt` (rejig → `.p47`); `build/ELEM47_num.txt` with numeric local labels | `build/free42/ELEM47.txt` (Paste in Free42) |
-| Program | one program, one global label `ELEM47`, 878 steps; 46 local named labels (`:PANEL:`, `:DETAIL:` …) and the numeric data labels (4 elements per text, up to 172 characters); about 8.2 KB | one program, one global label `ELEM47`, 1 447 steps, 93 local labels; the C47 fonts inside as data |
+| File (release zip) | `C47_R47/ELEM47.p47`; `ELEM47_num.p47` with numeric local labels (from `build/`, rejig) | `Free42_DM42/ELEM47.raw` (from `build/free42/ELEM47.txt`) |
+| Program | one program, one global label `ELEM47`, 878 steps; 46 local named labels (`:PANEL:`, `:DETAIL:` …) and the numeric data labels (4 elements per text, up to 172 characters); `ELEM47.p47` 25.9 KB | one program, one global label `ELEM47`, 1 447 steps, 93 local labels; the C47 fonts inside as data; `ELEM47.raw` 12.5 KB |
 | Needs | ATEXT, GRFNT and local named labels: firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0 | Free42 3.3 (strings: XSTR, SUBSTR, POS, HEAD) |
 | Memory | R20–R51 and the matrix `PT` (9 × 18) | R20–R89 (SIZE 90 if smaller) and `PT` |
 | At the end (0) | `PT` deleted, **the registers and the stack cleared** (CLREGS, CLSTK) | `PT` deleted, CLRG, CLST |

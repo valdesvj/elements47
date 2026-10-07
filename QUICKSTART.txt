@@ -4,7 +4,7 @@ C47 / R47
 Needs a C47 / R47 firmware with ATEXT, GRFNT and local named labels (as Almanac 47 v2.2.0:
 00.109.05.00a0.ALPHA, 5 Oct 2026, or later).
 
-1. Load ELEM47.p47 (from the release zip, or convert build/ELEM47.txt with rejig 0.30.0 or later:
+1. Load C47_R47/ELEM47.p47 (from the release zip, or convert build/ELEM47.txt with rejig 0.30.0 or later:
    it has local named labels, LBL :NAME:). One program, ELEM47 (its data is inside it).
    ELEM47_num (build/ELEM47_num.txt) is the same program with numeric local labels, if the named
    ones fail. If ELD1 and ELD2 from an older ELEM47 are still in memory, delete them.
@@ -19,7 +19,7 @@ Uses R20-R51 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE RE
 STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
 
 Free42 (DM42 / DM42n stock firmware, Free42 3.3)
-1. In Free42 on a computer: Paste build/free42/ELEM47.txt (or ELEM47_Free42.txt from the zip) in
-   PRGM mode, then export it as a .raw and load the .raw on the DM42.
+1. Load Free42_DM42/ELEM47.raw from the release zip (exported by the Free42 3.3 core), or Paste
+   build/free42/ELEM47.txt in Free42 (PRGM mode) and export your own .raw.
 2. XEQ "ELEM47": the same table and keys. Uses R20-R89 (SIZE 90 if smaller) and PT; at the end
    CLRG and CLST.
