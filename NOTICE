@@ -1,0 +1,26 @@
+Elements 47 - Periodic Table of Elements for the C47
+Copyright (C) 2026 Victor Valdes <valdes.vj@gmail.com>
+
+This program is free software: you can redistribute it and/or modify it under the terms of
+the GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details: the LICENSE file in this folder,
+or https://www.gnu.org/licenses/.
+
+This covers everything in this repository: the C47 calculator programs (programs/,
+programs_rem/, listings/, build/), the PC tools (python/, tools/), the tests and the
+documentation - with this exception:
+  - python/stdfont.py and python/tinyfont.py: glyph data from the C43/C47 firmware's
+    standardFont and tinyFont, (c) the C43/C47 authors, GPL-3.0.
+python/c47sim.py comes from Almanac 47 (same author, GPL-3.0).
+Element data (python/elements.py): atomic weights from the IUPAC periodic table (CIAAW abridged standard
+atomic weights 2024); state, boiling point and electron configuration from the PubChem periodic table (NCBI).
+
+Written with the help of AI (see AI_ASSISTANCE.md). I reviewed and checked the results and
+take full responsibility for this project, its correctness, and any mistakes in it.
+
+SwissMicros, C47, R47, DM42 and HP are trademarks of their owners.
+This project is not affiliated with or endorsed by them.

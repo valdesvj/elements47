@@ -1,0 +1,134 @@
+# Elements 47 - development notes
+
+## Oct 6, 2026 - Prototype 1: Hydrogen
+
+- One program, ELEM47 (programs_rem/ELEM47.txt). The table has only the H cell, drawn where it will be in the
+  full 18 x 9 grid: 22 x 26 pixels at x 2-23, rows 212-237 (row 0 = bottom). Atomic number in the tinyFont
+  (GRFNT 10), symbol in GRFNT 21, title ELEMENTS 47 and a key hint.
+- + (keycode 85) draws the detail box over the table, centred: x 80-319, rows 60-179. The inside is cleared
+  first (GRMOD 2, AGRAPH full columns), then the frame (GRMOD 0), the text (ATEXT, two columns of label and
+  value), and the header bar inverted with GRMOD 3. The key hint changes to ANY KEY: BACK (ATEXT with
+  GRMOD 1, spaces to clear the old hint). Any key redraws the table; on the table any other key ends.
+- Boxes: LBL 50 draws columns with AGRAPH (X = column, moved by AGRAPH; Y = bottom row), R21 the edge column
+  pattern, R22 the inner pattern, R20 inner columns. 64-bit words (WSIZE 64), so the 120-row box is two
+  halves of 60 rows.
+- Key waits as Almanac 47: LBL n / PAUSE 50 / KEY? 39 / GTO n.
+- The data of H is in the program as text (prototype only). For 118 elements: a packed table (see README).
+- Checked in python/c47sim.py (tests/test_elem47.py); not yet run on the C47.
+
+## Oct 6, 2026 - The full table
+
+- 118 cells in an 18 x 9 grid: rows 1-7 the periods, 8 lanthanides (La-Lu), 9 actinides (Ac-Lr), columns 3-17
+  (group 3 of periods 6 and 7 left empty). Cells 23 x 26 sharing their edges (pitch 22 x 25): column c from
+  x = 22c - 21, period r bottom row 238 - 25r; rows 8-9 9 rows lower (a gap under period 7). The table uses
+  x 1-397, rows 4-238 (row 0 = bottom).
+- Drawn in the order of Z by segments (python/elements.py SEGMENTS, LBL 29: count, row, first column); each
+  cell fills the matrix PT (STOIJ / STOEL), so the cursor finds its neighbours with RCLEL (0 = empty, go on
+  in the same direction; outside the table: stay).
+- Number: tinyFont, written as " " + αIP (a leading space instead of an empty string, 4 columns to the left).
+  Symbol: GRFNT 21, centred: the symbol pieces (LBL 36-41, 20 elements of 3 characters) hold a digit, the
+  column of the symbol in its cell (build_elem47.offset, from the glyph widths), then the 2 characters.
+  The symbols are read in order: α→𝑥 for the digit, αLEFT 2 for the symbol, αSL 2 to move on.
+- Data for the panel and the detail box (LBL 30): labels 60-99 "mass name/mass name/mass name"; αPOS "/" and
+  αSL skip to the element, αLEFT cuts at the next "/", then αPOS " " splits mass and name. Group = column
+  ("-" for rows 8-9), period = row (rows 8-9: 6-7), block from the column (He: s).
+- Keys (Victor): 8 4 6 2 move, 5 the detail box, 0 the end; other keys ignored (as NAV's menu).
+- The panel (x 47-263, rows 166-228) in the empty part of periods 1-3: name, Z, mass, the keys; cleared with
+  GRMOD 2 (one 63-row word) before each update. Title in row 1, columns 13-17.
+- c47sim: αLEFT and αPOS added (from the C47 index text: αLEFT drops X; αPOS from 0, -1 not found, X
+  replaced). To be checked on the calculator, with α→𝑥 on a register and αSL with X = 0.
+- Two label clashes found in the simulator (data labels over the key handlers, then over the move
+  routine): build_elem47.py now stops on a label used twice.
+- Simulator steps: table 19 700, a move about 1 050, detail box 3 900; closing the box draws the whole table
+  again. Text literals up to 60 characters (Almanac 47 uses up to 69 on the C47).
+
+## Oct 6, 2026 - Key legend, IUPAC masses, group names, CR texts
+
+- Key legend (Victor): the digit cross (8 above, 4 6, 2 below, 5 left of 4, 0 under 2) and beside it the
+  same places as INFO, arrows and END, in the tinyFont (monospaced: 6 columns for digits, letters, arrows
+  and the space), one ATEXT per cross with CR (U+21B5) between the lines (8-row lines). Drawn once
+  (LBL 05); the panel now clears only the name (x 47-263, rows 209-228) and Z / mass (x 47-147).
+- Masses: CIAAW Abridged Standard Atomic Weights 2024 (the values of the IUPAC periodic table): H 1.0080,
+  Zr 91.222; the 34 elements without a standard atomic weight show "-" (no mass numbers in brackets).
+- Detail box x 50-349: labels in one ATEXT ("Symbol↵Mass↵Group↵Period"), the values built in R44 with
+  x→α (texts) and αIP (numbers) and drawn with one ATEXT: symbol, mass, group number + group name, period
+  and block. Group names (LBL 58, one text of 3 pieces of 64 characters at most, joined with x→α):
+  Nonmetal (H), Alkali metals, Alkaline earth metals, Transition metals, Boron group, Carbon group,
+  Pnictogens, Chalcogens, Halogens, Noble gases, Lanthanides, Actinides; chosen from the cell (LBL 47),
+  no data per element. LBL 31 = field k of a "/" text, used for the element data and the group names.
+- CR texts cut the detail box from 16 ATEXT (with their coordinates) to 2. The element data did not grow.
+
+## Oct 6, 2026 - Detail box: symbol, mass, group
+
+- Period and block removed (Victor): the box shows symbol, mass, group number and name (3 CR lines,
+  from row 126). LBL 48 and 53-57 gone: 853 steps, 88 local labels.
+
+## Oct 6, 2026 - State, boiling point, configuration; the data in ELD1 / ELD2
+
+- Detail box (Victor): Symbol | Mass, State | Boil, Group number and name, Config. Two columns, each one
+  ATEXT of labels and one of values (CR lines): left "Symbol↵State↵Group↵Config" at x 58, values at 130;
+  right "Mass↵Boil" at 226, values at 272. Og's configuration ends at x 293.
+- Data from the PubChem periodic table CSV (Victor): StandardState ("Expected to be ..." -> "-"),
+  BoilingPoint in K (one decimal below 100 K), ElectronConfiguration in noble-gas notation with the
+  subshells sorted in shell order ([Ar] 3d6 4s2, as Victor asked; PubChem writes the filling order) and
+  "(predicted)" dropped. Masses stay IUPAC (CIAAW 2024).
+- One label per element now (a record of up to 51 characters), so the data left ELEM47: ELD1 (Z 1-60) and
+  ELD2 (Z 61-118), each with its own 100 local labels and one global label, in the same file as ELEM47.
+  LBL 30 calls XEQ "ELD1" / "ELD2" and splits the record with LBL 62 / 31. ELEM47 is down to 51 labels.
+- elem47sim.split: one simulator file per program (numeric labels local, as on the C47).
+
+## Oct 6, 2026 - Branch optimize (docs/OPTIMIZATIONS.md)
+
+- Same screens as prototype-h pixel for pixel (tests/test_opt.py); steps run: table 20 210 -> 9 307, a move
+  1 540 -> 233, the detail box 5 009 -> 2 119. File about 8 480 -> 7 980 bytes (estimated).
+- Unrolled cell boxes and cursor, the position once per segment, DSE counter for the symbol pieces, no idle
+  CLSTK / DROP, GRMOD / GRFNT from X; the panel and the inside of the detail box cleared by ATEXT in GRMOD 1
+  (spaces); records "name/mass/state letter/boiling point/configuration"; registers renumbered R20-R51 and
+  saved with LocR 32 / given back at the end (as Almanac 47 v2). No outlining: nothing repeats enough.
+- tools/build_elem47.py prints the estimated .p47 size of each program.
+
+## Oct 7, 2026 - One global label, local named labels (branch local-labels, from optimize)
+
+- The C47 has local named labels (LBL + the label menu, shown as :NAME:, at most 7 characters), besides
+  the numeric 00-99 and the letters. Local labels are searched forwards from the GTO / XEQ, before the
+  global ones. So ELEM47 now shows one name only: LBL "ELEM47"; ELD1 and ELD2 are gone.
+- programs_rem/ELEM47.txt writes the code labels by name (LBL :PANEL:, XEQ :DETAIL:, 46 of them).
+  tools/build_elem47.py gives each a free local number (LABELS = 'numeric'), stops on a name defined twice
+  or used and not defined, and writes listings/ELEM47_labels.txt (name, number, job). The calculator file
+  keeps numeric labels until rejig's text form of a local named label is known (key one in on the C47,
+  export the program, look at the text); then NAMED and LABELS = 'named' in the build tool. Also to check
+  then: whether the forward search wraps to the start of the program (as the HP-42S does), since
+  :KEYS:, :SEGLOOP:, :STEPLP: and the others are reached by GTO backwards.
+- The data labels stay numeric: they are reached with XEQ IND. The element records are 3 per label
+  (LBL 60-99, up to 126 characters); :RECORD: skips (Z-1) mod 3 records of 5 fields. The symbols are
+  65 elements per label (LBL 36-37, 195 characters). Texts up to 196 characters, the firmware limit for
+  one string (MAX_NUMBER_OF_GLYPHS_IN_STRING), as in branch detail-redraw: tests/calc/LTEST.txt checks it
+  on the C47 (XEQ "LTEST" returns 196); only 69 had been checked there. 89 local numbers used of 100.
+- From branch detail-redraw: closing the detail box draws only what the box covered (:CLOSE:): the cursor
+  off, the box area cleared (:BOXCLR:, the clearing part of :DETAIL:), the cells of rows 3-7, columns 3-16
+  again from PT (:CELLZ: finds the symbol of any Z, :CELL: is the cell drawing shared with the table), then
+  the key legend, the cursor and the panel (the box covers part of both). Simulator steps: closing about
+  9 400 -> 6 100; the table 9 427 -> 9 633 (+2 %, the XEQ :CELL:). Its other changes (category and
+  electronegativity in the box) were made before the box got state, boiling point and configuration
+  (branch prototype-h), so they are not taken.
+- tests/test_opt.py now compares with branch optimize (prototype-h no longer matches since c47sim stores
+  the αLEFT result as the firmware does): every screen the same, pixel for pixel; tests/test_elem47.py all ok.
+
+## Oct 7, 2026 - Local named labels in the calculator file
+
+- Victor keyed in a test program on the C47 (LBL "T", GTO :B:, LBL :A:, RTN, LBL :B:, GTO :A:) and sent its
+  .p47 bytes: a global label is 1 253 len name, a local named label 1 249 len name (LBL) and 2 249 len name
+  (GTO); RTN 4, END 133 178. rejig reads LBL :NAME: as a local named label since 0.30.0 (its ChangeLog:
+  colons always significant; :A:-:L: need the colons to differ from the letter labels A-L).
+- build/ELEM47.txt now has the local named labels as they are; build/ELEM47_num.txt is the same program
+  with numeric local labels (the fallback, if the C47 or an older rejig refuses the named ones).
+  Tests: both give the same screens; test_opt runs the named one.
+- Cost: a named label takes 3 + its length bytes at each LBL / GTO / XEQ (a numeric one 2): about 8.5 KB
+  instead of 7.8 KB (estimate). Speed of the search by name on the C47: to be timed.
+- Still to check on the C47: XEQ "T" runs to the RTN without an error = GTO :A: finds a label before it
+  (the search wraps to the start of the program). ELEM47 needs that (:KEYS:, :SEGLOOP:, :STEPLP: ...).
+
+## Next
+- On the C47: XEQ "LTEST" (196), then rejig and XEQ "ELEM47"; time the table (TICKS) and compare with docs/ELEM47_*.png.
+- More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
+- On the C47: XEQ "T" (the backward GTO :A:), then ELEM47 from build/ELEM47.txt; if it fails, build/ELEM47_num.txt.

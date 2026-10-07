@@ -1,0 +1,20 @@
+ELEMENTS 47 - QUICKSTART
+
+Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.x: 00.109.05.00a0.ALPHA,
+5 Oct 2026, or a build from master on or after 30 Sep 2026).
+
+0. Once: load tests/calc/LTEST.txt and XEQ "LTEST": it must return 196 (the length of one text
+   literal; ELEM47 keeps its data in texts of up to 195 characters). Then delete LTEST.
+   If ELD1 and ELD2 from an older ELEM47 are still in memory, delete them: they are no longer used.
+1. Convert build/ELEM47.txt to ELEM47.p47 with rejig (0.30.0 or later: it has local named labels,
+   LBL :NAME:) and load it on the C47. One program, ELEM47 (its data is inside it).
+   build/ELEM47_num.txt is the same program with numeric local labels, if the named ones fail.
+2. XEQ "ELEM47". The table is drawn (a few seconds), the cursor on H.
+3. Keys:
+     8 up   2 down   4 left   6 right   (empty cells are skipped; at the edge the cursor stays)
+     5      the detail box of the element under the cursor; any key closes it
+     0      the end
+   The panel at the top shows the name, the atomic number and the mass of the selected element.
+
+Uses R20-R51 (your values are saved at the start and given back with 0; not if the program is
+interrupted) and a matrix "PT" (9 x 18), deleted at the end. WSIZE is set to 64.

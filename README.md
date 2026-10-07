@@ -4,6 +4,31 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 ---
 
+## Status: the full table (simulator-tested, not yet run on the C47)
+
+`build/ELEM47.txt` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
+**5** opens the detail box (symbol, mass, state, boiling point, group number and name, electron
+configuration), any key closes it, **0** ends.
+The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
+(the digit cross 8 4 6 2 with 5 and 0, beside the same places in arrows and words).
+Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34
+elements without a standard atomic weight. State, boiling point and configuration: the PubChem periodic table
+("-" where PubChem has none, or only an expected state).
+Screens from the C47 simulator: `docs/ELEM47_*.png`. Start with `QUICKSTART.txt`; the layout of the
+repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
+
+| | |
+|---|---|
+| Program | one program, one global label: ELEM47, 1 036 steps. Everything else is local: 46 local named code labels (`:PANEL:`, `:DETAIL:`, …; `build/ELEM47_num.txt` has them as numbers 00-48) and the numeric data labels (3 elements per text, up to 195 characters); about 8.5 KB (.p47, estimated) |
+| Memory while running | R20–R51 (your values saved and given back at the end) and the matrix `PT` (9 × 18, deleted at the end) |
+| Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
+| Work (simulator steps) | table 9 600, a cursor move about 280, the detail box 2 200, closing it 6 100 (only the cells under the box are drawn again) |
+
+The features below are the plan; the differences so far: 5 instead of + for the details, the 8 4 6 2 keys
+instead of the arrows, ATEXT (not "ATXT") for the text and AGRAPH (not PIXEL) for the lines.
+
+---
+
 ## Features
 
 * **Full 118-Element Support:** Comprehensive coverage from Hydrogen (H) to Oganesson (Og).
@@ -30,6 +55,12 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 ---
 
+## Author
+
+By Victor Valdes (valdes.vj@gmail.com),
+
+Thank you to the C43/C47 firmware developers and SwissMicros, and to @tangent for rejig, which makes converting the .txt programs to .p47 easy. Written with the help of AI. See `AI_ASSISTANCE.md` for the responsible-use statement.
+
 ## License
 
-Published under the [GNU General Public License v3.0](LICENSE). Free to use, modify, and share for the calculator community.
+Published under the [GNU General Public License v3.0](LICENSE). Free to use, modify, and share for the calculator community. See `NOTICE` for the sources of the element data.
