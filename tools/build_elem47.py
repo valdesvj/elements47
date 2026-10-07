@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 """Build the ELEM47 files from the commented source programs_rem/ELEM47.txt.
 
-One program, one global label: LBL "ELEM47". Everything else is local to it:
-  - the code labels are written by name in the source, as the C47 shows local named labels:
-    LBL :PANEL:, XEQ :PANEL:, GTO :KEYS: (at most 7 characters, letters and digits)
-  - the data labels stay numeric (they are reached with XEQ IND): LBL 29 the segments of the table,
-    LBL 36-37 the symbols (65 elements each: a digit, the column of the symbol in its cell, then the
-    symbol in 2 characters), LBL 60-99 the element records, 3 elements each,
-    "name/mass/state letter/boiling point/configuration" joined by "/" (15 fields).
-The DATA part at the end of programs_rem/ELEM47.txt is written from python/elements.py.
-
-The named labels go to the calculator file as they are: rejig (0.30.0 and later) reads LBL :NAME: as a
-local named label (byte 249 in the .p47, the global labels are 253: checked with a test program keyed in
-on the C47, Oct 7, 2026). A second file keeps the old way, each name a free local number 00-99, in case
-the C47 or an older rejig refuses the named ones; listings/ELEM47_labels.txt says which number is which.
+Three programs, three global labels:
+  ELEM47  the code. Its labels are written by name in the source (LBL :PANEL:, XEQ :PANEL:, GTO :KEYS:,
+          1-7 letters and digits); the build gives each name a free local number 00-99 (the calculator
+          files have numeric local labels only; listings/ELEM47_labels.txt says which number is which).
+          Its data labels stay numeric (reached with XEQ IND): LBL 29 the segments of the table,
+          LBL 36-37 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
+          the symbol in its cell).
+  ELD1    the element records of Z 1-60: LBL 60-74; ELD2 those of Z 61-118: LBL 75-89. 4 elements per
+  ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
+          "|" after each record).
+          XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
+The DATA part at the end of programs_rem/ELEM47.txt (from the end of ELEM47) is written from
+python/elements.py.
 
 Files written:
-  programs/ELEM47.txt        the program without REM lines (to convert with rejig)
-  build/ELEM47.txt           the calculator file (the same steps), local named labels
-  build/ELEM47_num.txt       the same program with numeric local labels (the fallback)
-  listings/ELEM47_doc.txt    numbered steps with the comments (step numbers = lines of programs/)
-  listings/ELEM47_labels.txt the local labels: name, number, what it does
+  programs/ELEM47.txt        the three programs without REM lines, numeric labels (to convert with rejig)
+  build/ELEM47.txt           the calculator file (the same steps)
+  listings/ELEM47_doc.txt    numbered steps with the comments and the label names
+  listings/ELEM47_labels.txt the local labels of ELEM47: name, number, what it does
   python3 tools/build_elem47.py"""
 import os, re, sys
 
@@ -31,7 +30,8 @@ from elements import ELEMENTS, EXTRA, SEGMENTS
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
 SYM0, SYMS = 36, 65  # the symbol pieces: LBL 36, 37; 65 elements (195 characters) each
-REC0, PER = 60, 3    # the element records: LBL 60-99, 3 elements each
+REC0, PER = 60, 4    # the element records: LBL 60-89, 4 elements each (176 characters at most)
+SPLIT = 60           # ELD1: Z 1-60 (LBL 60-74), ELD2: Z 61-118 (LBL 75-89)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
@@ -84,16 +84,19 @@ def data():
     for z0, n, r, c in SEGMENTS:
         out += [str(n), str(r), str(c), 'XEQ :SEGMENT:']
     out.append('RTN')
-    sym = ''.join(str(offset(s)) + (s + ' ')[:2] for s, _, _ in ELEMENTS)
+    sym = ''.join((s + ' ')[:2] + str(offset(s)) for s, _, _ in ELEMENTS)
     out.append('REM the symbols: %d elements per label' % SYMS)
     for k in range((len(ELEMENTS) + SYMS - 1) // SYMS):
         out += ['LBL %02d' % (SYM0 + k), '"%s"' % sym[3 * SYMS * k:3 * SYMS * (k + 1)], 'RTN']
-    out.append('REM the records of Z (3 per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records of 5 fields'
-               % (REC0, PER, PER))
-    for k in range((len(ELEMENTS) + PER - 1) // PER):
-        recs = [record(z) for z in range(PER * k + 1, min(PER * k + PER, len(ELEMENTS)) + 1)]
-        out += ['LBL %02d' % (REC0 + k), '"%s"' % '/'.join(recs), 'RTN']
     out.append('END')
+    for name, z0, z1 in (('ELD1', 1, SPLIT), ('ELD2', SPLIT + 1, len(ELEMENTS))):
+        out += ['REM ==== %s: the records of Z %d-%d (%d per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records'
+                ', "|" after each one; R43 the label ====' % (name, z0, z1, PER, REC0, PER, PER),
+                'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
+        for k in range((z0 - 1) // PER, (z1 + PER - 1) // PER):
+            recs = [record(z) for z in range(PER * k + 1, min(PER * k + PER, len(ELEMENTS)) + 1)]
+            out += ['LBL %02d' % (REC0 + k), '"%s"' % ''.join(r + '|' for r in recs), 'RTN']
+        out.append('END')
     long = [s for s in out if s.startswith('"') and len(s) - 2 > MAXSTR]
     if long:
         raise SystemExit('text longer than %d characters: %s' % (MAXSTR, long))
@@ -124,7 +127,7 @@ def resolve(steps):
 def labels_text(lines, num):
     """listings/ELEM47_labels.txt: each named label, its number in this build, and the first comment
     line above it."""
-    out = ['ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), what it does', '']
+    out = ['ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), what it does', '']
     for i, ln in enumerate(lines):
         m = NAMED_RE.match(ln)
         if m and m.group(1) == 'LBL':
@@ -135,8 +138,9 @@ def labels_text(lines, num):
             note = re.sub(r'^(LBL )?:%s:\s*' % m.group(2), '', note)
             out.append(':%s:%s %s  %s' % (m.group(2), ' ' * (8 - len(m.group(2))),
                                           '%02d' % num[m.group(2)], note[:90]))
-    out += ['', 'Numeric data labels (XEQ IND): 29 the segments, %d-%d the symbols, %d-%d the records.' % (
-        SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + (len(ELEMENTS) - 1) // PER)]
+    out += ['', 'Numeric data labels (XEQ IND): 29 the segments, %d-%d the symbols; the records %d-%d in ELD1, '
+            '%d-%d in ELD2.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + SPLIT // PER - 1,
+                                REC0 + SPLIT // PER, REC0 + (len(ELEMENTS) - 1) // PER)]
     return '\n'.join(out) + '\n'
 
 
@@ -145,16 +149,22 @@ def build():
     lines = [ln.rstrip() for ln in open(src, encoding='utf-8')]
     k = next(i for i, ln in enumerate(lines) if ln.startswith(MARK))
     lines = lines[:k + 1] + data()
+    r = lines.index('LBL :RECORD:')
+    if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 21:r + 22] != [str(PER)] \
+            or lines[r + 11:r + 12] != [str(REC0 + SPLIT // PER - 1)] or SPLIT % PER:
+        raise SystemExit('LBL :RECORD: must divide by PER = %d and split at LBL %d' % (PER, REC0 + SPLIT // PER - 1))
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
     steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
     numeric, num = resolve(steps)
-    if sum(1 for s in steps if s.startswith('LBL "')) != 1 or steps.count('END') != 1:
-        raise SystemExit('ELEM47 is one program with one global label')
-    nums = [s for s in numeric if re.fullmatch(r'LBL \d\d', s)]
-    dup = sorted({t for t in nums if nums.count(t) > 1})
-    if dup:
-        raise SystemExit('labels used twice: %s' % ', '.join(dup))
+    if [s for s in steps if s.startswith('LBL "')] != ['LBL "ELEM47"', 'LBL "ELD1"', 'LBL "ELD2"'] \
+            or steps.count('END') != 3:
+        raise SystemExit('three programs: ELEM47, ELD1, ELD2')
+    for p in programs(numeric):
+        nums = [s for s in p if re.fullmatch(r'LBL \d\d', s)]
+        dup = sorted({t for t in nums if nums.count(t) > 1})
+        if dup:
+            raise SystemExit('labels used twice in %s: %s' % (p[0], ', '.join(dup)))
     listing, n = [], 0
     for ln in lines:
         if not ln.strip():
@@ -164,12 +174,10 @@ def build():
         else:
             listing.append('%4d  %s' % (n + 1, steps[n] + ('' if numeric[n] == ln else '    (%s)' % numeric[n].split(' ', 1)[1])))
             n += 1
-    plain = '\n'.join(steps) + '\n'
+    plain = '\n'.join(numeric) + '\n'
     for d in ('programs', 'build'):
         with open(os.path.join(ROOT, d, NAME + '.txt'), 'w', encoding='utf-8') as fh:
             fh.write(plain)
-    with open(os.path.join(ROOT, 'build', NAME + '_num.txt'), 'w', encoding='utf-8') as fh:
-        fh.write('\n'.join(numeric) + '\n')
     with open(os.path.join(ROOT, 'listings', NAME + '_doc.txt'), 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(listing) + '\n')
     with open(os.path.join(ROOT, 'listings', NAME + '_labels.txt'), 'w', encoding='utf-8') as fh:
@@ -177,15 +185,26 @@ def build():
     return steps, num
 
 
+def programs(steps):
+    """The programs of a list of steps (each ends with END)."""
+    out, cur = [], []
+    for s in steps:
+        cur.append(s)
+        if s == 'END':
+            out.append(cur); cur = []
+    return out
+
+
 def label_numbers():
-    """name -> number of the named labels in build/ELEM47_num.txt (for the tests)."""
+    """name -> number of the named labels of ELEM47 in build/ELEM47.txt (for the tests)."""
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', NAME + '.txt'), encoding='utf-8')]
     return resolve([ln for ln in lines if ln.strip() and not ln.startswith('REM')])[1]
 
 
 if __name__ == '__main__':
     st, num = build()
-    txt = [s for s in st if s.startswith('"')]
-    print('%-8s %5d steps, labels: 1 global, %d local named, %d numeric (data)  %5d text characters, longest %d  about %5d bytes (.p47, estimated)' % (
-        NAME, len(st), len(num), sum(1 for s in st if re.fullmatch(r'LBL \d\d', s)), sum(len(s) - 2 for s in txt),
-        max(len(s) - 2 for s in txt), estimate(st)))
+    for p in programs(st):
+        txt = [s for s in p if s.startswith('"')]
+        print('%-8s %5d steps, %2d local labels  %5d text characters, longest %3d  about %5d bytes (.p47, estimated)' % (
+            p[0][5:-1], len(p), sum(1 for s in p if re.match(r'LBL (\d\d|:)', s)), sum(len(s) - 2 for s in txt),
+            max(len(s) - 2 for s in txt), estimate(p)))

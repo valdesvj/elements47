@@ -1,0 +1,3315 @@
+LBL "ELEM47"
+RCL "REGS"
+DIM?
+R↓
+76
+X>Y?
+SIZE 76
+3
+STO "GrMod"
+CF 34
+CF 35
+GTO 15
+LBL 00
+XEQ 02
+XEQ 38
+XEQ 01
+XEQ 03
+GTO 17
+LBL 01
+RCL 31
+STO 26
+RCL 32
+STO 27
+XEQ 31
+LBL 02
+XEQ 50
+RTN
+LBL 03
+CF 34
+SF 35
+XEQ 04
+RCL 37
+STO 38
+XSTR "             "
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+211
+50
+XEQ "E47T"
+XSTR " "
+STO 38
+RCL 30
+CLA
+AIP
+ASTO ST X
+RCL 38
+X<>Y
+APPEND
+STO 38
+1
+RCL 38
+X<>Y
+SUBSTR
+STO 38
+DROP
+LASTX
+XSTR "  "
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+190
+50
+XEQ "E47T"
+RCL 35
+STO 38
+XSTR "     "
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+170
+50
+XEQ "E47T"
+CF 34
+CF 35
+RTN
+LBL 04
+RCL 30
+1
+-
+STO 24
+4
+÷
+IP
+60
++
+STO 43
+74
+X<Y?
+GTO 05
+XEQ "ELD1"
+GTO 06
+LBL 05
+XEQ "ELD2"
+LBL 06
+STO 44
+RCL 24
+4
+MOD
+STO 24
+X=0?
+GTO 08
+LBL 07
+XSTR "|"
+RCL 44
+X<>Y
+POS
+1
++
+RCL 44
+X<>Y
+SUBSTR
+STO 44
+DROP
+LASTX
+DSE 24
+GTO 07
+LBL 08
+XEQ 33
+RCL 35
+STO 37
+XEQ 33
+RTN
+LBL 09
+XEQ 13
+LBL 10
+GETKEY
+STO 33
+XEQ 11
+GTO 17
+LBL 11
+XEQ 02
+XEQ 40
+CF 34
+CF 35
+13
+4
+3
+13
+XEQ 12
+21
+14
+4
+3
+XEQ 12
+39
+14
+5
+3
+XEQ 12
+72
+13
+6
+4
+XEQ 12
+104
+13
+7
+4
+XEQ 12
+XEQ 23
+XEQ 01
+XEQ 03
+RTN
+LBL 12
+STO 27
+R↓
+STO 26
+R↓
+STO 28
+R↓
+STO 25
+1
+-
+STO 24
+65
+÷
+IP
+36
++
+STO 50
+XEQ IND 50
+STO 34
+RCL 24
+65
+MOD
+STO 24
+3
+×
+RCL 34
+X<>Y
+SUBSTR
+STO 34
+DROP
+LASTX
+66
+RCL 24
+-
+STO 49
+GTO 26
+LBL 13
+XEQ 40
+CF 34
+CF 35
+60
+STO 66
+50
+STO 67
+1
+STO 68
+120
+STO 69
+XEQ "E47B"
+CF 34
+CF 35
+60
+STO 66
+349
+STO 67
+1
+STO 68
+120
+STO 69
+XEQ "E47B"
+CF 34
+CF 35
+60
+STO 66
+51
+STO 67
+298
+STO 68
+1
+STO 69
+XEQ "E47B"
+XEQ 04
+RCL 35
+STO 48
+XEQ 33
+RCL 35
+STO 45
+XEQ 33
+RCL 35
+STO 46
+XSTR "|"
+RCL 44
+X<>Y
+POS
+RCL 44
+X<>Y
+0
+X<>Y
+SUBSTR
+STO 47
+RCL 30
+1
+-
+STO 28
+65
+÷
+IP
+36
++
+STO 43
+XEQ IND 43
+STO 29
+RCL 28
+65
+MOD
+3
+×
+RCL 29
+X<>Y
+SUBSTR
+STO 29
+DROP
+LASTX
+2
+RCL 29
+X<>Y
+0
+X<>Y
+SUBSTR
+STO 29
+XSTR " "
+STO 38
+RCL 30
+CLA
+AIP
+ASTO ST X
+RCL 38
+X<>Y
+APPEND
+STO 38
+RCL 38
+158
+51
+XEQ "E47T"
+RCL 37
+158
+90
+XEQ "E47T"
+XSTR "ANY KEY: BACK"
+162
+268
+XEQ "E47S"
+XSTR "Symbol€0dState€0dGroup€0dConfig"
+134
+58
+XEQ "E47T"
+XSTR "Mass€0dBoil"
+134
+226
+XEQ "E47T"
+XSTR "€0d"
+RCL 48
+X<>Y
+APPEND
+STO 48
+DROP
+LASTX
+RCL 46
+RCL 48
+X<>Y
+APPEND
+STO 48
+DROP
+LASTX
+XSTR "-"
+RCL 46
+X<>Y
+POS
+X<0?
+XEQ 41
+RCL 48
+134
+272
+XEQ "E47T"
+RCL 29
+STO 38
+XSTR "€0d"
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+XEQ 42
+RCL 45
+RCL 51
+X<>Y
+POS
+STO 24
+XEQ 34
+RCL 35
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+XSTR "€0d"
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 31
+7
+X<Y?
+GTO 14
+RCL 32
+CLA
+AIP
+ASTO ST X
+RCL 38
+X<>Y
+APPEND
+STO 38
+XSTR "  "
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+LBL 14
+XEQ 43
+XEQ 48
+XEQ 34
+RCL 35
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+XSTR "€0d"
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 47
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+134
+130
+XEQ "E47T"
+SF 34
+SF 35
+158
+STO 66
+51
+STO 67
+298
+STO 68
+22
+STO 69
+XEQ "E47B"
+CF 34
+CF 35
+RTN
+LBL 15
+9
+18
+NEWMAT
+STO "PT"
+INDEX "PT"
+XSTR "SLG-"
+STO 51
+1
+STO 30
+STO 31
+STO 32
+LBL 16
+CLLCD
+XEQ 24
+XEQ 23
+XEQ 01
+XEQ 03
+LBL 17
+GETKEY
+STO 33
+RCL 33
+20
+X=Y?
+GTO 18
+DROP
+30
+X=Y?
+GTO 19
+DROP
+24
+X=Y?
+GTO 20
+DROP
+26
+X=Y?
+GTO 21
+DROP
+25
+X=Y?
+GTO 09
+DROP
+34
+X=Y?
+GTO 22
+GTO 17
+LBL 18
+1
++/-
+STO 41
+0
+STO 42
+GTO 00
+LBL 19
+1
+STO 41
+0
+STO 42
+GTO 00
+LBL 20
+0
+STO 41
+1
++/-
+STO 42
+GTO 00
+LBL 21
+0
+STO 41
+1
+STO 42
+GTO 00
+LBL 22
+CF 34
+CF 35
+CLV "PT"
+CLLCD
+0
+STO "GrMod"
+CLRG
+CLST
+CLD
+RTN
+LBL 23
+XSTR "ELEMENTS 47"
+217
+270
+XEQ "E47T"
+XSTR "   8€0d5 4 6€0d   2€0d   0"
+200
+152
+XEQ "E47S"
+XSTR "      ↑€0dINFO ← →€0d      ↓€0d     END"
+200
+194
+XEQ "E47S"
+RTN
+LBL 24
+1
+STO 25
+STO 49
+35
+STO 50
+XEQ 29
+RTN
+LBL 25
+STO 27
+R↓
+STO 26
+R↓
+STO 28
+LBL 26
+XEQ 31
+RCL 26
+RCL 27
+STOIJ
+LBL 27
+RCL 25
+STOEL
+J+
+DSE 49
+GTO 28
+XEQ 30
+LBL 28
+XEQ 49
+XSTR " "
+STO 38
+RCL 25
+CLA
+AIP
+ASTO ST X
+RCL 38
+X<>Y
+APPEND
+STO 38
+RCL 38
+RCL 52
+RCL 39
+4
+-
+XEQ "E47S"
+2
+RCL 34
+X<>Y
+0
+X<>Y
+SUBSTR
+2
+RCL 34
+X<>Y
+SUBSTR
+STO 34
+DROP
+LASTX
+DROP
+RCL 53
+HEAD 34
+C→N
+48
+-
+RCL 39
++
+XEQ "E47T"
+1
+STO+ 25
+22
+STO+ 39
+DSE 28
+GTO 27
+RTN
+LBL 30
+1
+STO+ 50
+XEQ IND 50
+STO 34
+65
+STO 49
+RTN
+LBL 31
+RCL 27
+22
+×
+21
+-
+STO 39
+238
+RCL 26
+25
+×
+-
+STO 40
+RCL 26
+7
+X≥Y?
+GTO 32
+9
+STO- 40
+LBL 32
+RCL 40
+1
++
+STO 53
+17
++
+STO 52
+RTN
+LBL 33
+RCL 44
+STO 35
+XSTR "/"
+RCL 44
+X<>Y
+POS
+X<0?
+RTN
+STO 24
+RCL 35
+X<>Y
+0
+X<>Y
+SUBSTR
+STO 35
+RCL 24
+1
++
+RCL 44
+X<>Y
+SUBSTR
+STO 44
+DROP
+LASTX
+RTN
+LBL 34
+RCL 24
+X=0?
+GTO 35
+XSTR "/"
+RCL 35
+X<>Y
+POS
+1
++
+RCL 35
+X<>Y
+SUBSTR
+STO 35
+DROP
+LASTX
+1
+STO- 24
+GTO 34
+LBL 35
+XSTR "/"
+RCL 35
+X<>Y
+POS
+X<0?
+RTN
+RCL 35
+X<>Y
+0
+X<>Y
+SUBSTR
+STO 35
+RTN
+LBL 38
+RCL 31
+STO 26
+RCL 32
+STO 27
+LBL 39
+RCL 41
+STO+ 26
+RCL 42
+STO+ 27
+RCL 26
+X=0?
+RTN
+9
+X<Y?
+RTN
+RCL 27
+X=0?
+RTN
+18
+X<Y?
+RTN
+RCL 26
+RCL 27
+STOIJ
+RCLEL
+X=0?
+GTO 39
+STO 30
+RCL 26
+STO 31
+RCL 27
+STO 32
+RTN
+LBL 40
+CF 34
+SF 35
+XSTR "                                          €0d"
+STO 38
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+X<>Y
+APPEND
+STO 38
+DROP
+LASTX
+RCL 38
+160
+50
+XEQ "E47T"
+XSTR " €0d €0d €0d €0d €0d "
+160
+343
+XEQ "E47T"
+RTN
+LBL 41
+XSTR " K"
+RCL 48
+X<>Y
+APPEND
+STO 48
+DROP
+LASTX
+RTN
+LBL 42
+XSTR "Solid/Liquid/Gas/-"
+STO 35
+RTN
+LBL 43
+RCL 31
+STO 24
+7
+X<Y?
+GTO 47
+RCL 32
+STO 24
+RCL 30
+1
+X=Y?
+GTO 46
+RCL 32
+2
+X<Y?
+GTO 44
+RTN
+LBL 44
+3
+STO 24
+RCL 32
+12
+X<Y?
+GTO 45
+RTN
+LBL 45
+RCL 32
+9
+-
+STO 24
+RTN
+LBL 46
+0
+STO 24
+RTN
+LBL 47
+2
+STO+ 24
+RTN
+LBL 48
+XSTR "Nonmetal/Alkali metals/Alkaline earth metals/"
+STO 35
+XSTR "Transition metals/Boron group/Carbon group/Pnictogens/"
+RCL 35
+X<>Y
+APPEND
+STO 35
+DROP
+LASTX
+XSTR "Chalcogens/Halogens/Noble gases/Lanthanides/Actinides"
+RCL 35
+X<>Y
+APPEND
+STO 35
+DROP
+LASTX
+RTN
+LBL 49
+CF 34
+CF 35
+215
+RCL 40
+-
+STO 64
+CLA
+├"€ff€01€01€01€01€01€01€01€01€01€01€01€01€01"
+├"€01€01€01€01€01€01€01€01€ff"
+RCL 64
+RCL 39
+1
++
+AGRAPH
+CLA
+├"€ff€00€00€00€00€00€00€00€00€00€00€00€00€00"
+├"€00€00€00€00€00€00€00€00€ff"
+RCL 64
+8
++
+RCL 39
+1
++
+AGRAPH
+CLA
+├"€ff€00€00€00€00€00€00€00€00€00€00€00€00€00"
+├"€00€00€00€00€00€00€00€00€ff"
+RCL 64
+16
++
+RCL 39
+1
++
+AGRAPH
+CLA
+├"€ff€80€80€80€80€80€80€80€80€80€80€80€80€80"
+├"€80€80€80€80€80€80€80€80€ff"
+RCL 64
+18
++
+RCL 39
+1
++
+AGRAPH
+RTN
+LBL 50
+SF 34
+SF 35
+216
+RCL 40
+-
+STO 64
+CLA
+├"€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff"
+├"€ff€ff€ff€ff€ff€ff€ff"
+RCL 64
+RCL 39
+2
++
+AGRAPH
+CLA
+├"€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff"
+├"€ff€ff€ff€ff€ff€ff€ff"
+RCL 64
+8
++
+RCL 39
+2
++
+AGRAPH
+CLA
+├"€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff"
+├"€ff€ff€ff€ff€ff€ff€ff"
+RCL 64
+16
++
+RCL 39
+2
++
+AGRAPH
+CF 34
+CF 35
+RTN
+LBL 29
+1
+1
+1
+XEQ 25
+1
+1
+18
+XEQ 25
+2
+2
+1
+XEQ 25
+6
+2
+13
+XEQ 25
+2
+3
+1
+XEQ 25
+6
+3
+13
+XEQ 25
+18
+4
+1
+XEQ 25
+18
+5
+1
+XEQ 25
+2
+6
+1
+XEQ 25
+15
+8
+3
+XEQ 25
+15
+6
+4
+XEQ 25
+2
+7
+1
+XEQ 25
+15
+9
+3
+XEQ 25
+15
+7
+4
+XEQ 25
+RTN
+LBL 36
+XSTR "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
+RTN
+LBL 37
+XSTR "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
+RTN
+END
+LBL "ELD1"
+XEQ IND 43
+RTN
+LBL 60
+XSTR "Hydrogen/1.0080/G/20.3/1s1|Helium/4.0026/G/4.2/1s2|Lithium/6.94/S/1615/[He] 2s1|Beryllium/9.0122/S/2744/[He] 2s2|"
+RTN
+LBL 61
+XSTR "Boron/10.81/S/4273/[He] 2s2 2p1|Carbon/12.011/S/4098/[He] 2s2 2p2|Nitrogen/14.007/G/77.4/[He] 2s2 2p3|Oxygen/15.999/G/90.2/[He] 2s2 2p4|"
+RTN
+LBL 62
+XSTR "Fluorine/18.998/G/85.0/[He] 2s2 2p5|Neon/20.180/G/27.1/[He] 2s2 2p6|Sodium/22.990/S/1156/[Ne] 3s1|Magnesium/24.305/S/1363/[Ne] 3s2|"
+RTN
+LBL 63
+XSTR "Aluminium/26.982/S/2792/[Ne] 3s2 3p1|Silicon/28.085/S/3538/[Ne] 3s2 3p2|Phosphorus/30.974/S/554/[Ne] 3s2 3p3|Sulfur/32.06/S/718/[Ne] 3s2 3p4|"
+RTN
+LBL 64
+XSTR "Chlorine/35.45/G/239/[Ne] 3s2 3p5|Argon/39.95/G/87.3/[Ne] 3s2 3p6|Potassium/39.098/S/1032/[Ar] 4s1|Calcium/40.078/S/1757/[Ar] 4s2|"
+RTN
+LBL 65
+XSTR "Scandium/44.956/S/3109/[Ar] 3d1 4s2|Titanium/47.867/S/3560/[Ar] 3d2 4s2|Vanadium/50.942/S/3680/[Ar] 3d3 4s2|Chromium/51.996/S/2944/[Ar] 3d5 4s1|"
+RTN
+LBL 66
+XSTR "Manganese/54.938/S/2334/[Ar] 3d5 4s2|Iron/55.845/S/3134/[Ar] 3d6 4s2|Cobalt/58.933/S/3200/[Ar] 3d7 4s2|Nickel/58.693/S/3186/[Ar] 3d8 4s2|"
+RTN
+LBL 67
+XSTR "Copper/63.546/S/2835/[Ar] 3d10 4s1|Zinc/65.38/S/1180/[Ar] 3d10 4s2|Gallium/69.723/S/2477/[Ar] 3d10 4s2 4p1|Germanium/72.630/S/3106/[Ar] 3d10 4s2 4p2|"
+RTN
+LBL 68
+XSTR "Arsenic/74.922/S/887/[Ar] 3d10 4s2 4p3|Selenium/78.971/S/958/[Ar] 3d10 4s2 4p4|Bromine/79.904/L/332/[Ar] 3d10 4s2 4p5|Krypton/83.798/G/120/[Ar] 3d10 4s2 4p6|"
+RTN
+LBL 69
+XSTR "Rubidium/85.468/S/961/[Kr] 5s1|Strontium/87.62/S/1655/[Kr] 5s2|Yttrium/88.906/S/3618/[Kr] 4d1 5s2|Zirconium/91.222/S/4682/[Kr] 4d2 5s2|"
+RTN
+LBL 70
+XSTR "Niobium/92.906/S/5017/[Kr] 4d4 5s1|Molybdenum/95.95/S/4912/[Kr] 4d5 5s1|Technetium/-/S/4538/[Kr] 4d5 5s2|Ruthenium/101.07/S/4423/[Kr] 4d7 5s1|"
+RTN
+LBL 71
+XSTR "Rhodium/102.91/S/3968/[Kr] 4d8 5s1|Palladium/106.42/S/3236/[Kr] 4d10|Silver/107.87/S/2435/[Kr] 4d10 5s1|Cadmium/112.41/S/1040/[Kr] 4d10 5s2|"
+RTN
+LBL 72
+XSTR "Indium/114.82/S/2345/[Kr] 4d10 5s2 5p1|Tin/118.71/S/2875/[Kr] 4d10 5s2 5p2|Antimony/121.76/S/1860/[Kr] 4d10 5s2 5p3|Tellurium/127.60/S/1261/[Kr] 4d10 5s2 5p4|"
+RTN
+LBL 73
+XSTR "Iodine/126.90/S/458/[Kr] 4d10 5s2 5p5|Xenon/131.29/G/165/[Kr] 4d10 5s2 5p6|Caesium/132.91/S/944/[Xe] 6s1|Barium/137.33/S/2170/[Xe] 6s2|"
+RTN
+LBL 74
+XSTR "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2|Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2|Praseodymium/140.91/S/3793/[Xe] 4f3 6s2|Neodymium/144.24/S/3347/[Xe] 4f4 6s2|"
+RTN
+END
+LBL "ELD2"
+XEQ IND 43
+RTN
+LBL 75
+XSTR "Promethium/-/S/3273/[Xe] 4f5 6s2|Samarium/150.36/S/2067/[Xe] 4f6 6s2|Europium/151.96/S/1802/[Xe] 4f7 6s2|Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2|"
+RTN
+LBL 76
+XSTR "Terbium/158.93/S/3503/[Xe] 4f9 6s2|Dysprosium/162.50/S/2840/[Xe] 4f10 6s2|Holmium/164.93/S/2973/[Xe] 4f11 6s2|Erbium/167.26/S/3141/[Xe] 4f12 6s2|"
+RTN
+LBL 77
+XSTR "Thulium/168.93/S/2223/[Xe] 4f13 6s2|Ytterbium/173.05/S/1469/[Xe] 4f14 6s2|Lutetium/174.97/S/3675/[Xe] 4f14 5d1 6s2|Hafnium/178.49/S/4876/[Xe] 4f14 5d2 6s2|"
+RTN
+LBL 78
+XSTR "Tantalum/180.95/S/5731/[Xe] 4f14 5d3 6s2|Tungsten/183.84/S/5828/[Xe] 4f14 5d4 6s2|Rhenium/186.21/S/5869/[Xe] 4f14 5d5 6s2|Osmium/190.23/S/5285/[Xe] 4f14 5d6 6s2|"
+RTN
+LBL 79
+XSTR "Iridium/192.22/S/4701/[Xe] 4f14 5d7 6s2|Platinum/195.08/S/4098/[Xe] 4f14 5d9 6s1|Gold/196.97/S/3129/[Xe] 4f14 5d10 6s1|Mercury/200.59/L/630/[Xe] 4f14 5d10 6s2|"
+RTN
+LBL 80
+XSTR "Thallium/204.38/S/1746/[Xe] 4f14 5d10 6s2 6p1|Lead/207.2/S/2022/[Xe] 4f14 5d10 6s2 6p2|Bismuth/208.98/S/1837/[Xe] 4f14 5d10 6s2 6p3|Polonium/-/S/1235/[Xe] 4f14 5d10 6s2 6p4|"
+RTN
+LBL 81
+XSTR "Astatine/-/S/-/[Xe] 4f14 5d10 6s2 6p5|Radon/-/G/211/[Xe] 4f14 5d10 6s2 6p6|Francium/-/S/-/[Rn] 7s1|Radium/-/S/1413/[Rn] 7s2|"
+RTN
+LBL 82
+XSTR "Actinium/-/S/3471/[Rn] 6d1 7s2|Thorium/232.04/S/5061/[Rn] 6d2 7s2|Protactinium/231.04/S/-/[Rn] 5f2 6d1 7s2|Uranium/238.03/S/4404/[Rn] 5f3 6d1 7s2|"
+RTN
+LBL 83
+XSTR "Neptunium/-/S/4175/[Rn] 5f4 6d1 7s2|Plutonium/-/S/3501/[Rn] 5f6 7s2|Americium/-/S/2284/[Rn] 5f7 7s2|Curium/-/S/3400/[Rn] 5f7 6d1 7s2|"
+RTN
+LBL 84
+XSTR "Berkelium/-/S/-/[Rn] 5f9 7s2|Californium/-/S/-/[Rn] 5f10 7s2|Einsteinium/-/S/-/[Rn] 5f11 7s2|Fermium/-/S/-/[Rn] 5f12 7s2|"
+RTN
+LBL 85
+XSTR "Mendelevium/-/S/-/[Rn] 5f13 7s2|Nobelium/-/S/-/[Rn] 5f14 7s2|Lawrencium/-/S/-/[Rn] 5f14 6d1 7s2|Rutherfordium/-/S/-/[Rn] 5f14 6d2 7s2|"
+RTN
+LBL 86
+XSTR "Dubnium/-/S/-/[Rn] 5f14 6d3 7s2|Seaborgium/-/S/-/[Rn] 5f14 6d4 7s2|Bohrium/-/S/-/[Rn] 5f14 6d5 7s2|Hassium/-/S/-/[Rn] 5f14 6d6 7s2|"
+RTN
+LBL 87
+XSTR "Meitnerium/-/S/-/[Rn] 5f14 6d7 7s2|Darmstadtium/-/-/-/[Rn] 5f14 6d8 7s2|Roentgenium/-/-/-/[Rn] 5f14 6d9 7s2|Copernicium/-/-/-/[Rn] 5f14 6d10 7s2|"
+RTN
+LBL 88
+XSTR "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1|Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7p2|Moscovium/-/-/-/[Rn] 5f14 6d10 7s2 7p3|Livermorium/-/-/-/[Rn] 5f14 6d10 7s2 7p4|"
+RTN
+LBL 89
+XSTR "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5|Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6|"
+RTN
+END
+LBL "E47T"
+ABS
+STO 60
+STO 61
+R↓
+ABS
+STO 62
+R↓
+STO 63
+LBL 99
+221
+RCL 62
+-
+STO 64
+LBL 98
+RCL 63
+LENGTH
+X=0?
+RTN
+HEAD 63
+C→N
+13
+X=Y?
+GTO 97
+X<>Y
+80
++
+112
+MOD
+STO 65
+XEQ IND 65
+GTO 98
+LBL 97
+RCL 61
+STO 60
+20
+STO- 62
+GTO 99
+LBL 00
+"€00€00€00€00€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€00€00€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 13
+"€00€00€00€00€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€06€06€06€06€06€06€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 14
+"€00€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€e0€e0€e0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0e€0e€0e€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+4
+STO+ 60
+RTN
+LBL 16
+CLA
+├"€e0€f0€30€30€f0€e0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€7f€ff€c0€c0€ff€7f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€07€0f€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 17
+"€00€40€60€f0€f0€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€ff€ff€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€0f€0f€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 18
+"€60€70€30€30€f0€e0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€e0€f0€f8€cc€c7€c3€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0e€0f€0f€0c€0c€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 19
+"€60€30€30€30€f0€e0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€60€c0€c6€c6€ff€79€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€06€0c€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 20
+CLA
+├"€f0€f0€00€00€c0€c0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€0c€0c€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€00€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 21
+CLA
+├"€f0€f0€30€30€30€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€63€c3€c3€c3€ff€7e€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€06€0c€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 22
+CLA
+├"€e0€f0€30€30€30€20€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€7f€ff€c3€c3€ff€7e€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€07€0f€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 23
+"€30€30€30€f0€f0€70€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€f0€fe€0f€01€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€0f€0f€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 24
+CLA
+├"€e0€f0€30€30€f0€e0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€79€ff€c6€c6€ff€79€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€07€0f€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 25
+CLA
+├"€e0€f0€30€30€f0€e0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€47€cf€cc€cc€ff€7f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€04€0c€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 26
+"€00€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€e7€e7€e7€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0e€0e€0e€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+4
+STO+ 60
+RTN
+LBL 33
+"€00€00€80€e0€70€e0€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€e0€fc€3f€33€30€33€3f€fc€e0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0e€0f€03€03€03€03€03€0f€0e€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+10
+STO+ 60
+RTN
+LBL 34
+CLA
+├"€f0€b0€30€30€30€70€e0€c0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€df€c6€c6€c6€ef€7f€39€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0d€0c€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 35
+CLA
+├"€c0€e0€70€30€30€30€70€60€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€7f€e0€c0€c0€c0€e0€60€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0c€0e€06€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 36
+CLA
+├"€f0€b0€30€30€30€e0€e0€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€df€c0€c0€c0€70€7f€1f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0d€0c€0c€0c€07€07€01€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 37
+CLA
+├"€f0€f0€30€30€30€30€30€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€c6€c6€c6€c6€c6€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€0c€0c€0c€0c€0c€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 38
+CLA
+├"€f0€f0€30€30€30€30€30€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€06€06€06€06€06€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 39
+CLA
+├"€c0€e0€70€30€30€30€70€60€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€7f€e0€c0€c6€c6€fe€7e€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 40
+CLA
+├"€f0€f0€00€00€00€00€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€06€06€06€06€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 41
+"€30€f0€f0€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€c0€ff€ff€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0c€0f€0f€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+5
+STO+ 60
+RTN
+LBL 43
+CLA
+├"€f0€f0€00€00€80€c0€e0€70€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€06€0f€1f€39€70€e0€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€01€03€07€0e€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+10
+STO+ 60
+RTN
+LBL 44
+CLA
+├"€f0€f0€00€00€00€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€c0€c0€c0€c0€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€0c€0c€0c€0c€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+8
+STO+ 60
+RTN
+LBL 45
+CLA
+├"€f0€f0€e0€c0€80€80€c0€e0€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€00€01€07€07€01€00€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€00€00€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+11
+STO+ 60
+RTN
+LBL 46
+CLA
+├"€f0€f0€f0€c0€00€00€00€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€00€03€0f€3c"
+├"€f0€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€03€0f€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+10
+STO+ 60
+RTN
+LBL 47
+CLA
+├"€c0€e0€70€30€30€70€e0€c0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€7f€e0€c0€c0€e0€7f€3f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 48
+CLA
+├"€f0€b0€30€30€30€70€e0€c0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€0c€0c€0c€0e€07€03€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 50
+CLA
+├"€f0€b0€30€30€30€70€e0€c0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€0c€1c€3c"
+├"€7e€e7€c3€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€01€03€07€0e€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 51
+CLA
+├"€e0€f0€30€30€30€30€70€60€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€61€e3€c3€c6€c6€cc€fc€78€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€06€0e€0c€0c€0c€0c€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 52
+"€30€30€30€f0€f0€30€30€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€ff€ff€00€00€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€0f€0f€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 53
+CLA
+├"€f0€f0€00€00€00€00€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€7f€e0€c0€c0€e0€7f€3f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 54
+CLA
+├"€f0€f0€00€00€00€00€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€07€3f€f8€f8€3f€07€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€03€0f€0f€03€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 55
+CLA
+├"€f0€f0€00€00€80€80€00€00€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€ff€f0€3c"
+├"€0f€0f€3c"
+├"€f0€ff€3f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€0f€0f€03€00€00€03€0f€0f€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+11
+STO+ 60
+RTN
+LBL 56
+"€30€f0€c0€00€00€c0€f0€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€c0€f0€3f€0f€0f€3f€f0€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0c€0f€03€00€00€03€0f€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 57
+"€30€f0€c0€00€00€c0€f0€30€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€00€03€ff€ff€03€00€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€0f€0f€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 58
+"€30€30€30€30€30€b0€f0€f0€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€f0€f8€dc€ce€c7€c3€c1€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€0d€0c€0c€0c€0c€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 59
+"€00€fe€fe€06€06€06€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€ff€ff€00€00€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€7f€7f€60€60€60€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 61
+"€06€06€06€fe€fe€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€00€00€00€ff€ff€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€60€60€60€7f€7f€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+7
+STO+ 60
+RTN
+LBL 65
+"€00€00€80€80€80€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€70€f9€d9€c9€cd€6d€ff€fe€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€07€0f€0d€0c€0c€06€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 66
+CLA
+├"€f8€f8€00€80€80€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€63€c1€c1€e3€7f€3e"
+├"€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€06€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 67
+"€00€00€80€80€80€80€80€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3e"
+├"€7f€e3€c1€c1€c1€c1€41€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0c€0c€04€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 68
+"€00€00€80€80€80€00€f8€f8€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3e"
+├"€7f€e3€c1€c1€63€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€06€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 69
+"€00€00€80€80€80€80€80€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3e"
+├"€7f€fb€c9€c9€cd€cf€47€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0f€0c€0c€0c€0c€04€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 70
+CLA
+├"€80€80€f0€f8€98€98€18€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€01€01€ff€ff€01€01€00€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€0f€0f€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+8
+STO+ 60
+RTN
+LBL 71
+"€00€00€80€80€80€80€00€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3e"
+├"€7f€e3€c1€c1€63€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€63€e7€ce€cc€cc€e6€7f€3f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 72
+CLA
+├"€f8€f8€00€80€80€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€03€01€01€03€ff€fe€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 73
+CLA
+├"€98€98€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€7f€ff€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€07€0f€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+4
+STO+ 60
+RTN
+LBL 75
+CLA
+├"€f8€f8€00€00€00€80€80€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€1c€1e€3f€73€e1€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€01€01€03€07€0e€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 76
+CLA
+├"€f8€f8€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€7f€ff€c0€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€07€0f€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+4
+STO+ 60
+RTN
+LBL 77
+CLA
+├"€80€80€00€80€80€80€00€80€80€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€03€01€ff€ff€03€01€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€0f€0f€00€00€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+11
+STO+ 60
+RTN
+LBL 78
+CLA
+├"€80€80€00€80€80€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€03€01€01€03€ff€fe€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€0f€0f€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 79
+"€00€00€80€80€80€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3e"
+├"€7f€e3€c1€c1€e3€7f€3e"
+├"€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 80
+CLA
+├"€80€80€80€80€80€80€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€63€c1€c1€e3€7f€3e"
+├"€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€06€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 81
+"€00€00€80€80€80€00€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3e"
+├"€7f€e3€c1€c1€63€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€06€ff€ff€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 82
+CLA
+├"€80€80€00€80€80€80€80€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€03€03€01€01€03€03€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0f€0f€00€00€00€00€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 83
+"€00€80€80€80€80€80€80€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€67€ef€cd€c9€c9€d9€fb€73€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€06€0e€0c€0c€0c€0d€0f€07€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 84
+CLA
+├"€80€80€f8€f8€80€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€01€01€7f€ff€c1€c1€41€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€07€0f€0c€0c€04€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+8
+STO+ 60
+RTN
+LBL 85
+CLA
+├"€80€80€00€00€00€00€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€7f€e0€c0€c0€e0€7f€3f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0c€0c€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 86
+CLA
+├"€80€80€00€00€00€00€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€03€0f€3c"
+├"€f0€f0€3c"
+├"€0f€03€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€00€00€03€0f€0f€03€00€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 87
+CLA
+├"€80€80€00€00€00€00€00€00€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€3f€7f€e0€e0€7f€7f€e0€e0€7f€3f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€03€07€0e€0e€07€07€0e€0e€07€03€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+11
+STO+ 60
+RTN
+LBL 88
+CLA
+├"€80€80€00€00€00€00€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€c1€e3€77€3e"
+├"€3e"
+├"€77€e3€c1€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+"€0c€0e€07€03€03€07€0e€0c€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 89
+CLA
+├"€80€80€00€00€00€00€80€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+"€07€1f€3c"
+├"€70€e0€f8€7f€0f€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€c0€c1€e3€77€3e"
+├"€1f€07€00€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+9
+STO+ 60
+RTN
+LBL 92
+CLA
+├"€ff€ff€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€00€00"
+RCL 64
+8
++
+RCL 60
+1
++
+AGRAPH
+CLA
+├"€ff€ff€00€00"
+RCL 64
+12
++
+RCL 60
+1
++
+AGRAPH
+3
+STO+ 60
+RTN
+LBL "E47B"
+241
+RCL 66
+-
+RCL 69
+-
+STO 70
+RCL 69
+STO 71
+LBL 01
+RCL 71
+X≤0?
+RTN
+255
+STO 72
+8
+RCL 71
+X<Y?
+XEQ 02
+RCL 68
+STO 73
+RCL 67
+1
++
+STO 74
+LBL 03
+RCL 73
+X≤0?
+GTO 04
+44
+X>Y?
+X<>Y
+STO 75
+CLA
+LBL 05
+RCL 72
+XTOA
+DSE 75
+GTO 05
+RCL 70
+RCL 74
+AGRAPH
+44
+STO+ 74
+-44
+STO+ 73
+GTO 03
+LBL 04
+8
+STO+ 70
+-8
+STO+ 71
+GTO 01
+LBL 02
+2
+RCL 71
+Y↑X
+1
+-
+STO 72
+RTN
+END
+LBL "E47S"
+ABS
+STO 60
+STO 61
+R↓
+ABS
+STO 62
+R↓
+STO 63
+LBL 99
+233
+RCL 62
+-
+STO 64
+LBL 98
+RCL 63
+LENGTH
+X=0?
+RTN
+HEAD 63
+C→N
+13
+X=Y?
+GTO 97
+X<>Y
+80
++
+112
+MOD
+STO 65
+XEQ IND 65
+GTO 98
+LBL 97
+RCL 61
+STO 60
+8
+STO- 62
+GTO 99
+LBL 00
+"€00€00€00€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 16
+"€7c"
+├"€a2€92€8a€7c"
+├"€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 17
+"€00€84€fe€80€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 18
+CLA
+├"€c4€a2€92€92€8c€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 19
+"€44€82€92€92€6c€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 20
+"€30€28€24€fe€20€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 21
+"€4e€8a€8a€8a€72€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 22
+"€78€94€92€92€60€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 23
+"€02€e2€12€0a€06€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 24
+"€6c€92€92€92€6c€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 25
+"€0c€92€92€52€3c"
+├"€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 26
+"€00€6c€6c€00€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 33
+CLA
+├"€f8€24"
+34
+XTOA
+├"€24€f8€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 34
+CLA
+├"€82€fe€92€92€6c€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 35
+"€7c"
+├"€82€82€82€44€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 36
+CLA
+├"€82€fe€82€82€7c"
+├"€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 37
+CLA
+├"€fe€92€92€92€82€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 38
+CLA
+├"€fe€12€12€12€02€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 41
+"€00€82€fe€82€00€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 43
+CLA
+├"€fe€10€28€44€82€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 46
+CLA
+├"€fe€08€10€20€fe€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 47
+"€7c"
+├"€82€82€82€7c"
+├"€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 57
+"€0e€10€e0€10€0e€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 62
+"€10€08€7c"
+├"€08€10€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 94
+"€10€20€7c"
+├"€20€10€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 95
+"€10€10€54€38€10€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+LBL 96
+"€10€38€54€10€10€00"
+RCL 64
+RCL 60
+1
++
+AGRAPH
+6
+STO+ 60
+RTN
+END

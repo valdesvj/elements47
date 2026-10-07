@@ -1,0 +1,1018 @@
+      ; ELEM47P - Elements 47, the prototype: the full table (118 elements) from a vector of positions
+      ; DEV: a prototype kept for reference (branch prototype-cells), not the release; built by tools/build_dev.py
+      ; Written to be read, not to be short: one subroutine for each job.
+      ; 
+      ; LBL 20  CELL     draws one cell: its box, its atomic number and its symbol
+      ; LBL 30  DATA     the symbol and the text of the info box of one element (from ELP1 / ELP2)
+      ; LBL 40  INFO     the info box of one element
+      ; LBL 45  RESTORE  closes the info box: draws again only the cells that were under it
+      ; LBL 50  CURSOR   marks (or unmarks) one cell
+      ; LBL 60  COORD    the position of one cell, taken from the vector in R10
+      ; LBL 70  VECTOR   fills the vector in R10: one complex number x + iy for each element
+      ; LBL 71  RUN      one run of the table (elements side by side in one row)
+      ; ELP1, ELP2       two data programs: one label for each element (1-60 and 61-118)
+      ; 
+      ; Screen: 400 x 240 pixels, x = column (0 at the left), y = row (0 at the BOTTOM).
+      ; The table: 18 columns x 9 rows (rows 1-7 the periods, 8 the lanthanides, 9 the actinides).
+      ; A cell is 23 x 26 pixels; the cells share their edges, so they are 22 columns and 25 rows apart:
+      ; x = 2 + 22 x (column - 1)        y = 212 - 25 x (row - 1)
+      ; AGRAPH r draws register r (a binary number) as one column of pixels: bit 0 at row Y, bit 1
+      ; one row up, and so on (up to 64 rows with WSIZE 64); X = the column. After each column
+      ; AGRAPH adds 1 to X by itself, so the next AGRAPH draws the next column to the right.
+      ; ATEXT Z writes the text in Z: Y = the bottom row of the letters' box, X = the column.
+      ; GRMOD takes the mode from X: 0 sets the pixels, 1 writes the pattern exactly (the 0 bits
+      ; clear), 2 clears the pixels of the pattern, 3 flips them.
+      ; PAUSE 0 sends the screen to the LCD at once (the C47 shows the screen only at a PAUSE, a key
+      ; or the end), so the table builds up cell by cell.
+      ; Keys: 4 and 6 move the cursor, 5 opens the info box (any key closes it), 0 ends.
+      ; The key test x=? Y is the C47 compare (x= ?) with stack register Y as its argument.
+      ; 
+      ; Registers:
+      ; R10 the vector (118 x 1) of the cell positions       R11 x, R12 y, R13 atomic number
+      ; R14 ISG counter of the columns of a box               R15 cell edge, R16 cell inside
+      ; R17 text                                               R18 ISG counter of the elements
+      ; R19 the element under the cursor                       R20 the key
+      ; R21 info box edge, R22 info box inside                 R23 cursor pattern
+      ; R25 atomic number for DATA, R26 complex position, R27 label to call
+   1  LBL "ELEM47P"
+   2  WSIZE 64
+      ; ---- the patterns of the columns (bit 0 = the bottom row) ----
+      ; a cell is 26 rows tall: the edge is 26 pixels, the inside only the bottom and top pixel
+   3  11111111111111111111111111#2
+   4  STO 15
+   5  10000000000000000000000001#2
+   6  STO 16
+      ; the info box is 64 rows tall
+   7  1111111111111111111111111111111111111111111111111111111111111111#2
+   8  STO 21
+   9  1000000000000000000000000000000000000000000000000000000000000001#2
+  10  STO 22
+      ; the cursor fills the 24 rows inside a cell
+  11  111111111111111111111111#2
+  12  STO 23
+  13  CLSTK
+  14  XEQ 70
+      ; the cursor starts on H
+  15  1
+  16  STO 19
+  17  CLSTK
+      ; ==== the table: the elements 1 to 118, each cell shown as soon as it is drawn ====
+  18  CLLCD
+  19  0
+  20  GRMOD
+  21  DROP
+      ; the title and the keys, in the empty space of periods 1 to 3
+  22  21
+  23  GRFNT
+  24  DROP
+  25  "ELEMENTS 47"
+  26  190
+  27  104
+  28  ATEXT Z
+  29  CLSTK
+  30  10
+  31  GRFNT
+  32  DROP
+  33  "4 6 MOVE   5 INFO   0 END"
+  34  176
+  35  62
+  36  ATEXT Z
+  37  CLSTK
+      ; ISG 18 counts the elements: 1.118 = from 1 to 118
+  38  1.118
+  39  STO 18
+  40  LBL 12
+  41  CLSTK
+  42  RCL 18
+  43  IP
+  44  XEQ 60
+      ; the input of CELL: Z = atomic number, Y = y, X = x
+  45  CLSTK
+  46  RCL 18
+  47  IP
+  48  RCL 12
+  49  RCL 11
+  50  XEQ 20
+  51  PAUSE 0
+  52  ISG 18
+  53  GTO 12
+  54  RCL 19
+  55  XEQ 50
+      ; ==== wait for a key: 4 left, 6 right, 5 info box, 0 end; other keys ignored ====
+  56  LBL 13
+  57  PAUSE 50
+  58  KEY? 20
+  59  GTO 13
+  60  RCL 20
+  61  62
+  62  x=? Y
+  63  GTO 14
+  64  DROP
+  65  64
+  66  x=? Y
+  67  GTO 15
+  68  DROP
+  69  63
+  70  x=? Y
+  71  GTO 16
+  72  DROP
+  73  82
+  74  x=? Y
+  75  GTO 90
+  76  GTO 13
+      ; ---- 4: one element back (1 goes to 118): unmark, Z = (Z + 116) MOD 118 + 1, mark ----
+  77  LBL 14
+  78  RCL 19
+  79  XEQ 50
+  80  RCL 19
+  81  116
+  82  +
+  83  118
+  84  MOD
+  85  1
+  86  +
+  87  STO 19
+  88  XEQ 50
+  89  GTO 13
+      ; ---- 6: one element on (118 goes to 1): unmark, Z = Z MOD 118 + 1, mark ----
+  90  LBL 15
+  91  RCL 19
+  92  XEQ 50
+  93  RCL 19
+  94  118
+  95  MOD
+  96  1
+  97  +
+  98  STO 19
+  99  XEQ 50
+ 100  GTO 13
+      ; ---- 5: the info box (the cursor unmarked first); any key closes it ----
+ 101  LBL 16
+ 102  RCL 19
+ 103  XEQ 50
+ 104  RCL 19
+ 105  XEQ 40
+ 106  LBL 17
+ 107  PAUSE 50
+ 108  KEY? 20
+ 109  GTO 17
+ 110  XEQ 45
+ 111  RCL 19
+ 112  XEQ 50
+ 113  GTO 13
+      ; ---- 0: the end: the font and the mode as they were, the vector deleted ----
+ 114  LBL 90
+ 115  20
+ 116  GRFNT
+ 117  DROP
+ 118  0
+ 119  GRMOD
+      ; 0 in R10 deletes the vector
+ 120  STO 10
+ 121  CLLCD
+ 122  CLSTK
+ 123  RTN
+      ; 
+      ; ==== LBL 20 CELL: one cell ====
+      ; In:  Z = atomic number, Y = y (the bottom row of the cell), X = x (its left column)
+      ; The cell: columns x to x+22, rows y to y+25. Uses R11-R14, R17, R25, R27.
+ 124  LBL 20
+ 125  STO 11
+ 126  DROP
+ 127  STO 12
+ 128  DROP
+ 129  STO 13
+ 130  CLSTK
+      ; the box: the left edge, the 21 columns inside, the right edge
+ 131  RCL 12
+ 132  RCL 11
+ 133  AGRAPH 15
+      ; ISG 14 counts the 21 columns inside: 1.021 = from 1 to 21 (AGRAPH moves X on)
+ 134  1.021
+ 135  STO 14
+ 136  DROP
+ 137  LBL 21
+ 138  AGRAPH 16
+ 139  ISG 14
+ 140  GTO 21
+ 141  AGRAPH 15
+ 142  CLSTK
+      ; the atomic number as a text, tiny font, top left: column x+2, bottom row y+17
+ 143  10
+ 144  GRFNT
+ 145  DROP
+ 146  ""
+ 147  STO 17
+ 148  RCL 13
+ 149  αIP 17
+ 150  CLSTK
+ 151  RCL 17
+ 152  RCL 12
+ 153  17
+ 154  +
+ 155  RCL 11
+ 156  2
+ 157  +
+ 158  ATEXT Z
+ 159  CLSTK
+      ; the symbol (from DATA), standard font, centred: column x + 11 - 4 x (its letters), in R14
+      ; (worked out first, so the stack never needs more than 4 levels: SSIZE4 works too)
+ 160  21
+ 161  GRFNT
+ 162  DROP
+ 163  RCL 13
+ 164  XEQ 30
+ 165  DROP
+ 166  STO 17
+ 167  CLSTK
+ 168  RCL 11
+ 169  11
+ 170  +
+ 171  αLENG 17
+ 172  4
+ 173  ×
+ 174  -
+ 175  STO 14
+ 176  CLSTK
+ 177  RCL 17
+ 178  RCL 12
+ 179  1
+ 180  -
+ 181  RCL 14
+ 182  ATEXT Z
+ 183  CLSTK
+ 184  RTN
+      ; 
+      ; ==== LBL 30 DATA: the data of one element ====
+      ; In:  X = atomic number.  Out: Y = the symbol, X = the text of the info box
+      ; (3 lines, ↵ = a new line). A program holds labels 01 to 99 only, so the data is in two
+      ; programs: ELP1 for 1-60 (label = atomic number) and ELP2 for 61-118 (label = number - 60).
+ 185  LBL 30
+ 186  STO 25
+ 187  60
+ 188  x<? Y
+ 189  GTO 31
+ 190  CLSTK
+ 191  XEQ "ELP1"
+ 192  RTN
+ 193  LBL 31
+ 194  CLSTK
+ 195  XEQ "ELP2"
+ 196  RTN
+      ; 
+      ; ==== LBL 40 INFO: the info box of one element ====
+      ; In:  X = atomic number. The box: columns 80 to 319, rows 70 to 133.
+ 197  LBL 40
+ 198  STO 13
+      ; ISG 14 counts the 238 columns inside: 1.238 = from 1 to 238
+ 199  1.238
+ 200  STO 14
+ 201  CLSTK
+      ; GRMOD 1 writes the pattern exactly: the 0 bits clear the inside of the box
+ 202  1
+ 203  GRMOD
+ 204  DROP
+ 205  70
+ 206  80
+ 207  AGRAPH 21
+ 208  LBL 41
+ 209  AGRAPH 22
+ 210  ISG 14
+ 211  GTO 41
+ 212  AGRAPH 21
+ 213  CLSTK
+ 214  0
+ 215  GRMOD
+ 216  DROP
+      ; the 3 lines of text: the first line's bottom row is 112, the next ones 20 rows lower
+ 217  21
+ 218  GRFNT
+ 219  DROP
+ 220  RCL 13
+ 221  XEQ 30
+ 222  112
+ 223  86
+ 224  ATEXT Z
+ 225  CLSTK
+ 226  RTN
+      ; 
+      ; ==== LBL 45 RESTORE: close the info box ====
+      ; Clears the box (GRMOD 2 with the 64-row pattern, 240 columns from column 80, row 70),
+      ; then draws again only the cells under the box: a cell (x to x+22, y to y+25) is under the
+      ; box (80 to 319, 70 to 133) when x >= 58, x <= 319, y >= 45 and y <= 133.
+ 227  LBL 45
+ 228  1.240
+ 229  STO 14
+ 230  CLSTK
+ 231  2
+ 232  GRMOD
+ 233  DROP
+ 234  70
+ 235  80
+ 236  LBL 46
+ 237  AGRAPH 21
+ 238  ISG 14
+ 239  GTO 46
+ 240  CLSTK
+ 241  0
+ 242  GRMOD
+ 243  DROP
+      ; ISG 18 counts the elements: 1.118 = from 1 to 118
+ 244  1.118
+ 245  STO 18
+ 246  LBL 47
+ 247  CLSTK
+ 248  RCL 18
+ 249  IP
+ 250  XEQ 60
+      ; skip the cell (GTO 48) when it is outside the box
+ 251  58
+ 252  x>? Y
+ 253  GTO 48
+ 254  DROP
+ 255  319
+ 256  x<? Y
+ 257  GTO 48
+ 258  CLSTK
+ 259  RCL 12
+ 260  45
+ 261  x>? Y
+ 262  GTO 48
+ 263  DROP
+ 264  133
+ 265  x<? Y
+ 266  GTO 48
+      ; under the box: draw it again (Z = atomic number, Y = y, X = x)
+ 267  CLSTK
+ 268  RCL 18
+ 269  IP
+ 270  RCL 12
+ 271  RCL 11
+ 272  XEQ 20
+ 273  LBL 48
+ 274  ISG 18
+ 275  GTO 47
+ 276  CLSTK
+ 277  RTN
+      ; 
+      ; ==== LBL 50 CURSOR: flip the 21 x 24 pixels inside a cell (twice = unmarked) ====
+      ; In:  X = atomic number
+ 278  LBL 50
+ 279  XEQ 60
+      ; ISG 14 counts the 21 columns inside: 1.021 = from 1 to 21
+ 280  1.021
+ 281  STO 14
+ 282  CLSTK
+ 283  3
+ 284  GRMOD
+ 285  DROP
+ 286  RCL 12
+ 287  1
+ 288  +
+ 289  RCL 11
+ 290  1
+ 291  +
+ 292  LBL 51
+ 293  AGRAPH 23
+ 294  ISG 14
+ 295  GTO 51
+ 296  CLSTK
+ 297  0
+ 298  GRMOD
+ 299  DROP
+ 300  RTN
+      ; 
+      ; ==== LBL 60 COORD: the position of one cell ====
+      ; In:  X = atomic number.  Out: R11 = x, R12 = y (also X = x, Y = y)
+      ; Row Z of the vector in R10 holds x + iy; Re and Im take the two parts.
+ 301  LBL 60
+ 302  1
+ 303  STOIJ
+ 304  RCLEL
+ 305  STO 26
+ 306  Re
+ 307  STO 11
+ 308  RCL 26
+ 309  Im
+ 310  STO 12
+ 311  CLSTK
+ 312  RCL 12
+ 313  RCL 11
+ 314  RTN
+      ; 
+      ; ==== LBL 70 VECTOR: the positions of the 118 cells, as x + iy ====
+      ; A 118 x 1 matrix in R10, filled in the order of the atomic numbers by the 14 runs of the
+      ; table. Each run: Z = how many elements, Y = the row, X = the column of the first one.
+ 315  LBL 70
+ 316  118
+ 317  1
+ 318  M.DIM 10
+ 319  INDEX 10
+ 320  CLSTK
+      ; 1 H: row 1, column 1
+ 321  1
+ 322  1
+ 323  1
+ 324  XEQ 71
+      ; 2 He: row 1, column 18
+ 325  1
+ 326  1
+ 327  18
+ 328  XEQ 71
+      ; 3-4 Li Be: row 2, columns 1-2
+ 329  2
+ 330  2
+ 331  1
+ 332  XEQ 71
+      ; 5-10 B to Ne: row 2, columns 13-18
+ 333  6
+ 334  2
+ 335  13
+ 336  XEQ 71
+      ; 11-12 Na Mg: row 3, columns 1-2
+ 337  2
+ 338  3
+ 339  1
+ 340  XEQ 71
+      ; 13-18 Al to Ar: row 3, columns 13-18
+ 341  6
+ 342  3
+ 343  13
+ 344  XEQ 71
+      ; 19-36 K to Kr: row 4, all 18 columns
+ 345  18
+ 346  4
+ 347  1
+ 348  XEQ 71
+      ; 37-54 Rb to Xe: row 5, all 18 columns
+ 349  18
+ 350  5
+ 351  1
+ 352  XEQ 71
+      ; 55-56 Cs Ba: row 6, columns 1-2
+ 353  2
+ 354  6
+ 355  1
+ 356  XEQ 71
+      ; 57-71 La to Lu, the lanthanides: row 8, columns 3-17
+ 357  15
+ 358  8
+ 359  3
+ 360  XEQ 71
+      ; 72-86 Hf to Rn: row 6, columns 4-18
+ 361  15
+ 362  6
+ 363  4
+ 364  XEQ 71
+      ; 87-88 Fr Ra: row 7, columns 1-2
+ 365  2
+ 366  7
+ 367  1
+ 368  XEQ 71
+      ; 89-103 Ac to Lr, the actinides: row 9, columns 3-17
+ 369  15
+ 370  9
+ 371  3
+ 372  XEQ 71
+      ; 104-118 Rf to Og: row 7, columns 4-18
+ 373  15
+ 374  7
+ 375  4
+ 376  XEQ 71
+ 377  RTN
+      ; 
+      ; ==== LBL 71 RUN: n elements side by side ====
+      ; In:  Z = n, Y = the row, X = the column of the first. Stores x + iy (CC makes it from
+      ; Y = x and X = y) in the row of the index (STOEL), then goes to the next row (I+).
+ 378  LBL 71
+ 379  STO 11
+ 380  DROP
+ 381  STO 12
+ 382  DROP
+      ; ISG 14 counts the n elements: 1.00n = 1 + n / 1000
+ 383  1000
+ 384  ÷
+ 385  1
+ 386  +
+ 387  STO 14
+ 388  CLSTK
+ 389  LBL 72
+      ; x = 2 + 22 x (column - 1)
+ 390  RCL 11
+ 391  1
+ 392  -
+ 393  22
+ 394  ×
+ 395  2
+ 396  +
+      ; y = 212 - 25 x (row - 1)
+ 397  212
+ 398  RCL 12
+ 399  1
+ 400  -
+ 401  25
+ 402  ×
+ 403  -
+ 404  CC
+ 405  STOEL
+ 406  I+
+ 407  CLSTK
+      ; the next element is one column to the right
+ 408  1
+ 409  STO+ 11
+ 410  DROP
+ 411  ISG 14
+ 412  GTO 72
+ 413  RTN
+ 414  END
+      ; ==== DATA (written by tools/build_dev.py from python/elements.py) ====
+      ; ---- ELP1: the symbol and the info box text of Z = R25 (1-60), label = Z ----
+ 415  LBL "ELP1"
+ 416  RCL 25
+ 417  STO 27
+ 418  CLSTK
+ 419  XEQ IND 27
+ 420  RTN
+ 421  LBL 01
+ 422  "H"
+ 423  "1  H  Hydrogen↵1.0080  Gas  20.3 K↵1s1"
+ 424  RTN
+ 425  LBL 02
+ 426  "He"
+ 427  "2  He  Helium↵4.0026  Gas  4.2 K↵1s2"
+ 428  RTN
+ 429  LBL 03
+ 430  "Li"
+ 431  "3  Li  Lithium↵6.94  Solid  1615 K↵[He] 2s1"
+ 432  RTN
+ 433  LBL 04
+ 434  "Be"
+ 435  "4  Be  Beryllium↵9.0122  Solid  2744 K↵[He] 2s2"
+ 436  RTN
+ 437  LBL 05
+ 438  "B"
+ 439  "5  B  Boron↵10.81  Solid  4273 K↵[He] 2s2 2p1"
+ 440  RTN
+ 441  LBL 06
+ 442  "C"
+ 443  "6  C  Carbon↵12.011  Solid  4098 K↵[He] 2s2 2p2"
+ 444  RTN
+ 445  LBL 07
+ 446  "N"
+ 447  "7  N  Nitrogen↵14.007  Gas  77.4 K↵[He] 2s2 2p3"
+ 448  RTN
+ 449  LBL 08
+ 450  "O"
+ 451  "8  O  Oxygen↵15.999  Gas  90.2 K↵[He] 2s2 2p4"
+ 452  RTN
+ 453  LBL 09
+ 454  "F"
+ 455  "9  F  Fluorine↵18.998  Gas  85.0 K↵[He] 2s2 2p5"
+ 456  RTN
+ 457  LBL 10
+ 458  "Ne"
+ 459  "10  Ne  Neon↵20.180  Gas  27.1 K↵[He] 2s2 2p6"
+ 460  RTN
+ 461  LBL 11
+ 462  "Na"
+ 463  "11  Na  Sodium↵22.990  Solid  1156 K↵[Ne] 3s1"
+ 464  RTN
+ 465  LBL 12
+ 466  "Mg"
+ 467  "12  Mg  Magnesium↵24.305  Solid  1363 K↵[Ne] 3s2"
+ 468  RTN
+ 469  LBL 13
+ 470  "Al"
+ 471  "13  Al  Aluminium↵26.982  Solid  2792 K↵[Ne] 3s2 3p1"
+ 472  RTN
+ 473  LBL 14
+ 474  "Si"
+ 475  "14  Si  Silicon↵28.085  Solid  3538 K↵[Ne] 3s2 3p2"
+ 476  RTN
+ 477  LBL 15
+ 478  "P"
+ 479  "15  P  Phosphorus↵30.974  Solid  554 K↵[Ne] 3s2 3p3"
+ 480  RTN
+ 481  LBL 16
+ 482  "S"
+ 483  "16  S  Sulfur↵32.06  Solid  718 K↵[Ne] 3s2 3p4"
+ 484  RTN
+ 485  LBL 17
+ 486  "Cl"
+ 487  "17  Cl  Chlorine↵35.45  Gas  239 K↵[Ne] 3s2 3p5"
+ 488  RTN
+ 489  LBL 18
+ 490  "Ar"
+ 491  "18  Ar  Argon↵39.95  Gas  87.3 K↵[Ne] 3s2 3p6"
+ 492  RTN
+ 493  LBL 19
+ 494  "K"
+ 495  "19  K  Potassium↵39.098  Solid  1032 K↵[Ar] 4s1"
+ 496  RTN
+ 497  LBL 20
+ 498  "Ca"
+ 499  "20  Ca  Calcium↵40.078  Solid  1757 K↵[Ar] 4s2"
+ 500  RTN
+ 501  LBL 21
+ 502  "Sc"
+ 503  "21  Sc  Scandium↵44.956  Solid  3109 K↵[Ar] 3d1 4s2"
+ 504  RTN
+ 505  LBL 22
+ 506  "Ti"
+ 507  "22  Ti  Titanium↵47.867  Solid  3560 K↵[Ar] 3d2 4s2"
+ 508  RTN
+ 509  LBL 23
+ 510  "V"
+ 511  "23  V  Vanadium↵50.942  Solid  3680 K↵[Ar] 3d3 4s2"
+ 512  RTN
+ 513  LBL 24
+ 514  "Cr"
+ 515  "24  Cr  Chromium↵51.996  Solid  2944 K↵[Ar] 3d5 4s1"
+ 516  RTN
+ 517  LBL 25
+ 518  "Mn"
+ 519  "25  Mn  Manganese↵54.938  Solid  2334 K↵[Ar] 3d5 4s2"
+ 520  RTN
+ 521  LBL 26
+ 522  "Fe"
+ 523  "26  Fe  Iron↵55.845  Solid  3134 K↵[Ar] 3d6 4s2"
+ 524  RTN
+ 525  LBL 27
+ 526  "Co"
+ 527  "27  Co  Cobalt↵58.933  Solid  3200 K↵[Ar] 3d7 4s2"
+ 528  RTN
+ 529  LBL 28
+ 530  "Ni"
+ 531  "28  Ni  Nickel↵58.693  Solid  3186 K↵[Ar] 3d8 4s2"
+ 532  RTN
+ 533  LBL 29
+ 534  "Cu"
+ 535  "29  Cu  Copper↵63.546  Solid  2835 K↵[Ar] 3d10 4s1"
+ 536  RTN
+ 537  LBL 30
+ 538  "Zn"
+ 539  "30  Zn  Zinc↵65.38  Solid  1180 K↵[Ar] 3d10 4s2"
+ 540  RTN
+ 541  LBL 31
+ 542  "Ga"
+ 543  "31  Ga  Gallium↵69.723  Solid  2477 K↵[Ar] 3d10 4s2 4p1"
+ 544  RTN
+ 545  LBL 32
+ 546  "Ge"
+ 547  "32  Ge  Germanium↵72.630  Solid  3106 K↵[Ar] 3d10 4s2 4p2"
+ 548  RTN
+ 549  LBL 33
+ 550  "As"
+ 551  "33  As  Arsenic↵74.922  Solid  887 K↵[Ar] 3d10 4s2 4p3"
+ 552  RTN
+ 553  LBL 34
+ 554  "Se"
+ 555  "34  Se  Selenium↵78.971  Solid  958 K↵[Ar] 3d10 4s2 4p4"
+ 556  RTN
+ 557  LBL 35
+ 558  "Br"
+ 559  "35  Br  Bromine↵79.904  Liquid  332 K↵[Ar] 3d10 4s2 4p5"
+ 560  RTN
+ 561  LBL 36
+ 562  "Kr"
+ 563  "36  Kr  Krypton↵83.798  Gas  120 K↵[Ar] 3d10 4s2 4p6"
+ 564  RTN
+ 565  LBL 37
+ 566  "Rb"
+ 567  "37  Rb  Rubidium↵85.468  Solid  961 K↵[Kr] 5s1"
+ 568  RTN
+ 569  LBL 38
+ 570  "Sr"
+ 571  "38  Sr  Strontium↵87.62  Solid  1655 K↵[Kr] 5s2"
+ 572  RTN
+ 573  LBL 39
+ 574  "Y"
+ 575  "39  Y  Yttrium↵88.906  Solid  3618 K↵[Kr] 4d1 5s2"
+ 576  RTN
+ 577  LBL 40
+ 578  "Zr"
+ 579  "40  Zr  Zirconium↵91.222  Solid  4682 K↵[Kr] 4d2 5s2"
+ 580  RTN
+ 581  LBL 41
+ 582  "Nb"
+ 583  "41  Nb  Niobium↵92.906  Solid  5017 K↵[Kr] 4d4 5s1"
+ 584  RTN
+ 585  LBL 42
+ 586  "Mo"
+ 587  "42  Mo  Molybdenum↵95.95  Solid  4912 K↵[Kr] 4d5 5s1"
+ 588  RTN
+ 589  LBL 43
+ 590  "Tc"
+ 591  "43  Tc  Technetium↵-  Solid  4538 K↵[Kr] 4d5 5s2"
+ 592  RTN
+ 593  LBL 44
+ 594  "Ru"
+ 595  "44  Ru  Ruthenium↵101.07  Solid  4423 K↵[Kr] 4d7 5s1"
+ 596  RTN
+ 597  LBL 45
+ 598  "Rh"
+ 599  "45  Rh  Rhodium↵102.91  Solid  3968 K↵[Kr] 4d8 5s1"
+ 600  RTN
+ 601  LBL 46
+ 602  "Pd"
+ 603  "46  Pd  Palladium↵106.42  Solid  3236 K↵[Kr] 4d10"
+ 604  RTN
+ 605  LBL 47
+ 606  "Ag"
+ 607  "47  Ag  Silver↵107.87  Solid  2435 K↵[Kr] 4d10 5s1"
+ 608  RTN
+ 609  LBL 48
+ 610  "Cd"
+ 611  "48  Cd  Cadmium↵112.41  Solid  1040 K↵[Kr] 4d10 5s2"
+ 612  RTN
+ 613  LBL 49
+ 614  "In"
+ 615  "49  In  Indium↵114.82  Solid  2345 K↵[Kr] 4d10 5s2 5p1"
+ 616  RTN
+ 617  LBL 50
+ 618  "Sn"
+ 619  "50  Sn  Tin↵118.71  Solid  2875 K↵[Kr] 4d10 5s2 5p2"
+ 620  RTN
+ 621  LBL 51
+ 622  "Sb"
+ 623  "51  Sb  Antimony↵121.76  Solid  1860 K↵[Kr] 4d10 5s2 5p3"
+ 624  RTN
+ 625  LBL 52
+ 626  "Te"
+ 627  "52  Te  Tellurium↵127.60  Solid  1261 K↵[Kr] 4d10 5s2 5p4"
+ 628  RTN
+ 629  LBL 53
+ 630  "I"
+ 631  "53  I  Iodine↵126.90  Solid  458 K↵[Kr] 4d10 5s2 5p5"
+ 632  RTN
+ 633  LBL 54
+ 634  "Xe"
+ 635  "54  Xe  Xenon↵131.29  Gas  165 K↵[Kr] 4d10 5s2 5p6"
+ 636  RTN
+ 637  LBL 55
+ 638  "Cs"
+ 639  "55  Cs  Caesium↵132.91  Solid  944 K↵[Xe] 6s1"
+ 640  RTN
+ 641  LBL 56
+ 642  "Ba"
+ 643  "56  Ba  Barium↵137.33  Solid  2170 K↵[Xe] 6s2"
+ 644  RTN
+ 645  LBL 57
+ 646  "La"
+ 647  "57  La  Lanthanum↵138.91  Solid  3737 K↵[Xe] 5d1 6s2"
+ 648  RTN
+ 649  LBL 58
+ 650  "Ce"
+ 651  "58  Ce  Cerium↵140.12  Solid  3697 K↵[Xe] 4f1 5d1 6s2"
+ 652  RTN
+ 653  LBL 59
+ 654  "Pr"
+ 655  "59  Pr  Praseodymium↵140.91  Solid  3793 K↵[Xe] 4f3 6s2"
+ 656  RTN
+ 657  LBL 60
+ 658  "Nd"
+ 659  "60  Nd  Neodymium↵144.24  Solid  3347 K↵[Xe] 4f4 6s2"
+ 660  RTN
+ 661  END
+      ; ---- ELP2: the symbol and the info box text of Z = R25 (61-118), label = Z - 60 ----
+ 662  LBL "ELP2"
+ 663  RCL 25
+ 664  60
+ 665  -
+ 666  STO 27
+ 667  CLSTK
+ 668  XEQ IND 27
+ 669  RTN
+ 670  LBL 01
+ 671  "Pm"
+ 672  "61  Pm  Promethium↵-  Solid  3273 K↵[Xe] 4f5 6s2"
+ 673  RTN
+ 674  LBL 02
+ 675  "Sm"
+ 676  "62  Sm  Samarium↵150.36  Solid  2067 K↵[Xe] 4f6 6s2"
+ 677  RTN
+ 678  LBL 03
+ 679  "Eu"
+ 680  "63  Eu  Europium↵151.96  Solid  1802 K↵[Xe] 4f7 6s2"
+ 681  RTN
+ 682  LBL 04
+ 683  "Gd"
+ 684  "64  Gd  Gadolinium↵157.25  Solid  3546 K↵[Xe] 4f7 5d1 6s2"
+ 685  RTN
+ 686  LBL 05
+ 687  "Tb"
+ 688  "65  Tb  Terbium↵158.93  Solid  3503 K↵[Xe] 4f9 6s2"
+ 689  RTN
+ 690  LBL 06
+ 691  "Dy"
+ 692  "66  Dy  Dysprosium↵162.50  Solid  2840 K↵[Xe] 4f10 6s2"
+ 693  RTN
+ 694  LBL 07
+ 695  "Ho"
+ 696  "67  Ho  Holmium↵164.93  Solid  2973 K↵[Xe] 4f11 6s2"
+ 697  RTN
+ 698  LBL 08
+ 699  "Er"
+ 700  "68  Er  Erbium↵167.26  Solid  3141 K↵[Xe] 4f12 6s2"
+ 701  RTN
+ 702  LBL 09
+ 703  "Tm"
+ 704  "69  Tm  Thulium↵168.93  Solid  2223 K↵[Xe] 4f13 6s2"
+ 705  RTN
+ 706  LBL 10
+ 707  "Yb"
+ 708  "70  Yb  Ytterbium↵173.05  Solid  1469 K↵[Xe] 4f14 6s2"
+ 709  RTN
+ 710  LBL 11
+ 711  "Lu"
+ 712  "71  Lu  Lutetium↵174.97  Solid  3675 K↵[Xe] 4f14 5d1 6s2"
+ 713  RTN
+ 714  LBL 12
+ 715  "Hf"
+ 716  "72  Hf  Hafnium↵178.49  Solid  4876 K↵[Xe] 4f14 5d2 6s2"
+ 717  RTN
+ 718  LBL 13
+ 719  "Ta"
+ 720  "73  Ta  Tantalum↵180.95  Solid  5731 K↵[Xe] 4f14 5d3 6s2"
+ 721  RTN
+ 722  LBL 14
+ 723  "W"
+ 724  "74  W  Tungsten↵183.84  Solid  5828 K↵[Xe] 4f14 5d4 6s2"
+ 725  RTN
+ 726  LBL 15
+ 727  "Re"
+ 728  "75  Re  Rhenium↵186.21  Solid  5869 K↵[Xe] 4f14 5d5 6s2"
+ 729  RTN
+ 730  LBL 16
+ 731  "Os"
+ 732  "76  Os  Osmium↵190.23  Solid  5285 K↵[Xe] 4f14 5d6 6s2"
+ 733  RTN
+ 734  LBL 17
+ 735  "Ir"
+ 736  "77  Ir  Iridium↵192.22  Solid  4701 K↵[Xe] 4f14 5d7 6s2"
+ 737  RTN
+ 738  LBL 18
+ 739  "Pt"
+ 740  "78  Pt  Platinum↵195.08  Solid  4098 K↵[Xe] 4f14 5d9 6s1"
+ 741  RTN
+ 742  LBL 19
+ 743  "Au"
+ 744  "79  Au  Gold↵196.97  Solid  3129 K↵[Xe] 4f14 5d10 6s1"
+ 745  RTN
+ 746  LBL 20
+ 747  "Hg"
+ 748  "80  Hg  Mercury↵200.59  Liquid  630 K↵[Xe] 4f14 5d10 6s2"
+ 749  RTN
+ 750  LBL 21
+ 751  "Tl"
+ 752  "81  Tl  Thallium↵204.38  Solid  1746 K↵[Xe] 4f14 5d10 6s2 6p1"
+ 753  RTN
+ 754  LBL 22
+ 755  "Pb"
+ 756  "82  Pb  Lead↵207.2  Solid  2022 K↵[Xe] 4f14 5d10 6s2 6p2"
+ 757  RTN
+ 758  LBL 23
+ 759  "Bi"
+ 760  "83  Bi  Bismuth↵208.98  Solid  1837 K↵[Xe] 4f14 5d10 6s2 6p3"
+ 761  RTN
+ 762  LBL 24
+ 763  "Po"
+ 764  "84  Po  Polonium↵-  Solid  1235 K↵[Xe] 4f14 5d10 6s2 6p4"
+ 765  RTN
+ 766  LBL 25
+ 767  "At"
+ 768  "85  At  Astatine↵-  Solid  -↵[Xe] 4f14 5d10 6s2 6p5"
+ 769  RTN
+ 770  LBL 26
+ 771  "Rn"
+ 772  "86  Rn  Radon↵-  Gas  211 K↵[Xe] 4f14 5d10 6s2 6p6"
+ 773  RTN
+ 774  LBL 27
+ 775  "Fr"
+ 776  "87  Fr  Francium↵-  Solid  -↵[Rn] 7s1"
+ 777  RTN
+ 778  LBL 28
+ 779  "Ra"
+ 780  "88  Ra  Radium↵-  Solid  1413 K↵[Rn] 7s2"
+ 781  RTN
+ 782  LBL 29
+ 783  "Ac"
+ 784  "89  Ac  Actinium↵-  Solid  3471 K↵[Rn] 6d1 7s2"
+ 785  RTN
+ 786  LBL 30
+ 787  "Th"
+ 788  "90  Th  Thorium↵232.04  Solid  5061 K↵[Rn] 6d2 7s2"
+ 789  RTN
+ 790  LBL 31
+ 791  "Pa"
+ 792  "91  Pa  Protactinium↵231.04  Solid  -↵[Rn] 5f2 6d1 7s2"
+ 793  RTN
+ 794  LBL 32
+ 795  "U"
+ 796  "92  U  Uranium↵238.03  Solid  4404 K↵[Rn] 5f3 6d1 7s2"
+ 797  RTN
+ 798  LBL 33
+ 799  "Np"
+ 800  "93  Np  Neptunium↵-  Solid  4175 K↵[Rn] 5f4 6d1 7s2"
+ 801  RTN
+ 802  LBL 34
+ 803  "Pu"
+ 804  "94  Pu  Plutonium↵-  Solid  3501 K↵[Rn] 5f6 7s2"
+ 805  RTN
+ 806  LBL 35
+ 807  "Am"
+ 808  "95  Am  Americium↵-  Solid  2284 K↵[Rn] 5f7 7s2"
+ 809  RTN
+ 810  LBL 36
+ 811  "Cm"
+ 812  "96  Cm  Curium↵-  Solid  3400 K↵[Rn] 5f7 6d1 7s2"
+ 813  RTN
+ 814  LBL 37
+ 815  "Bk"
+ 816  "97  Bk  Berkelium↵-  Solid  -↵[Rn] 5f9 7s2"
+ 817  RTN
+ 818  LBL 38
+ 819  "Cf"
+ 820  "98  Cf  Californium↵-  Solid  -↵[Rn] 5f10 7s2"
+ 821  RTN
+ 822  LBL 39
+ 823  "Es"
+ 824  "99  Es  Einsteinium↵-  Solid  -↵[Rn] 5f11 7s2"
+ 825  RTN
+ 826  LBL 40
+ 827  "Fm"
+ 828  "100  Fm  Fermium↵-  Solid  -↵[Rn] 5f12 7s2"
+ 829  RTN
+ 830  LBL 41
+ 831  "Md"
+ 832  "101  Md  Mendelevium↵-  Solid  -↵[Rn] 5f13 7s2"
+ 833  RTN
+ 834  LBL 42
+ 835  "No"
+ 836  "102  No  Nobelium↵-  Solid  -↵[Rn] 5f14 7s2"
+ 837  RTN
+ 838  LBL 43
+ 839  "Lr"
+ 840  "103  Lr  Lawrencium↵-  Solid  -↵[Rn] 5f14 6d1 7s2"
+ 841  RTN
+ 842  LBL 44
+ 843  "Rf"
+ 844  "104  Rf  Rutherfordium↵-  Solid  -↵[Rn] 5f14 6d2 7s2"
+ 845  RTN
+ 846  LBL 45
+ 847  "Db"
+ 848  "105  Db  Dubnium↵-  Solid  -↵[Rn] 5f14 6d3 7s2"
+ 849  RTN
+ 850  LBL 46
+ 851  "Sg"
+ 852  "106  Sg  Seaborgium↵-  Solid  -↵[Rn] 5f14 6d4 7s2"
+ 853  RTN
+ 854  LBL 47
+ 855  "Bh"
+ 856  "107  Bh  Bohrium↵-  Solid  -↵[Rn] 5f14 6d5 7s2"
+ 857  RTN
+ 858  LBL 48
+ 859  "Hs"
+ 860  "108  Hs  Hassium↵-  Solid  -↵[Rn] 5f14 6d6 7s2"
+ 861  RTN
+ 862  LBL 49
+ 863  "Mt"
+ 864  "109  Mt  Meitnerium↵-  Solid  -↵[Rn] 5f14 6d7 7s2"
+ 865  RTN
+ 866  LBL 50
+ 867  "Ds"
+ 868  "110  Ds  Darmstadtium↵-  -  -↵[Rn] 5f14 6d8 7s2"
+ 869  RTN
+ 870  LBL 51
+ 871  "Rg"
+ 872  "111  Rg  Roentgenium↵-  -  -↵[Rn] 5f14 6d9 7s2"
+ 873  RTN
+ 874  LBL 52
+ 875  "Cn"
+ 876  "112  Cn  Copernicium↵-  -  -↵[Rn] 5f14 6d10 7s2"
+ 877  RTN
+ 878  LBL 53
+ 879  "Nh"
+ 880  "113  Nh  Nihonium↵-  -  -↵[Rn] 5f14 6d10 7s2 7p1"
+ 881  RTN
+ 882  LBL 54
+ 883  "Fl"
+ 884  "114  Fl  Flerovium↵-  -  -↵[Rn] 5f14 6d10 7s2 7p2"
+ 885  RTN
+ 886  LBL 55
+ 887  "Mc"
+ 888  "115  Mc  Moscovium↵-  -  -↵[Rn] 5f14 6d10 7s2 7p3"
+ 889  RTN
+ 890  LBL 56
+ 891  "Lv"
+ 892  "116  Lv  Livermorium↵-  -  -↵[Rn] 5f14 6d10 7s2 7p4"
+ 893  RTN
+ 894  LBL 57
+ 895  "Ts"
+ 896  "117  Ts  Tennessine↵-  -  -↵[Rn] 5f14 6d10 7s2 7p5"
+ 897  RTN
+ 898  LBL 58
+ 899  "Og"
+ 900  "118  Og  Oganesson↵-  -  -↵[Rn] 5f14 6d10 7s2 7p6"
+ 901  RTN
+ 902  END

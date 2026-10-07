@@ -2,8 +2,8 @@
 """ELEM47 in the C47 simulator (python/c47sim.py):
   - programs/ and build/ are up to date with programs_rem/ (tools/build_elem47.py)
   - the table: the frame of every one of the 118 cells, the matrix PT = the positions of python/elements.py
-  - one program, one global label (ELEM47); the others local
-  - the detail box data of every element (LBL :DETAIL:, the records 3 per label): name, symbol, mass, state,
+  - three programs: ELEM47 (the code, numeric local labels), ELD1 and ELD2 (the element records)
+  - the detail box data of every element (LBL :DETAIL:, the records 4 per label): name, symbol, mass, state,
     boil, group, config
   - the detail texts (symbol, state, group, config; mass, boiling point)
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table
@@ -17,7 +17,7 @@ import c47sim, elem47sim as E
 from elements import ELEMENTS, EXTRA, position
 from build_elem47 import label_numbers
 
-DETAIL = ':DETAIL:'                 # the local named label, as in build/ELEM47.txt
+DETAIL = '0_%d' % label_numbers()['DETAIL']    # its local number in ELEM47 (c47sim: program 0, no leading 0)
 
 fails = []
 
@@ -62,19 +62,15 @@ def cursor_after(keys):
 
 def main():
     plain = open(os.path.join(ROOT, 'programs', 'ELEM47.txt'), encoding='utf-8').read().splitlines()
-    check([ln for ln in plain if ln.startswith('LBL "')] == ['LBL "ELEM47"'] and plain.count('END') == 1,
-          'one program, one global label: ELEM47')
+    check([ln for ln in plain if ln.startswith('LBL "')] == ['LBL "ELEM47"', 'LBL "ELD1"', 'LBL "ELD2"']
+          and plain.count('END') == 3, 'three programs: ELEM47 (the code), ELD1 and ELD2 (the records)')
     import re
     num = label_numbers()
     src = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')
            if ln.strip() and not ln.startswith('REM')]
-    check(plain == src, 'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM (run tools/build_elem47.py)')
-    fallback = open(os.path.join(ROOT, 'build', 'ELEM47_num.txt'), encoding='utf-8').read().splitlines()
-    check(fallback == [re.sub(r' :(\w+):$', lambda m: ' %02d' % num[m.group(1)], ln) for ln in plain],
-          'build/ELEM47_num.txt = the same steps, each local named label a local number')
-    keys = [E.DOWN, E.RIGHT, E.INFO, 1, E.LEFT, E.INFO, 2, E.END]
-    check(E.frames(keys)[0] == E.frames(keys, os.path.join(ROOT, 'build', 'ELEM47_num.txt'))[0],
-          'named and numeric labels: the same screens')
+    check(plain == [re.sub(r' :(\w+):$', lambda m: ' %02d' % num[m.group(1)], ln) for ln in src],
+          'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM, each named label its local number')
+    check(not any(re.search(r' :\w+:$', ln) for ln in plain), 'numeric local labels only')
     check(open(os.path.join(ROOT, 'build', 'ELEM47.txt')).read().splitlines() == plain, 'build/ELEM47.txt = programs/ELEM47.txt')
 
     shots, c = E.frames([E.INFO])

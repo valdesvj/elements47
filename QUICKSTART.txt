@@ -1,14 +1,11 @@
-ELEMENTS 47 - QUICKSTART
+ELEMENTS 47 v1.0.0 - QUICKSTART
 
-Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.x: 00.109.05.00a0.ALPHA,
-5 Oct 2026, or a build from master on or after 30 Sep 2026).
+C47 / R47
+Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.2.0: 00.109.05.00a0.ALPHA,
+5 Oct 2026, or later).
 
-0. Once: load tests/calc/LTEST.txt and XEQ "LTEST": it must return 196 (the length of one text
-   literal; ELEM47 keeps its data in texts of up to 195 characters). Then delete LTEST.
-   If ELD1 and ELD2 from an older ELEM47 are still in memory, delete them: they are no longer used.
-1. Convert build/ELEM47.txt to ELEM47.p47 with rejig (0.30.0 or later: it has local named labels,
-   LBL :NAME:) and load it on the C47. One program, ELEM47 (its data is inside it).
-   build/ELEM47_num.txt is the same program with numeric local labels, if the named ones fail.
+1. Load C47_R47/ELEM47.p47 (from the release zip, or convert build/ELEM47.txt with rejig). Three
+   programs: ELEM47 (the one you run), ELD1 and ELD2 (the element data, called by ELEM47).
 2. XEQ "ELEM47". The table is drawn (a few seconds), the cursor on H.
 3. Keys:
      8 up   2 down   4 left   6 right   (empty cells are skipped; at the edge the cursor stays)
@@ -16,5 +13,12 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.x: 00.109.05.0
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R51 (your values are saved at the start and given back with 0; not if the program is
-interrupted) and a matrix "PT" (9 x 18), deleted at the end. WSIZE is set to 64.
+Uses R20-R53 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
+STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
+
+Free42 (DM42 / DM42n stock firmware, Free42 3.3)
+1. Load Free42_DM42/ELEM47.raw from the release zip (exported by the Free42 3.3 core), or Paste
+   build/free42/ELEM47.txt in Free42 (PRGM mode) and export your own .raw. Five programs: ELEM47,
+   ELD1, ELD2 (the data), E47T and E47S (the C47 fonts).
+2. XEQ "ELEM47": the same table and keys. Uses R20-R75 (SIZE 76 if smaller) and PT; at the end
+   CLRG and CLST.

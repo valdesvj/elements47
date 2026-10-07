@@ -128,7 +128,138 @@
 - Still to check on the C47: XEQ "T" runs to the RTN without an error = GTO :A: finds a label before it
   (the search wraps to the start of the program). ELEM47 needs that (:KEYS:, :SEGLOOP:, :STEPLP: ...).
 
+## Oct 7, 2026 - Checked in the firmware sources (~/opt/c43 master)
+
+- The local label search wraps: manage.c findNamedLabelWithDuplicate takes the first matching label after
+  the current step, else the first one in the program. So GTO :KEYS:, :SEGLOOP:, :STEPLP: backwards work;
+  XEQ "T" on the C47 only confirms it.
+- The string limit is 508 glyphs (defines.h MAX_NUMBER_OF_GLYPHS_IN_STRING, since January 2024; 196 was
+  the WP43 value). But a 508-character text in a program does not come through in T47 (next section):
+  the data stays at 196 characters per text.
+- Closing the detail box, checked in the simulator over the whole table (190 open / close, every row
+  both ways): the screen after closing is the screen before opening, pixel for pixel.
+
+## Oct 7, 2026 - ELEM47 in the C47 firmware (T47)
+
+- T47 is the PC simulator built from the firmware sources with a Tcl script mode. Built from a copy of
+  ~/opt/c43 (master ef39ddb6c, 6 Oct 2026), never in ~/opt/c43 itself:
+  `rsync -a --exclude=.git --exclude='build.*' --exclude=t47bench ~/opt/c43/ ~/.cache/c47fw/`, then
+  `cd ~/.cache/c47fw && make simc47 t47` (about 10 minutes) gives ~/.cache/c47fw/t47.
+- tests/test_fw.py runs a test copy of build/ELEM47.txt there (rejig for the .p47): each key wait becomes
+  PAUSE 1, SNAP and the next key from the text TKS (α→x). The firmware shows what a program drew only at a
+  PAUSE: a SNAP right after the drawing still has the screen before it.
+- Results: XEQ "T" (GTO :A: backwards) gives 42, so the search wraps; LTEST gives 196; a 508-character text
+  in a program does not come through (the register gets a garbled text of about 196), so the data stays
+  at 196 characters per text. The whole table both ways, 190 detail boxes opened and closed: every screen
+  the same as python/c47sim.py pixel for pixel, the table back each time; ELEM47_num the same; R00-R99 kept.
+
+## Oct 7, 2026 - The records 4 per label
+
+- With 196 characters confirmed in the firmware, the element records go 4 per label (LBL 60-89, 172
+  characters at most; 5 per label would be 210): 1 036 -> 1 006 steps, 90 -> 80 labels. :RECORD: divides
+  by 4 (the build stops if it does not match PER). The screens are the same (test_opt, test_fw); a cursor
+  move runs 1-2 % more steps (on average 7.5 fields skipped in place of 5).
+- Branch detail-redraw packed 8 elements in 175 characters, but its records had less in them (no state,
+  boiling point or configuration then); with today's five fields 4 is the most.
+
+## Oct 7, 2026 - The development programs apart: programs_rem/dev, build/dev
+
+- ELEM47P (branch prototype-cells: the table from a vector of x + iy, one subroutine per job, RESTORE
+  draws again only the cells under the info box) is kept as a development program:
+  programs_rem/dev/ELEM47P.txt, built by tools/build_dev.py into build/dev/ and listings/dev/ (the release
+  files of tools/build_elem47.py are not touched). Its data programs ELP1 and ELP2 are written from
+  python/elements.py. 902 steps (ELEM47P 414, ELP1 247, ELP2 241); global labels ELEM47P, ELP1, ELP2.
+- build/dev/dev_test/ELEM47_H.txt: prototype 1 (the H cell), kept for reference.
+- tests/test_dev.py: ELEM47P (moves, the info box closed three times: the table back each time) and
+  prototype 1, in c47sim and in T47, the same screens.
+
+## Oct 7, 2026 - Free42 (DM42 / DM42n stock firmware)
+
+- tools/build_free42.py converts programs_rem/ELEM47.txt step by step into build/free42/ELEM47.txt, the
+  way Almanac 47 converts NAV: 3 STO "GrMod" (the 400 x 240 screen), AGRAPH as ALPHA columns of 8 pixels
+  (bit 0 at the top, row 1 at the top: C47 row r = Free42 row 240 - r), GRMOD as flags 34 / 35, GETKEY
+  for the key waits, REGS saved and given back for LocR (the SIZE too), XSTR for the texts.
+- ATEXT: E47T (GRFNT 21) and E47S (GRFNT 10) draw the C47 fonts, one local label per character (the
+  Free42 code - 32), the glyph box in bands of 8 rows (20 rows: 0, 8, 12), written exactly in GRMOD 1
+  (as the C47 clears each character's box), |X| and |Y| as the C47. The glyphs come from c47sim.
+- What Free42 needed: a string in a program holds 15 characters, 14 after the append marker, and may
+  not start with a byte >= 128 (the append marker): the ALPHA literals are cut in pieces. The CR glyph
+  breaks a pasted line: it is written €0d. N→S follows the display format: αIP is CLA AIP ASTO ST X.
+  Free42 Paste leaves out the commands it does not know, without a message: tests/test_f42.py pastes
+  every different command and lists it back.
+- tests/test_f42.py (f42run, the Free42 3.3 core of Almanac 47): the whole table both ways with the box
+  at each cell, 571 screens, every one the same as the C47 pixel for pixel; R00-R99 and SIZE kept.
+- Sizes (estimated): ELEM47 1 094 steps, E47T 1 855 (the font, 9.7 KB), E47S 329. The speed on the DM42
+  is not known yet (f42run counts no steps): to be timed there.
+
+## Oct 7, 2026 - v1.0.0: registers cleared at the end, Free42 as one program
+
+- Victor's choice for the release: ELEM47 works in the global registers R20-R51 and clears the registers
+  and the stack at the end (CLREGS, CLSTK), as Almanac 47 v2.2.0; the LocR copy of R20-R51 is gone
+  (1 006 -> 878 steps). Local registers for the work itself are not possible: in the firmware every XEQ
+  level starts without local registers (lblGtoXeq.c fnExecute), so the subroutines could not reach the
+  caller's, and KEY? takes no local register (input.c fnKey).
+- python/c47sim.py has no CLREGS yet (Almanac 47's copy has it in the working tree, uncommitted):
+  python/elem47sim.py runs it as 0 STO 00 ... STO 99. T47 (tests/test_fw.py) checks the real one.
+- Free42: one program, one global label. The fonts are data now: per font an index text (the Free42 codes)
+  and a table text (box width, advance, the bands of 8 rows), put in R69-R72 by :FDATA: at the start; a
+  character is POS in the index, SUBSTR of its record, then per band CLA, ARCL, AGRAPH. The text and box
+  routines use R60-R89 (SIZE 90), cleared by CLRG at the end. 3 programs of 3 278 steps -> 1 program of
+  1 447 steps, 93 local labels. XSTR keeps every byte (checked 0-255) except the paste aliases: <= becomes
+  one character, so the pieces are cut after < > - ! | \ as for ALPHA.
+
+## Oct 7, 2026 - Global labels again: ELEM47 + ELD1 + ELD2 (C47 and Free42)
+
+- Victor: the one-program builds were slow (the labels far from the code that calls them) and the local
+  named labels did not work well; the compact build is not released. Back to separate programs with
+  global labels, on both calculators:
+- C47: ELEM47 the code (795 steps), ELD1 the records of Z 1-60 (LBL 60-74), ELD2 Z 61-118 (LBL 75-89);
+  :RECORD: puts the label in R43 and calls XEQ "ELD1" or "ELD2" (each starts XEQ IND 43, RTN). The code
+  labels keep their names in programs_rem; build/ELEM47.txt has numeric local labels only (no _num file).
+- Free42: ELEM47, ELD1, ELD2 as on the C47; the fonts back as programs, one local label per character
+  (XEQ IND from the text loop, as in the first port): E47T (GRFNT 21, with E47B the boxes) and E47S
+  (GRFNT 10). Their work registers are R60-R75 (no named variables left behind), SIZE 76; CLRG, CLST at
+  the end as before.
+
+## Oct 7, 2026 - Speed: fewer steps, the calling routines first
+
+- Measured in the firmware (tools/bench_fw.py: T47's CPU instructions with perf, the start of T47 taken
+  off) and profiled (perf record): a step costs about 11 000 instructions whatever it does (the
+  interpreter, the stack and register copies, the memory blocks), AGRAPH and ATEXT themselves under 10 %.
+  So the steps run count, and one more thing: at every RTN the firmware finds the step after the XEQ again
+  by counting the steps from the start of the program (lblGtoXeq.c fnReturn -> nextStep.c
+  defineCurrentStep), about 190 instructions per step counted. An XEQ at step 600 costs about 10 steps
+  more on its return than one at step 10. A local GTO / XEQ goes straight to the label (labelList).
+- The routines that call others on a move or a detail box are now at the start of ELEM47 (LBL "ELEM47",
+  GTO :INIT:, then :MOVE:, :CURSOR:, :PANEL:, :RECORD:, :INFO:, :CLOSE:, :CLSEG:, :DETAIL:); the code run
+  once and the routines that call nothing come after. Steps counted at RTNs: a move 3 180 -> 430, a box
+  opened and closed 69 600 -> 11 500.
+- The cell (118 in the table, 58 again when the box closes): drawn inside the segment loop (no XEQ),
+  22 columns each (the right edge is the next cell's left edge; the last one after the segment), the rows
+  of the number and the symbol computed once per segment (R52, R53 in :CELLPOS:), the symbol "Fe3" (the
+  digit after it) taken with αLEFT and α→x straight from the piece, PT filled by STOSEQ after one STOIJ
+  per segment: 51 + 17 steps -> 57 steps per cell (with the loop).
+- Closing the box: the 5 segments under it (rows 3-7, columns 3-16, :CLSEG: finds the symbols of the
+  first Z) through the table's segment loop, instead of 70 cells by PT with the symbol found per cell.
+- The bottom line and the header bar of the box (298 columns each): one routine :HLINE:, 4 + 21 x 14
+  AGRAPH unrolled, 340 steps instead of 894 each.
+- The records end with "|": skipping a record is one αPOS, not five; the configuration is cut at "|".
+- The cursor off uses the position of the last cursor drawn (:CURSXOR:, no :CELLPOS:); FBLOCK is inline.
+- The same screens pixel for pixel: tests/test_opt.py (simulator), tests/test_fw.py (T47),
+  tests/test_f42.py (Free42). ELEM47 795 -> 805 steps (Free42 1 008 -> 1 004).
+
+| | simulator steps before | after | firmware instructions before | after |
+|---|---|---|---|---|
+| the table | 9 573 | 7 897 (-18 %) | 120 M | 101 M (-16 %) |
+| a cursor move | 315 | 245 (-22 %) | 3.75 M | 2.71 M (-28 %) |
+| the detail box | 2 185 | 1 039 (-52 %) | | |
+| closing it | 6 079 | 4 065 (-33 %) | | |
+| box opened and closed | | | 121 M | 72 M (-41 %) |
+
+- Not done (small): the segment list (LBL 29, 14 XEQ :SEGMENT: at the end of ELEM47, about 2 % of the
+  table) could go in the code; one more register for the number column would save 1 step per cell.
+
 ## Next
-- On the C47: XEQ "LTEST" (196), then rejig and XEQ "ELEM47"; time the table (TICKS) and compare with docs/ELEM47_*.png.
-- More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
-- On the C47: XEQ "T" (the backward GTO :A:), then ELEM47 from build/ELEM47.txt; if it fails, build/ELEM47_num.txt.
+- On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
+- More data in the detail box (category, electronegativity, state).
+- Free42: time the table on a DM42; build/free42/ELEM47.txt goes in by Paste in Free42 (export a .raw there).

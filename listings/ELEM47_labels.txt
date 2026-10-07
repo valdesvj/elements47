@@ -1,50 +1,52 @@
-ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), what it does
+ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), what it does
 
-:TABLE:    00  the table
-:KEYS:     01  keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored
-:UP:       02  
-:DOWN:     03  
-:LEFT:     04  
-:RIGHT:    05  
-:MOVE:     06  move: cursor off (XOR), new cell, cursor on, panel
-:INFO:     07  5: the detail box; any key: the table again (LBL :CLOSE: draws only what the box covered)
-:INFOKEY:  08  
-:QUIT:     09  0: the end, the C47 as it was: your registers back
-:TITLE:    10  the title (row 1, columns 13-17) and the keys, drawn once
-:CELLS:    11  every cell (the segments of LBL 29), the matrix PT filled on the way
-:SEGMENT:  12  a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
-:SEGLOOP:  13  
-:SYMBOL:   14  
-:CELL:     15  one cell at R39 (left column), R40 (bottom row): the box (R20 edge, R21 inner
-:CLOSE:    16  the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
-:CLROW:    17  
-:CLCOL:    18  
-:CELLZ:    19  the cell of Z = X at R39, R40, its symbol from piece (Z-1) div 65, then LBL :CELL:
-:SYMPCE:   20  the next piece of symbols (labels 36-37, R50 the label), 65 elements
-:CELLPOS:  21  the cell at row R26, column R27: R39 left column, R40 bottom row
-:FBLOCK:   22  rows 8 and 9 (lanthanides, actinides): 9 rows lower, a gap under the periods
-:CURSOR:   23  the cursor, the inside of the cell inverted (XOR, unrolled); twice = off
-:PANEL:    24  the panel: name, Z, mass. GRMOD 1: each character clears its box first, and the
-:RECORD:   25  the record of Z = R30, "name/mass/state/boiling point/configuration", in R44;
-:RECSKIP:  26  
-:RECGOT:   27  
-:FIELD:    28  the next field of R44 in R35 (the last field: all that is left)
-:FIELDK:   30  field R24 (from 0) of the text "a/b/c" in R35, left in R35
-:FCUT:     31  cut at the next "/" (none after the last field)
-:STEP:     32  move the cursor by R41 rows, R42 columns, skipping empty cells
-:STEPLP:   33  
-:DETAIL:   34  the detail box (symbol, mass, state, boiling point, group, configuration),
-:BOXLINE:  35  
-:GRPNAM:   38  
-:HDRBAR:   39  
-:BOXCLR:   40  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
-:KELVIN:   41  " K" after a boiling point
-:STATES:   42  the names of the states, in the order of R51 "SLG-"
-:GROUP:    43  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
-:GRPD:     44  
-:GRPP:     45  
-:GRP0:     46  
-:GRPF:     47  
-:GRPNAME:  48  the names of the groups in R35, "/" between them (texts of 64 characters at most)
+:MOVE:     00  move: cursor off (XOR), new cell, cursor on, panel
+:CURSOR:   01  the cursor, the inside of the cell inverted (XOR, unrolled); twice = off
+:CURSXOR:  02  the cursor drawn again where it was (R39, R40, R53 of the last one): off
+:PANEL:    03  the panel: name, Z, mass. GRMOD 1: each character clears its box first, and the
+:RECORD:   04  the record of Z = R30, "name/mass/state/boiling point/configuration|", in R44;
+:RECD2:    05  
+:RECIN:    06  
+:RECSKIP:  07  
+:RECGOT:   08  
+:INFO:     09  5: the detail box; any key: the table again (LBL :CLOSE: draws only what the box covered)
+:INFOKEY:  10  
+:CLOSE:    11  the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
+:CLSEG:    12  a segment of the table again: T = first Z, Z = count, Y = row, X = first column. The symbo
+:DETAIL:   13  the detail box (symbol, mass, state, boiling point, group, configuration),
+:GRPNAM:   14  
+:INIT:     15  the start: the matrix PT, the patterns, the cursor on H
+:TABLE:    16  the table
+:KEYS:     17  keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored
+:UP:       18  
+:DOWN:     19  
+:LEFT:     20  
+:RIGHT:    21  
+:QUIT:     22  0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared
+:TITLE:    23  the title (row 1, columns 13-17) and the keys, drawn once
+:CELLS:    24  every cell (the segments of LBL 29), the matrix PT filled on the way
+:SEGMENT:  25  a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
+:SEGPOS:   26  
+:SEGLOOP:  27  
+:SYMBOL:   28  
+:SYMPCE:   30  the next piece of symbols (labels 36-37, R50 the label), 65 elements
+:CELLPOS:  31  the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
+:CPROWS:   32  
+:FIELD:    33  the next field of R44 in R35 (the last field: all that is left)
+:FIELDK:   34  field R24 (from 0) of the text "a/b/c" in R35, left in R35
+:FCUT:     35  cut at the next "/" (none after the last field)
+:STEP:     38  move the cursor by R41 rows, R42 columns, skipping empty cells
+:STEPLP:   39  
+:HLINE:    40  298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
+:HLLOOP:   41  
+:BOXCLR:   42  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
+:KELVIN:   43  " K" after a boiling point
+:STATES:   44  the names of the states, in the order of R51 "SLG-"
+:GROUP:    45  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
+:GRPD:     46  
+:GRPP:     47  
+:GRP0:     48  
+:GRPF:     49  
+:GRPNAME:  50  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 
-Numeric data labels (XEQ IND): 29 the segments, 36-37 the symbols, 60-99 the records.
+Numeric data labels (XEQ IND): 29 the segments, 36-37 the symbols; the records 60-74 in ELD1, 75-89 in ELD2.
