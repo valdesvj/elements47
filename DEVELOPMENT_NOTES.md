@@ -162,6 +162,26 @@
 - tests/test_dev.py: ELEM47P (moves, the info box closed three times: the table back each time) and
   prototype 1, in c47sim and in T47, the same screens.
 
+## Oct 7, 2026 - Free42 (DM42 / DM42n stock firmware)
+
+- tools/build_free42.py converts programs_rem/ELEM47.txt step by step into build/free42/ELEM47.txt, the
+  way Almanac 47 converts NAV: 3 STO "GrMod" (the 400 x 240 screen), AGRAPH as ALPHA columns of 8 pixels
+  (bit 0 at the top, row 1 at the top: C47 row r = Free42 row 240 - r), GRMOD as flags 34 / 35, GETKEY
+  for the key waits, REGS saved and given back for LocR (the SIZE too), XSTR for the texts.
+- ATEXT: E47T (GRFNT 21) and E47S (GRFNT 10) draw the C47 fonts, one local label per character (the
+  Free42 code - 32), the glyph box in bands of 8 rows (20 rows: 0, 8, 12), written exactly in GRMOD 1
+  (as the C47 clears each character's box), |X| and |Y| as the C47. The glyphs come from c47sim.
+- What Free42 needed: a string in a program holds 15 characters, 14 after the append marker, and may
+  not start with a byte >= 128 (the append marker): the ALPHA literals are cut in pieces. The CR glyph
+  breaks a pasted line: it is written €0d. N→S follows the display format: αIP is CLA AIP ASTO ST X.
+  Free42 Paste leaves out the commands it does not know, without a message: tests/test_f42.py pastes
+  every different command and lists it back.
+- tests/test_f42.py (f42run, the Free42 3.3 core of Almanac 47): the whole table both ways with the box
+  at each cell, 571 screens, every one the same as the C47 pixel for pixel; R00-R99 and SIZE kept.
+- Sizes (estimated): ELEM47 1 094 steps, E47T 1 855 (the font, 9.7 KB), E47S 329. The speed on the DM42
+  is not known yet (f42run counts no steps): to be timed there.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
-- More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
+- More data in the detail box (category, electronegativity, state).
+- Free42: time the table on a DM42; build/free42/ELEM47.txt goes in by Paste in Free42 (export a .raw there).

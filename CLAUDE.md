@@ -5,6 +5,8 @@
 - Never commit binaries (.p47 files made by rejig, f42run, the patched rejig).
 - Edit the programs in programs_rem/ (commented source), then run python3 tools/build_elem47.py:
   it writes programs/, build/ and listings/. Never edit those three by hand.
+- Free42 (DM42): python3 tools/build_free42.py writes build/free42/ from programs_rem/ELEM47.txt;
+  python3 tests/test_f42.py (the same screens as the C47, with Almanac 47's f42run).
 - Development programs (prototypes, not the release): programs_rem/dev/, python3 tools/build_dev.py writes
   build/dev/ and listings/dev/; python3 tests/test_dev.py. build/dev/dev_test/ keeps old test programs.
 - Text on the C47 screen: ATEXT in GRFNT 21 (GRFNT 10 for the tiny font), as in Almanac 47.
