@@ -9,11 +9,12 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.2.0: 00.109.05
 2. XEQ "ELEM47". The table is drawn (a few seconds), the cursor on H.
 3. Keys:
      8 up   2 down   4 left   6 right   (empty cells are skipped; at the edge the cursor stays)
-     5      the detail box of the element under the cursor; any key closes it
+     5      the detail box of the element under the cursor; with the box open 8 4 6 2 move
+            (the box shows the new element) and 5 closes it
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R53 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
+Uses R20-R55 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
 STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
 
 Free42 (DM42 / DM42n stock firmware, Free42 3.3)

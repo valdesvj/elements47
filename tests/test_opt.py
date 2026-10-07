@@ -46,9 +46,29 @@ RUNS = {
 }
 
 
+def box_keys(keys):
+    """The keys for this build: the reference closed the detail box with any key, ELEM47 now with 5 only."""
+    out, open_ = [], False
+    for k in keys:
+        out.append(I if open_ else k)
+        open_ = (k == I) and not open_
+    return out
+
+
+def hint_off(shots):
+    """The detail box screens without the key hint (\"ANY KEY: BACK\" before, \"5: BACK\" now): x 262-348 of the
+    header bar, C47 rows 158-178. A box screen: its top line (C47 row 179) set from x 51 to 348."""
+    out = []
+    for f in shots:
+        if all((x, 239 - 179) in f for x in range(51, 349)):
+            f = {(x, r) for x, r in f if not (262 <= x <= 348 and 239 - 178 <= r <= 239 - 158)}
+        out.append(f)
+    return out
+
+
 def run(prog, keys):
-    shots, c = E.frames(keys, prog)
-    return shots, c
+    shots, c = E.frames(keys if prog != E.PROG else box_keys(keys), prog)
+    return hint_off(shots), c
 
 
 def main():
@@ -65,7 +85,7 @@ def main():
         tot[name] = (ca.steps, cb.steps)
     # the end (key 0): R00-R99 and the stack cleared (CLREGS, CLSTK), whatever was there before
     mine = {str(i): D(1000 + i) for i in range(100)}
-    b, cb = E.frames([R, Dn, I, 1, END], E.PROG, regs=dict(mine))
+    b, cb = E.frames([R, Dn, I, I, END], E.PROG, regs=dict(mine))
     left = [k for k in mine if cb.reg.get(k, D(0)) != 0]
     check(not left and all(v == 0 for v in cb.s), 'the end: R00-R99 and the stack cleared %s' % (sorted(left, key=int)[:8] or ''))
     # every element: the panel and the detail box through the program itself (cursor placed on it)
@@ -79,7 +99,7 @@ def main():
             c.s = [D(0)] * 4; c.pix = []
             c.reg.update({g['Z']: D(z), g['ROW']: D(r), g['COL']: D(col)})
             c.run(lab[0]); c.run(lab[1])
-            outs.append(frozenset(c.pix))
+            outs.append(frozenset((y, x) for y, x in c.pix if not (262 <= x <= 348 and 158 <= y <= 178)))   # no hint
         if outs[0] != outs[1]:
             wrong.append(ELEMENTS[z - 1][0])
     check(not wrong, 'panel and detail box of the 118 elements the same as %s %s' % (REF, wrong[:5] or ''))

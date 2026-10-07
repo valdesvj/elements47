@@ -8,7 +8,8 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 `ELEM47` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
 **5** opens the detail box (symbol, mass, state, boiling point, group number and name, electron
-configuration), any key closes it, **0** ends.
+configuration); with the box open **8 4 6 2** move to the next element and show its box, **5** closes
+it, **0** ends.
 The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
 (the digit cross 8 4 6 2 with 5 and 0, beside the same places in arrows and words).
 Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34

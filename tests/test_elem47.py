@@ -7,7 +7,8 @@
     boil, group, config
   - the detail texts (symbol, state, group, config; mass, boiling point)
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table
-  - 5: the detail box (frame), any key: the table again with the cursor kept; 0: the end
+  - 5: the detail box (frame), 5 again: the table again with the cursor kept; the arrows with the box open:
+    the box of the next element; other keys ignored; 0: the end
   python3 tests/test_elem47.py"""
 import os, sys
 from decimal import Decimal as D
@@ -121,10 +122,17 @@ def main():
     check(line and max(line) < 340, 'detail of Og: the longest configuration ends at x %d, inside the box (x 50-349)'
           % max(line or [0]))
 
-    shots, c = E.frames([E.RIGHT, E.INFO, 1, E.END])
-    check(len(shots) == 4, 'screens: table, He, detail, table (%d)' % len(shots))
+    shots, c = E.frames([E.RIGHT, E.INFO, 1, E.INFO, E.END])
+    check(len(shots) == 5, 'screens: table, He, detail, detail, table (%d)' % len(shots))
     check(box(shots[2], 50, 349, 60, 179), 'detail: the frame, x 50-349, rows 60-179')
-    check(shots[3] == shots[1], 'a key on the detail box: the table again, the cursor still on He')
+    check(shots[3] == shots[2], 'key 1 on the detail box: ignored')
+    check(shots[4] == shots[1], '5 on the detail box: the table again, the cursor still on He')
+    inbox, _ = E.frames([E.INFO, E.RIGHT, E.INFO])
+    direct, _ = E.frames([E.RIGHT, E.INFO])
+    check(inbox[2] == direct[2], 'box open on H, right: the box of He, as opened on He')
+    check(inbox[3] == direct[1], 'then 5: the table with the cursor and the panel on He')
+    edge, _ = E.frames([E.INFO, E.LEFT])
+    check(edge[2] == edge[1], 'box open on H, left (edge): the same box')
     check(getattr(c, 'grfnt', 20) == 20 and getattr(c, 'grmod', 0) == 0 and 'PT' not in c.mats,
           '0: the end, GRFNT 20 and GRMOD 0 restored, PT deleted')
     check(not c.keys, 'the end: all keys used')

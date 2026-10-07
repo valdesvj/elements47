@@ -44,7 +44,7 @@ class _Frames(list):
     def append(self, f): self.c.at_steps.append(self.c.steps); super().append(f)
 
 
-def frames(keys=(RIGHT, INFO, 1, END), prog=PROG, regs=None, label='ELEM47'):
+def frames(keys=(RIGHT, INFO, INFO, END), prog=PROG, regs=None, label='ELEM47'):
     """The screens of ELEM47 (or of the program label in prog) for the keys pressed. The run ends when the keys run out (or at the end).
     c.at_steps: the steps run before each screen (the work of each key = the difference)."""
     c = c47sim.load(split(prog))
@@ -79,7 +79,7 @@ def png(fn, pix, scale=3, border=12):
 SHOTS = [('ELEM47_table.png', 'the table, cursor on H'), ('ELEM47_fe.png', 'cursor on Fe (2 2 2 6 x7)'),
          ('ELEM47_detail_fe.png', 'detail box of Fe (5)'), ('ELEM47_sm.png', 'cursor on Sm (2 x4: Ru Os Hs Sm)'),
          ('ELEM47_detail_sm.png', 'detail box of Sm (5)')]
-KEYS = [DOWN] * 3 + [RIGHT] * 7 + [INFO, 1] + [DOWN] * 4 + [INFO, 1, END]
+KEYS = [DOWN] * 3 + [RIGHT] * 7 + [INFO, INFO] + [DOWN] * 4 + [INFO, INFO, END]
 
 
 if __name__ == '__main__':

@@ -9,44 +9,45 @@ ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), 
 :RECIN:    06  
 :RECSKIP:  07  
 :RECGOT:   08  
-:INFO:     09  5: the detail box; any key: the table again (LBL :CLOSE: draws only what the box covered)
-:INFOKEY:  10  
+:INFO:     09  5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws 
+:BCLOSE:   10  
 :CLOSE:    11  the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
 :CLSEG:    12  a segment of the table again: T = first Z, Z = count, Y = row, X = first column. The symbo
 :DETAIL:   13  the detail box (symbol, mass, state, boiling point, group, configuration),
-:GRPNAM:   14  
-:CELLS:    15  every cell, the matrix PT filled on the way. The segments in the code (no XEQ to the
-:INIT:     16  the start: the matrix PT, the patterns, the cursor on H
-:TABLE:    17  the table
-:KEYS:     18  keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored
-:UP:       19  
-:DOWN:     20  
-:LEFT:     21  
-:RIGHT:    22  
-:QUIT:     23  0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared
-:TITLE:    24  the title (row 1, columns 13-17) and the keys, drawn once
-:SEGMENT:  25  a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
-:SEGPOS:   26  
-:SEGLOOP:  27  
-:SYMBOL:   28  
-:SYMPCE:   29  the next piece of symbols (labels 36-37, R50 the label), 65 elements
-:CELLPOS:  30  the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
-:CPROWS:   31  
-:FIELD:    32  the next field of R44 in R35 (the last field: all that is left)
-:FIELDK:   33  field R24 (from 0) of the text "a/b/c" in R35, left in R35
-:FCUT:     34  cut at the next "/" (none after the last field)
-:STEP:     35  move the cursor by R41 rows, R42 columns, skipping empty cells
-:STEPLP:   38  
-:HLINE:    39  298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
-:HLLOOP:   40  
-:BOXCLR:   41  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
-:KELVIN:   42  " K" after a boiling point
-:STATES:   43  the names of the states, in the order of R51 "SLG-"
-:GROUP:    44  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
-:GRPD:     45  
-:GRPP:     46  
-:GRP0:     47  
-:GRPF:     48  
-:GRPNAME:  49  the names of the groups in R35, "/" between them (texts of 64 characters at most)
+:DETREC:   14  from here after LBL :PANEL: (a move with the box open): the record is read
+:GRPNAM:   15  
+:CELLS:    16  every cell, the matrix PT filled on the way. The segments in the code (no XEQ to the
+:INIT:     17  the start: the matrix PT, the patterns, the cursor on H
+:TABLE:    18  the table
+:KEYS:     19  keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored
+:UP:       20  
+:DOWN:     21  
+:LEFT:     22  
+:RIGHT:    23  
+:QUIT:     24  0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared
+:TITLE:    25  the title (row 1, columns 13-17) and the keys, drawn once
+:SEGMENT:  26  a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
+:SEGPOS:   27  
+:SEGLOOP:  28  
+:SYMBOL:   29  
+:SYMPCE:   30  the next piece of symbols (labels 36-37, R50 the label), 65 elements
+:CELLPOS:  31  the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
+:CPROWS:   32  
+:FIELD:    33  the next field of R44 in R35 (the last field: all that is left)
+:FIELDK:   34  field R24 (from 0) of the text "a/b/c" in R35, left in R35
+:FCUT:     35  cut at the next "/" (none after the last field)
+:STEP:     38  move the cursor by R41 rows, R42 columns, skipping empty cells
+:STEPLP:   39  
+:HLINE:    40  298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
+:HLLOOP:   41  
+:BOXCLR:   42  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
+:KELVIN:   43  " K" after a boiling point
+:STATES:   44  the names of the states, in the order of R51 "SLG-"
+:GROUP:    45  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
+:GRPD:     46  
+:GRPP:     47  
+:GRP0:     48  
+:GRPF:     49  
+:GRPNAME:  50  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 
 Numeric data labels (XEQ IND): 36-37 the symbols; the records 60-74 in ELD1, 75-89 in ELD2.

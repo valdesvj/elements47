@@ -263,6 +263,18 @@
   ELEM47 805 steps (the same). Simulator: the table 7 897 -> 7 833 steps. Firmware (tools/bench_fw.py):
   the table 101.3 -> 98.3 M (-3 %), moves - table 124.9 -> 124.8 M, boxes - table 429.9 -> 426.4 M (-0.8 %).
 
+- Then (branch box-moves): with the detail box open the arrows move the cursor and show the box of the new
+  element (LBL :MOVE: then LBL :DETREC:, the record the panel has just read); 5 closes the box (R36 = 1 while
+  it is open; one key loop, :INFOKEY: gone), other keys are ignored, 0 still ends. The box reads its data
+  first and draws after (BOXCLR and the header in R55, the left values stay in R38), so a move shows no
+  empty box. The hint "5: BACK" (x 304, ends where "ANY KEY: BACK" ended). The panel and the cursor follow
+  in the table too (the cursor may be under the box: the box is drawn over it, :CLOSE: turns it off as before).
+  tests/test_opt.py: the reference closed the box with any key (the key after 5 becomes 5 for this build),
+  the hint area left out of the box screens. Firmware (tools/bench_fw.py): table 98.3 -> 99.4 M, moves -
+  table 124.8 -> 127.9 M (2 more steps per move: RCL 36, X≠0?), boxes - table 426.4 -> 427.7 M; inbox (the
+  46 moves of 'moves' with the box open) 801.8 M - table = 702 M, about 14 M a move (a plain move 2.7 M).
+  ELEM47 816 steps.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).

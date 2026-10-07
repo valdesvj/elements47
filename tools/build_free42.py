@@ -230,7 +230,7 @@ def main_program(steps):
     assert S[j + 1] == 'RTN'
     del S[i:j + 2]
     # the key waits and the key codes
-    for lab in (':KEYS:', ':INFOKEY:'):
+    for lab in (':KEYS:',):
         S = replace(S, ['PAUSE 50', 'KEY? 33', 'GTO ' + lab], ['GETKEY', 'STO 33'])
     i, j = S.index('LBL :KEYS:'), S.index('LBL :UP:')
     for k in range(i, j):
@@ -294,7 +294,7 @@ def chars_used(steps):
         big |= set(''.join(map(str, e)))
     big |= set('Solid Liquid Gas')
     big -= set('↵/↑←→↓')
-    tiny = set('0123456789 ') | set('ANY KEY: BACK') | set('   8↵5 4 6↵   2↵   0      ↑↵INFO ← →↵      ↓↵     END') - {'↵'}
+    tiny = set('0123456789 ') | set('5: BACK') | set('   8↵5 4 6↵   2↵   0      ↑↵INFO ← →↵      ↓↵     END') - {'↵'}
     return big, tiny
 
 
