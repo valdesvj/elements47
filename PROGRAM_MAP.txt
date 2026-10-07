@@ -2,8 +2,9 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47          1036   one program; all its other labels are local
+ELEM47    ELEM47           878   one program; all its other labels are local
 (build/ELEM47.txt; build/ELEM47_num.txt the same with numeric labels)
+ELEM47    ELEM47          1447   Free42: build/free42/ELEM47.txt, one program (tools/build_free42.py)
 
 LOCAL LABELS OF ELEM47
   The code labels are C47 local named labels: LBL :PANEL:, XEQ :PANEL: (rejig 0.30.0 and later).
@@ -13,7 +14,7 @@ LOCAL LABELS OF ELEM47
   :TABLE: :KEYS:          the table, then the key wait (PAUSE 50 / KEY? 33)
   :UP: :DOWN: :LEFT: :RIGHT: :MOVE:   8 2 4 6: direction, cursor off, :STEP:, cursor on, panel
   :INFO: :INFOKEY: :CLOSE:  5: the detail box, wait, close it (only the cells under it again)
-  :QUIT:                  0: the end, your registers back
+  :QUIT:                  0: the end: PT deleted, CLREGS, CLSTK
   :TITLE:                 title and the key legend (two ATEXT with CR)
   :CELLS: :SEGMENT: :SEGLOOP: :SYMBOL: :SYMPCE:   every cell, by segments; symbols in order
   :CELL:                  one cell: box (unrolled AGRAPH), number, symbol
@@ -21,7 +22,7 @@ LOCAL LABELS OF ELEM47
   :CELLPOS: :FBLOCK:      the position of a cell (rows 8-9 lower)
   :CURSOR:                the cursor (XOR, unrolled)
   :PANEL:                 name, Z, mass (GRMOD 1 text, spaces after it)
-  :RECORD: :RECSKIP: :RECGOT: :FIELD:   the record of Z (3 per data label), its fields in order
+  :RECORD: :RECSKIP: :RECGOT: :FIELD:   the record of Z (4 per data label), its fields in order
   :FIELDK: :FCUT:         field k of the text "a/b/c"
   :STEP: :STEPLP:         move the cursor, skip empty cells
   :DETAIL: :BOXCLR: :BOXLINE: :HDRBAR: :GRPNAM: :KELVIN: :STATES:   the detail box
@@ -30,7 +31,7 @@ LOCAL LABELS OF ELEM47
   Data labels, numeric (XEQ IND):
   29      the segments of the table
   36-37   the symbols, 65 elements each (digit = column in the cell, then 2 characters)
-  60-99   the records, 3 elements each: "name/mass/state letter/boiling point/configuration"
+  60-89   the records, 4 elements each: "name/mass/state letter/boiling point/configuration"
 
 Folders:
   programs_rem/  the commented source: edit here (the DATA part is written by the build tool)
@@ -40,8 +41,9 @@ Folders:
                  ELEM47_labels.txt: the named labels and their numbers
   python/        c47sim.py (the C47 simulator of Almanac 47), elements.py (the data),
                  elem47sim.py (runs ELEM47: pictures, step counts)
-  tools/         build_elem47.py
-  tests/         test_elem47.py, test_opt.py (screens against branch optimize);
+  tools/         build_elem47.py; build_free42.py (Free42); build_dev.py (programs_rem/dev -> build/dev)
+  tests/         test_elem47.py, test_opt.py (screens against branch optimize), test_fw.py (the C47
+                 firmware, T47), test_f42.py (Free42, f42run), test_dev.py (the dev programs);
                  calc/LTEST.txt (on the C47: the 196-character text)
   docs/          ELEM47_*.png (from the simulator)
 

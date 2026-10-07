@@ -57,11 +57,11 @@ def main():
         check(cb.keys == [] and getattr(cb, 'grfnt', 20) == 20 and getattr(cb, 'grmod', 0) == 0 and 'PT' not in cb.mats,
               '%-11s the end: GRFNT 20, GRMOD 0, PT deleted' % name)
         tot[name] = (ca.steps, cb.steps)
-    # your registers: R00-R99 before ELEM47, the same after key 0
+    # the end (key 0): R00-R99 and the stack cleared (CLREGS, CLSTK), whatever was there before
     mine = {str(i): D(1000 + i) for i in range(100)}
     b, cb = E.frames([R, Dn, I, 1, END], E.PROG, regs=dict(mine))
-    kept = [k for k in mine if cb.reg.get(k) != mine[k]]
-    check(not kept, 'your registers R00-R99 are the same after ELEM47 %s' % (sorted(kept, key=int)[:8] or ''))
+    left = [k for k in mine if cb.reg.get(k, D(0)) != 0]
+    check(not left and all(v == 0 for v in cb.s), 'the end: R00-R99 and the stack cleared %s' % (sorted(left, key=int)[:8] or ''))
     # every element: the panel and the detail box through the program itself (cursor placed on it)
     a, ca = run(ref, [I])
     b, cb = run(E.PROG, [I])

@@ -9,7 +9,7 @@ ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), wha
 :MOVE:     06  move: cursor off (XOR), new cell, cursor on, panel
 :INFO:     07  5: the detail box; any key: the table again (LBL :CLOSE: draws only what the box covered)
 :INFOKEY:  08  
-:QUIT:     09  0: the end, the C47 as it was: your registers back
+:QUIT:     09  0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared
 :TITLE:    10  the title (row 1, columns 13-17) and the keys, drawn once
 :CELLS:    11  every cell (the segments of LBL 29), the matrix PT filled on the way
 :SEGMENT:  12  a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,

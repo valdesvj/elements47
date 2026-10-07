@@ -1,4 +1,4 @@
-REM ELEM47 - Elements 47: the periodic table on the C47 (optimized, branch optimize)
+REM ELEM47 v1.0.0 - Elements 47: the periodic table on the C47 / R47
 REM The 118 elements in an 18 x 9 grid (rows 1-7 the periods, 8 lanthanides, 9 actinides),
 REM cells 23 x 26 pixels sharing their edges (pitch 22 x 25). The empty space of periods 1-3
 REM holds the title, the selected element (name, Z, mass) and the keys.
@@ -6,75 +6,10 @@ REM Keys: 8 4 6 2 move the cursor (gaps skipped), 5 the detail box, 0 the end.
 REM Screen 400 x 240, row 0 = bottom (as in Almanac 47). ATEXT in GRFNT 21, numbers in GRFNT 10.
 REM GRMOD and GRFNT take X (rejig writes "GRMOD r" as GRMOD and the number r: Almanac 47).
 REM Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
-REM Your registers R20-R51 are kept: copied to local registers at the start, back at the end (key 0).
+REM At the end (key 0) the registers and the stack are cleared (CLREGS, CLSTK), as Almanac 47 v2.2.0.
 REM Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
 REM Z row column, R33 key, R34-R51 text and work.
 LBL "ELEM47"
-LocR 32
-RCL 20
-STO R.00
-RCL 21
-STO R.01
-RCL 22
-STO R.02
-RCL 23
-STO R.03
-RCL 24
-STO R.04
-RCL 25
-STO R.05
-RCL 26
-STO R.06
-RCL 27
-STO R.07
-RCL 28
-STO R.08
-RCL 29
-STO R.09
-RCL 30
-STO R.10
-RCL 31
-STO R.11
-RCL 32
-STO R.12
-RCL 33
-STO R.13
-RCL 34
-STO R.14
-RCL 35
-STO R.15
-RCL 36
-STO R.16
-RCL 37
-STO R.17
-RCL 38
-STO R.18
-RCL 39
-STO R.19
-RCL 40
-STO R.20
-RCL 41
-STO R.21
-RCL 42
-STO R.22
-RCL 43
-STO R.23
-RCL 44
-STO R.24
-RCL 45
-STO R.25
-RCL 46
-STO R.26
-RCL 47
-STO R.27
-RCL 48
-STO R.28
-RCL 49
-STO R.29
-RCL 50
-STO R.30
-RCL 51
-STO R.31
 WSIZE 64
 9
 18
@@ -168,78 +103,15 @@ KEY? 33
 GTO :INFOKEY:
 XEQ :CLOSE:
 GTO :KEYS:
-REM ---- 0: the end, the C47 as it was: your registers back ----
+REM ---- 0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared ----
 LBL :QUIT:
 0
 GRMOD
 20
 GRFNT
 DELITM "PT"
-RCL R.00
-STO 20
-RCL R.01
-STO 21
-RCL R.02
-STO 22
-RCL R.03
-STO 23
-RCL R.04
-STO 24
-RCL R.05
-STO 25
-RCL R.06
-STO 26
-RCL R.07
-STO 27
-RCL R.08
-STO 28
-RCL R.09
-STO 29
-RCL R.10
-STO 30
-RCL R.11
-STO 31
-RCL R.12
-STO 32
-RCL R.13
-STO 33
-RCL R.14
-STO 34
-RCL R.15
-STO 35
-RCL R.16
-STO 36
-RCL R.17
-STO 37
-RCL R.18
-STO 38
-RCL R.19
-STO 39
-RCL R.20
-STO 40
-RCL R.21
-STO 41
-RCL R.22
-STO 42
-RCL R.23
-STO 43
-RCL R.24
-STO 44
-RCL R.25
-STO 45
-RCL R.26
-STO 46
-RCL R.27
-STO 47
-RCL R.28
-STO 48
-RCL R.29
-STO 49
-RCL R.30
-STO 50
-RCL R.31
-STO 51
 CLLCD
+CLREGS
 CLSTK
 RTN
 REM ---- LBL :TITLE: the title (row 1, columns 13-17) and the keys, drawn once ----

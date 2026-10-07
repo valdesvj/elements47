@@ -192,6 +192,22 @@
 - Sizes (estimated): ELEM47 1 094 steps, E47T 1 855 (the font, 9.7 KB), E47S 329. The speed on the DM42
   is not known yet (f42run counts no steps): to be timed there.
 
+## Oct 7, 2026 - v1.0.0: registers cleared at the end, Free42 as one program
+
+- Victor's choice for the release: ELEM47 works in the global registers R20-R51 and clears the registers
+  and the stack at the end (CLREGS, CLSTK), as Almanac 47 v2.2.0; the LocR copy of R20-R51 is gone
+  (1 006 -> 878 steps). Local registers for the work itself are not possible: in the firmware every XEQ
+  level starts without local registers (lblGtoXeq.c fnExecute), so the subroutines could not reach the
+  caller's, and KEY? takes no local register (input.c fnKey).
+- python/c47sim.py has no CLREGS yet (Almanac 47's copy has it in the working tree, uncommitted):
+  python/elem47sim.py runs it as 0 STO 00 ... STO 99. T47 (tests/test_fw.py) checks the real one.
+- Free42: one program, one global label. The fonts are data now: per font an index text (the Free42 codes)
+  and a table text (box width, advance, the bands of 8 rows), put in R69-R72 by :FDATA: at the start; a
+  character is POS in the index, SUBSTR of its record, then per band CLA, ARCL, AGRAPH. The text and box
+  routines use R60-R89 (SIZE 90), cleared by CLRG at the end. 3 programs of 3 278 steps -> 1 program of
+  1 447 steps, 93 local labels. XSTR keeps every byte (checked 0-255) except the paste aliases: <= becomes
+  one character, so the pieces are cut after < > - ! | \ as for ALPHA.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).

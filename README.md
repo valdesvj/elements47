@@ -4,9 +4,9 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 ---
 
-## Status: the full table (simulator-tested, not yet run on the C47)
+## Elements 47 v1.0.0
 
-`build/ELEM47.txt` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
+`ELEM47` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
 **5** opens the detail box (symbol, mass, state, boiling point, group number and name, electron
 configuration), any key closes it, **0** ends.
 The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
@@ -14,44 +14,22 @@ The empty space of periods 1–3 holds the title, the selected element's name, Z
 Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34
 elements without a standard atomic weight. State, boiling point and configuration: the PubChem periodic table
 ("-" where PubChem has none, or only an expected state).
-Screens from the C47 simulator: `docs/ELEM47_*.png`. Start with `QUICKSTART.txt`; the layout of the
-repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
 
-| | |
-|---|---|
-| Program | one program, one global label: ELEM47, 1 036 steps. Everything else is local: 46 local named code labels (`:PANEL:`, `:DETAIL:`, …; `build/ELEM47_num.txt` has them as numbers 00-48) and the numeric data labels (3 elements per text, up to 195 characters); about 8.5 KB (.p47, estimated) |
-| Memory while running | R20–R51 (your values saved and given back at the end) and the matrix `PT` (9 × 18, deleted at the end) |
-| Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
-| Work (simulator steps) | table 9 600, a cursor move about 280, the detail box 2 200, closing it 6 100 (only the cells under the box are drawn again) |
+| | C47 / R47 | Free42 (DM42 / DM42n stock firmware) |
+|---|---|---|
+| File | `build/ELEM47.txt` (rejig → `.p47`); `build/ELEM47_num.txt` with numeric local labels | `build/free42/ELEM47.txt` (Paste in Free42) |
+| Program | one program, one global label `ELEM47`, 878 steps; 46 local named labels (`:PANEL:`, `:DETAIL:` …) and the numeric data labels (4 elements per text, up to 172 characters); about 8.2 KB | one program, one global label `ELEM47`, 1 447 steps, 93 local labels; the C47 fonts inside as data |
+| Needs | ATEXT, GRFNT and local named labels: firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0 | Free42 3.3 (strings: XSTR, SUBSTR, POS, HEAD) |
+| Memory | R20–R51 and the matrix `PT` (9 × 18) | R20–R89 (SIZE 90 if smaller) and `PT` |
+| At the end (0) | `PT` deleted, **the registers and the stack cleared** (CLREGS, CLSTK) | `PT` deleted, CLRG, CLST |
 
-The features below are the plan; the differences so far: 5 instead of + for the details, the 8 4 6 2 keys
-instead of the arrows, ATEXT (not "ATXT") for the text and AGRAPH (not PIXEL) for the lines.
+Same screens on both, pixel for pixel. Tested in the C47 firmware itself (T47, built from the firmware
+sources, `tests/test_fw.py`), in the Python C47 simulator (`tests/test_elem47.py`, `tests/test_opt.py`) and in
+Free42 (`tests/test_f42.py`): the whole table both ways with the detail box opened and closed at every cell.
+Screens: `docs/ELEM47_*.png`. Start with `QUICKSTART.txt`; the layout of the repository is in `PROGRAM_MAP.txt`.
 
----
-
-## Features
-
-* **Full 118-Element Support:** Comprehensive coverage from Hydrogen (H) to Oganesson (Og).
-* **Memory-Optimized Architecture:** Utilizes a custom 236-byte packed string layout ($118 \times 2$ character padding) to ensure lightning-fast lookups without bloating RAM on hardware-constrained builds (ideal for `D42lite` environments).
-* **Interactive Grid Navigation:** Seamless arrow-key traversal with built-in boundary and gap-skipping logic for transition metals and lanthanide/actinide rows.
-* **XOR Cursor Highlighting:** High-performance real-time screen inversion (`XOR` mode) for tracking your active cell without redrawing the entire table grid.
-* **Detail Inspector Modal:** Pressing the **`+`** key instantly pops up a detailed information window displaying extended characteristics for the selected element.
-* **Native Primitives:** Built exclusively using standard C47 graphics commands (`PIXEL` line rendering and `ATXT`).
-
----
-
-## Screen Layout
-
-* **Main Grid:** $18 \text{ columns} \times 9 \text{ rows}$ mapped to the 400×240 monochrome display.
-* **Cell Format:** Compact 22×26 pixel grid featuring atomic numbers and 1- or 2-letter chemical symbols.
-
----
-
-## Installation & Usage
-
-1. Load the `.p47` program source or text file into your C47 / Free42 environment (using tools like `rejig` if converting from text source).
-2. Execute the main entry routine to render the periodic table grid.
-3. Use the **Arrow Keys** to navigate across elements and press **`+`** for detailed element specs.
+Work (C47 simulator steps): the table 9 600, a cursor move about 570, the detail box 2 300, closing it 6 100
+(only the cells under the box are drawn again).
 
 ---
 

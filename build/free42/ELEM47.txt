@@ -1,15 +1,15 @@
 LBL "ELEM47"
 RCL "REGS"
-STO "E47R"
 DIM?
 R↓
-52
+90
 X>Y?
-SIZE 52
+SIZE 90
 3
 STO "GrMod"
 CF 34
 CF 35
+XEQ 92
 9
 18
 NEWMAT
@@ -97,12 +97,10 @@ LBL 09
 CF 34
 CF 35
 CLV "PT"
-RCL "E47R"
-STO "REGS"
-CLV "E47R"
 CLLCD
 0
 STO "GrMod"
+CLRG
 CLST
 CLD
 RTN
@@ -110,15 +108,15 @@ LBL 10
 XSTR "ELEMENTS 47"
 217
 270
-XEQ "E47T"
+XEQ 55
 XSTR "   8€0d5 4 6€0d   2€0d   0"
 200
 152
-XEQ "E47S"
+XEQ 56
 XSTR "      ↑€0dINFO ← →€0d      ↓€0d     END"
 200
 194
-XEQ "E47S"
+XEQ 56
 RTN
 LBL 11
 1
@@ -194,7 +192,7 @@ RCL 40
 RCL 39
 4
 -
-XEQ "E47S"
+XEQ 56
 RCL 35
 RCL 40
 1
@@ -202,7 +200,7 @@ RCL 40
 RCL 39
 RCL 36
 +
-XEQ "E47T"
+XEQ 55
 RTN
 LBL 16
 XEQ 23
@@ -334,7 +332,7 @@ LASTX
 RCL 38
 211
 50
-XEQ "E47T"
+XEQ 55
 XSTR " "
 STO 38
 RCL 30
@@ -362,7 +360,7 @@ LASTX
 RCL 38
 190
 50
-XEQ "E47T"
+XEQ 55
 RCL 35
 STO 38
 XSTR "     "
@@ -375,7 +373,7 @@ LASTX
 RCL 38
 170
 50
-XEQ "E47T"
+XEQ 55
 CF 34
 CF 35
 RTN
@@ -519,36 +517,36 @@ XEQ 38
 CF 34
 CF 35
 60
-STO "BY"
+STO 80
 50
-STO "BX"
+STO 81
 1
-STO "BW"
+STO 82
 120
-STO "BH"
-XEQ "E47B"
+STO 83
+XEQ 49
 CF 34
 CF 35
 60
-STO "BY"
+STO 80
 349
-STO "BX"
+STO 81
 1
-STO "BW"
+STO 82
 120
-STO "BH"
-XEQ "E47B"
+STO 83
+XEQ 49
 CF 34
 CF 35
 60
-STO "BY"
+STO 80
 51
-STO "BX"
+STO 81
 298
-STO "BW"
+STO 82
 1
-STO "BH"
-XEQ "E47B"
+STO 83
+XEQ 49
 XEQ 25
 RCL 35
 STO 48
@@ -606,23 +604,23 @@ STO 38
 RCL 38
 158
 51
-XEQ "E47T"
+XEQ 55
 RCL 37
 158
 90
-XEQ "E47T"
+XEQ 55
 XSTR "ANY KEY: BACK"
 162
 268
-XEQ "E47S"
+XEQ 56
 XSTR "Symbol€0dState€0dGroup€0dConfig"
 134
 58
-XEQ "E47T"
+XEQ 55
 XSTR "Mass€0dBoil"
 134
 226
-XEQ "E47T"
+XEQ 55
 XSTR "€0d"
 RCL 48
 X<>Y
@@ -646,7 +644,7 @@ XEQ 39
 RCL 48
 134
 272
-XEQ "E47T"
+XEQ 55
 RCL 29
 STO 38
 XSTR "€0d"
@@ -724,18 +722,18 @@ LASTX
 RCL 38
 134
 130
-XEQ "E47T"
+XEQ 55
 SF 34
 SF 35
 158
-STO "BY"
+STO 80
 51
-STO "BX"
+STO 81
 298
-STO "BW"
+STO 82
 22
-STO "BH"
-XEQ "E47B"
+STO 83
+XEQ 49
 CF 34
 CF 35
 RTN
@@ -777,11 +775,11 @@ LASTX
 RCL 38
 160
 50
-XEQ "E47T"
+XEQ 55
 XSTR " €0d €0d €0d €0d €0d "
 160
 343
-XEQ "E47T"
+XEQ 55
 RTN
 LBL 39
 XSTR " K"
@@ -859,11 +857,11 @@ CF 35
 215
 RCL 40
 -
-STO "TB"
+STO 64
 CLA
 ├"€ff€01€01€01€01€01€01€01€01€01€01€01€01€01"
 ├"€01€01€01€01€01€01€01€01€ff"
-RCL "TB"
+RCL 64
 RCL 39
 1
 +
@@ -871,7 +869,7 @@ AGRAPH
 CLA
 ├"€ff€00€00€00€00€00€00€00€00€00€00€00€00€00"
 ├"€00€00€00€00€00€00€00€00€ff"
-RCL "TB"
+RCL 64
 8
 +
 RCL 39
@@ -881,7 +879,7 @@ AGRAPH
 CLA
 ├"€ff€00€00€00€00€00€00€00€00€00€00€00€00€00"
 ├"€00€00€00€00€00€00€00€00€ff"
-RCL "TB"
+RCL 64
 16
 +
 RCL 39
@@ -891,7 +889,7 @@ AGRAPH
 CLA
 ├"€ff€80€80€80€80€80€80€80€80€80€80€80€80€80"
 ├"€80€80€80€80€80€80€80€80€ff"
-RCL "TB"
+RCL 64
 18
 +
 RCL 39
@@ -905,11 +903,11 @@ SF 35
 216
 RCL 40
 -
-STO "TB"
+STO 64
 CLA
 ├"€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff"
 ├"€ff€ff€ff€ff€ff€ff€ff"
-RCL "TB"
+RCL 64
 RCL 39
 2
 +
@@ -917,7 +915,7 @@ AGRAPH
 CLA
 ├"€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff"
 ├"€ff€ff€ff€ff€ff€ff€ff"
-RCL "TB"
+RCL 64
 8
 +
 RCL 39
@@ -927,7 +925,7 @@ AGRAPH
 CLA
 ├"€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff€ff"
 ├"€ff€ff€ff€ff€ff€ff€ff"
-RCL "TB"
+RCL 64
 16
 +
 RCL 39
@@ -936,6 +934,361 @@ RCL 39
 AGRAPH
 CF 34
 CF 35
+RTN
+LBL 49
+241
+RCL 80
+-
+RCL 83
+-
+STO 84
+RCL 83
+STO 85
+LBL 50
+RCL 85
+X≤0?
+RTN
+255
+STO 86
+8
+RCL 85
+X<Y?
+XEQ 54
+RCL 82
+STO 87
+RCL 81
+1
++
+STO 88
+LBL 51
+RCL 87
+X≤0?
+GTO 53
+44
+X>Y?
+X<>Y
+STO 89
+CLA
+LBL 52
+RCL 86
+XTOA
+DSE 89
+GTO 52
+RCL 84
+RCL 88
+AGRAPH
+44
+STO+ 88
+-44
+STO+ 87
+GTO 51
+LBL 53
+8
+STO+ 84
+-8
+STO+ 85
+GTO 50
+LBL 54
+2
+RCL 85
+Y↑X
+1
+-
+STO 86
+RTN
+LBL 55
+ABS
+STO 60
+STO 61
+R↓
+ABS
+STO 62
+R↓
+STO 63
+RCL 69
+STO 67
+RCL 70
+STO 68
+20
+STO 73
+38
+STO 74
+12
+STO 75
+XSTR "€00€08€0c"
+STO 78
+GTO 57
+LBL 56
+ABS
+STO 60
+STO 61
+R↓
+ABS
+STO 62
+R↓
+STO 63
+RCL 71
+STO 67
+RCL 72
+STO 68
+8
+STO 73
+8
+STO 74
+6
+STO 75
+XSTR "€00"
+STO 78
+GTO 57
+LBL 57
+241
+RCL 73
+-
+RCL 62
+-
+STO 64
+LBL 58
+RCL 63
+LENGTH
+X=0?
+RTN
+HEAD 63
+C→N
+13
+X=Y?
+GTO 91
+X<>Y
+N→C
+RCL 67
+X<>Y
+POS
+X<0?
+CLX
+RCL 74
+×
+STO 65
+RCL 68
+RCL 65
+RCL 65
+RCL 74
++
+SUBSTR
+STO 66
+HEAD 66
+C→N
+STO 76
+HEAD 66
+C→N
+STO 77
+RCL 78
+STO 79
+LBL 59
+RCL 79
+LENGTH
+X=0?
+GTO 90
+CLA
+RCL 66
+0
+RCL 76
+SUBSTR
+ARCL ST X
+HEAD 79
+C→N
+RCL 64
++
+RCL 60
+1
++
+AGRAPH
+RCL 66
+RCL 75
+SUBSTR
+STO 66
+GTO 59
+LBL 90
+RCL 77
+STO+ 60
+GTO 58
+LBL 91
+RCL 61
+STO 60
+RCL 73
+STO- 62
+GTO 57
+LBL 92
+XSTR "€3f€20€2d"
+XSTR "€2e€30€31€32€33€34€35€36€37€38€39€3a€41€42€43€44€45€46€47€48€49€4b€4c€4d€4e€4f€50€52€53€54€55€56€57€58€59€5a€5b€5d€61€62"
+APPEND
+XSTR "€63€64€65€66€67€68€69€6b€6c€6d€6e€6f€70€71€72€73€74€75€76€77€78€79"
+APPEND
+STO 69
+XSTR "€09€08€60€70€30€30€30€f0€e0€00€00€00€00€00€00€00€cc€ce€cf€03€01€00€00€00€00€00€00€00€0c€0c€0c€00€00€00€00€00€00€00€08€07"
+XSTR "€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€08€07€00€00"
+APPEND
+XSTR "€00€00€00€00€00€00€00€00€00€00€06€06€06€06€06€06€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€00€05€04€00€00€00€00"
+APPEND
+XSTR "€00€00€00€00€00€00€00€00€e0€e0€e0€00€00€00€00€00€00€00€00€00€0e€0e€0e€00€00€00€00€00€00€00€00€00€08€07€e0€f0€30€30€f0€e0"
+APPEND
+XSTR "€00€00€00€00€00€00€7f€ff€c0€c0€ff€7f€00€00€00€00€00€00€07€0f€0c€0c€0f€07€00€00€00€00€00€00€08€07€00€40€60€f0€f0€00€00€00"
+APPEND
+XSTR "€00€00€00€00€00€00€00€ff€ff€00€00€00€00€00€00€00€00€00€00€0f€0f€00€00€00€00€00€00€00€08€07€60€70€30€30€f0€e0€00€00€00€00"
+APPEND
+XSTR "€00€00€e0€f0€f8€cc€c7€c3€00€00€00€00€00€00€0e€0f€0f€0c€0c€0c€00€00€00€00€00€00€08€07€60€30€30€30€f0€e0€00€00€00€00€00€00"
+APPEND
+XSTR "€60€c0€c6€c6€ff€79€00€00€00€00€00€00€06€0c€0c€0c€0f€07€00€00€00€00€00€00€08€07€f0€f0€00€00€c0€c0€00€00€00€00€00€00€0f€0f"
+APPEND
+XSTR "€0c€0c€ff€ff€00€00€00€00€00€00€00€00€00€00€0f€0f€00€00€00€00€00€00€08€07€f0€f0€30€30€30€30€00€00€00€00€00€00€63€c3€c3€c3"
+APPEND
+XSTR "€ff€7e€00€00€00€00€00€00€06€0c€0c€0c€0f€07€00€00€00€00€00€00€08€07€e0€f0€30€30€30€20€00€00€00€00€00€00€7f€ff€c3€c3€ff€7e"
+APPEND
+XSTR "€00€00€00€00€00€00€07€0f€0c€0c€0f€07€00€00€00€00€00€00€08€07€30€30€30€f0€f0€70€00€00€00€00€00€00€00€f0€fe€0f€01€00€00€00"
+APPEND
+XSTR "€00€00€00€00€00€0f€0f€00€00€00€00€00€00€00€00€00€08€07€e0€f0€30€30€f0€e0€00€00€00€00€00€00€79€ff€c6€c6€ff€79€00€00€00€00"
+APPEND
+XSTR "€00€00€07€0f€0c€0c€0f€07€00€00€00€00€00€00€08€07€e0€f0€30€30€f0€e0€00€00€00€00€00€00€47€cf€cc€cc€ff€7f€00€00€00€00€00€00"
+APPEND
+XSTR "€04€0c€0c€0c€0f€07€00€00€00€00€00€00€05€04€00€00€00€00€00€00€00€00€00€00€00€00€e7€e7€e7€00€00€00€00€00€00€00€00€00€0e€0e"
+APPEND
+XSTR "€0e€00€00€00€00€00€00€00€00€00€0b€0a€00€00€80€e0€70€e0€80€00€00€00€00€00€e0€fc€3f€33€30€33€3f€fc€e0€00€00€00€0e€0f€03€03"
+APPEND
+XSTR "€03€03€03€0f€0e€00€00€00€0a€09€f0€b0€30€30€30€70€e0€c0€00€00€00€00€ff€df€c6€c6€c6€ef€7f€39€00€00€00€00€0f€0d€0c€0c€0c€0e"
+APPEND
+XSTR "€07€03€00€00€00€00€0a€09€c0€e0€70€30€30€30€70€60€00€00€00€00€3f€7f€e0€c0€c0€c0€e0€60€00€00€00€00€03€07€0e€0c€0c€0c€0e€06"
+APPEND
+XSTR "€00€00€00€00€0a€09€f0€b0€30€30€30€e0€e0€80€00€00€00€00€ff€df€c0€c0€c0€70€7f€1f€00€00€00€00€0f€0d€0c€0c€0c€07€07€01€00€00"
+APPEND
+XSTR "€00€00€0a€09€f0€f0€30€30€30€30€30€30€00€00€00€00€ff€ff€c6€c6€c6€c6€c6€c0€00€00€00€00€0f€0f€0c€0c€0c€0c€0c€0c€00€00€00€00"
+APPEND
+XSTR "€0a€09€f0€f0€30€30€30€30€30€30€00€00€00€00€ff€ff€06€06€06€06€06€00€00€00€00€00€0f€0f€00€00€00€00€00€00€00€00€00€00€0a€09"
+APPEND
+XSTR "€c0€e0€70€30€30€30€70€60€00€00€00€00€3f€7f€e0€c0€c6€c6€fe€7e€00€00€00€00€03€07€0e€0c€0c€0c€0f€07€00€00€00€00€0a€09€f0€f0"
+APPEND
+XSTR "€00€00€00€00€f0€f0€00€00€00€00€ff€ff€06€06€06€06€ff€ff€00€00€00€00€0f€0f€00€00€00€00€0f€0f€00€00€00€00€06€05€30€f0€f0€30"
+APPEND
+XSTR "€00€00€00€00€00€00€00€00€c0€ff€ff€c0€00€00€00€00€00€00€00€00€0c€0f€0f€0c€00€00€00€00€00€00€00€00€0b€0a€f0€f0€00€00€80€c0"
+APPEND
+XSTR "€e0€70€30€00€00€00€ff€ff€06€0f€1f€39€70€e0€c0€00€00€00€0f€0f€00€00€01€03€07€0e€0c€00€00€00€09€08€f0€f0€00€00€00€00€00€00"
+APPEND
+XSTR "€00€00€00€00€ff€ff€c0€c0€c0€c0€c0€00€00€00€00€00€0f€0f€0c€0c€0c€0c€0c€00€00€00€00€00€0c€0b€f0€f0€e0€c0€80€80€c0€e0€f0€f0"
+APPEND
+XSTR "€00€00€ff€ff€00€01€07€07€01€00€ff€ff€00€00€0f€0f€00€00€00€00€00€00€0f€0f€00€00€0b€0a€f0€f0€f0€c0€00€00€00€f0€f0€00€00€00"
+APPEND
+XSTR "€ff€ff€00€03€0f€3c"
+APPEND
+XSTR "€f0€ff€ff€00€00€00€0f€0f€00€00€00€03€0f€0f€0f€00€00€00€0a€09€c0€e0€70€30€30€70€e0€c0€00€00€00€00€3f€7f€e0€c0€c0€e0€7f€3f"
+APPEND
+XSTR "€00€00€00€00€03€07€0e€0c€0c€0e€07€03€00€00€00€00€0a€09€f0€b0€30€30€30€70€e0€c0€00€00€00€00€ff€ff€0c€0c€0c€0e€07€03€00€00"
+APPEND
+XSTR "€00€00€0f€0f€00€00€00€00€00€00€00€00€00€00€0a€09€f0€b0€30€30€30€70€e0€c0€00€00€00€00€ff€ff€0c€1c€3c"
+APPEND
+XSTR "€7e€e7€c3€00€00€00€00€0f€0f€00€01€03€07€0e€0c€00€00€00€00€0a€09€e0€f0€30€30€30€30€70€60€00€00€00€00€61€e3€c3€c6€c6€cc€fc"
+APPEND
+XSTR "€78€00€00€00€00€06€0e€0c€0c€0c€0c€0f€07€00€00€00€00€0a€09€30€30€30€f0€f0€30€30€30€00€00€00€00€00€00€00€ff€ff€00€00€00€00"
+APPEND
+XSTR "€00€00€00€00€00€00€0f€0f€00€00€00€00€00€00€00€0a€09€f0€f0€00€00€00€00€f0€f0€00€00€00€00€3f€7f€e0€c0€c0€e0€7f€3f€00€00€00"
+APPEND
+XSTR "€00€03€07€0e€0c€0c€0e€07€03€00€00€00€00€0a€09€f0€f0€00€00€00€00€f0€f0€00€00€00€00€00€07€3f€f8€f8€3f€07€00€00€00€00€00€00"
+APPEND
+XSTR "€00€03€0f€0f€03€00€00€00€00€00€00€0c€0b€f0€f0€00€00€80€80€00€00€f0€f0€00€00€3f€ff€f0€3c"
+APPEND
+XSTR "€0f€0f€3c"
+APPEND
+XSTR "€f0€ff€3f€00€00€03€0f€0f€03€00€00€03€0f€0f€03€00€00€0a€09€30€f0€c0€00€00€c0€f0€30€00€00€00€00€c0€f0€3f€0f€0f€3f€f0€c0€00"
+APPEND
+XSTR "€00€00€00€0c€0f€03€00€00€03€0f€0c€00€00€00€00€0a€09€30€f0€c0€00€00€c0€f0€30€00€00€00€00€00€00€03€ff€ff€03€00€00€00€00€00"
+APPEND
+XSTR "€00€00€00€00€0f€0f€00€00€00€00€00€00€00€0a€09€30€30€30€30€30€b0€f0€f0€00€00€00€00€f0€f8€dc€ce€c7€c3€c1€c0€00€00€00€00€0f"
+APPEND
+XSTR "€0f€0d€0c€0c€0c€0c€0c€00€00€00€00€08€07€00€fe€fe€06€06€06€00€00€00€00€00€00€00€ff€ff€00€00€00€00€00€00€00€00€00€00€7f€7f"
+APPEND
+XSTR "€60€60€60€00€00€00€00€00€00€08€07€06€06€06€fe€fe€00€00€00€00€00€00€00€00€00€00€ff€ff€00€00€00€00€00€00€00€60€60€60€7f€7f"
+APPEND
+XSTR "€00€00€00€00€00€00€00€0a€09€00€00€80€80€80€80€00€00€00€00€00€00€70€f9€d9€c9€cd€6d€ff€fe€00€00€00€00€07€0f€0d€0c€0c€06€0f"
+APPEND
+XSTR "€0f€00€00€00€00€0a€09€f8€f8€00€80€80€80€00€00€00€00€00€00€ff€ff€63€c1€c1€e3€7f€3e"
+APPEND
+XSTR "€00€00€00€00€0f€0f€06€0c€0c€0e€07€03€00€00€00€00€0a€09€00€00€80€80€80€80€80€00€00€00€00€00€3e"
+APPEND
+XSTR "€7f€e3€c1€c1€c1€c1€41€00€00€00€00€03€07€0e€0c€0c€0c€0c€04€00€00€00€00€0a€09€00€00€80€80€80€00€f8€f8€00€00€00€00€3e"
+APPEND
+XSTR "€7f€e3€c1€c1€63€ff€ff€00€00€00€00€03€07€0e€0c€0c€06€0f€0f€00€00€00€00€0a€09€00€00€80€80€80€80€80€00€00€00€00€00€3e"
+APPEND
+XSTR "€7f€fb€c9€c9€cd€cf€47€00€00€00€00€03€07€0f€0c€0c€0c€0c€04€00€00€00€00€09€08€80€80€f0€f8€98€98€18€00€00€00€00€00€01€01€ff"
+APPEND
+XSTR "€ff€01€01€00€00€00€00€00€00€00€00€0f€0f€00€00€00€00€00€00€00€00€0a€09€00€00€80€80€80€80€00€80€00€00€00€00€3e"
+APPEND
+XSTR "€7f€e3€c1€c1€63€ff€ff€00€00€00€00€63€e7€ce€cc€cc€e6€7f€3f€00€00€00€00€0a€09€f8€f8€00€80€80€80€00€00€00€00€00€00€ff€ff€03"
+APPEND
+XSTR "€01€01€03€ff€fe€00€00€00€00€0f€0f€00€00€00€00€0f€0f€00€00€00€00€05€04€98€98€00€00€00€00€00€00€00€00€00€00€7f€ff€c0€00€00"
+APPEND
+XSTR "€00€00€00€00€00€00€00€07€0f€0c€00€00€00€00€00€00€00€00€00€0a€09€f8€f8€00€00€00€80€80€00€00€00€00€00€ff€ff€1c€1e€3f€73€e1"
+APPEND
+XSTR "€c0€00€00€00€00€0f€0f€01€01€03€07€0e€0c€00€00€00€00€05€04€f8€f8€00€00€00€00€00€00€00€00€00€00€7f€ff€c0€00€00€00€00€00€00"
+APPEND
+XSTR "€00€00€00€07€0f€0c€00€00€00€00€00€00€00€00€00€0c€0b€80€80€00€80€80€80€00€80€80€00€00€00€ff€ff€03€01€ff€ff€03€01€ff€ff€00"
+APPEND
+XSTR "€00€0f€0f€00€00€0f€0f€00€00€0f€0f€00€00€0a€09€80€80€00€80€80€80€00€00€00€00€00€00€ff€ff€03€01€01€03€ff€fe€00€00€00€00€0f"
+APPEND
+XSTR "€0f€00€00€00€00€0f€0f€00€00€00€00€0a€09€00€00€80€80€80€80€00€00€00€00€00€00€3e"
+APPEND
+XSTR "€7f€e3€c1€c1€e3€7f€3e"
+APPEND
+XSTR "€00€00€00€00€03€07€0e€0c€0c€0e€07€03€00€00€00€00€0a€09€80€80€80€80€80€80€00€00€00€00€00€00€ff€ff€63€c1€c1€e3€7f€3e"
+APPEND
+XSTR "€00€00€00€00€ff€ff€06€0c€0c€0e€07€03€00€00€00€00€0a€09€00€00€80€80€80€00€80€80€00€00€00€00€3e"
+APPEND
+XSTR "€7f€e3€c1€c1€63€ff€ff€00€00€00€00€03€07€0e€0c€0c€06€ff€ff€00€00€00€00€0a€09€80€80€00€80€80€80€80€00€00€00€00€00€ff€ff€03"
+APPEND
+XSTR "€03€01€01€03€03€00€00€00€00€0f€0f€00€00€00€00€00€00€00€00€00€00€0a€09€00€80€80€80€80€80€80€00€00€00€00€00€67€ef€cd€c9€c9"
+APPEND
+XSTR "€d9€fb€73€00€00€00€00€06€0e€0c€0c€0c€0d€0f€07€00€00€00€00€09€08€80€80€f8€f8€80€80€80€00€00€00€00€00€01€01€7f€ff€c1€c1€41"
+APPEND
+XSTR "€00€00€00€00€00€00€00€07€0f€0c€0c€04€00€00€00€00€00€0a€09€80€80€00€00€00€00€80€80€00€00€00€00€3f€7f€e0€c0€c0€e0€7f€3f€00"
+APPEND
+XSTR "€00€00€00€03€07€0e€0c€0c€0e€07€03€00€00€00€00€0a€09€80€80€00€00€00€00€80€80€00€00€00€00€03€0f€3c"
+APPEND
+XSTR "€f0€f0€3c"
+APPEND
+XSTR "€0f€03€00€00€00€00€00€00€03€0f€0f€03€00€00€00€00€00€00€0c€0b€80€80€00€00€00€00€00€00€80€80€00€00€3f€7f€e0€e0€7f€7f€e0€e0"
+APPEND
+XSTR "€7f€3f€00€00€03€07€0e€0e€07€07€0e€0e€07€03€00€00€0a€09€80€80€00€00€00€00€80€80€00€00€00€00€c1€e3€77€3e"
+APPEND
+XSTR "€3e"
+APPEND
+XSTR "€77€e3€c1€00€00€00€00€0c€0e€07€03€03€07€0e€0c€00€00€00€00€0a€09€80€80€00€00€00€00€80€80€00€00€00€00€07€1f€3c"
+APPEND
+XSTR "€70€e0€f8€7f€0f€00€00€00€00€c0€c1€e3€77€3e"
+APPEND
+XSTR "€1f€07€00€00€00€00€00"
+APPEND
+STO 70
+XSTR "€3f€20€30€31€32€33€34€35€36€37€38€39€3a€41€42€43€44€45€46€49€4b€4e€4f€59€10€5e€0f€0e"
+STO 71
+XSTR "€06€06€04€02€a2€12€0c€00€06€06€00€00€00€00€00€00€06€06€7c"
+XSTR "€a2€92€8a€7c"
+APPEND
+XSTR "€00€06€06€00€84€fe€80€00€00€06€06€c4€a2€92€92€8c€00€06€06€44€82€92€92€6c€00€06€06€30€28€24€fe€20€00€06€06€4e€8a€8a€8a€72"
+APPEND
+XSTR "€00€06€06€78€94€92€92€60€00€06€06€02€e2€12€0a€06€00€06€06€6c€92€92€92€6c€00€06€06€0c€92€92€52€3c"
+APPEND
+XSTR "€00€06€06€00€6c€6c€00€00€00€06€06€f8€24€22€24€f8€00€06€06€82€fe€92€92€6c€00€06€06€7c"
+APPEND
+XSTR "€82€82€82€44€00€06€06€82€fe€82€82€7c"
+APPEND
+XSTR "€00€06€06€fe€92€92€92€82€00€06€06€fe€12€12€12€02€00€06€06€00€82€fe€82€00€00€06€06€fe€10€28€44€82€00€06€06€fe€08€10€20€fe"
+APPEND
+XSTR "€00€06€06€7c"
+APPEND
+XSTR "€82€82€82€7c"
+APPEND
+XSTR "€00€06€06€0e€10€e0€10€0e€00€06€06€10€38€54€10€10€00€06€06€10€08€7c"
+APPEND
+XSTR "€08€10€00€06€06€10€10€54€38€10€00€06€06€10€20€7c"
+APPEND
+XSTR "€20€10€00"
+APPEND
+STO 72
 RTN
 LBL 29
 1
@@ -1090,2189 +1443,5 @@ XSTR "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1/Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7
 RTN
 LBL 89
 XSTR "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5/Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6"
-RTN
-END
-LBL "E47T"
-ABS
-STO "TX"
-STO "T0"
-R↓
-ABS
-STO "TL"
-R↓
-STO "TS"
-LBL 99
-221
-RCL "TL"
--
-STO "TB"
-LBL 98
-RCL "TS"
-LENGTH
-X=0?
-RTN
-HEAD "TS"
-C→N
-13
-X=Y?
-GTO 97
-X<>Y
-80
-+
-112
-MOD
-STO "TK"
-XEQ IND "TK"
-GTO 98
-LBL 97
-RCL "T0"
-STO "TX"
-20
-STO- "TL"
-GTO 99
-LBL 00
-"€00€00€00€00€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€00€00€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 13
-"€00€00€00€00€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€06€06€06€06€06€06€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 14
-"€00€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€e0€e0€e0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0e€0e€0e€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-4
-STO+ "TX"
-RTN
-LBL 16
-CLA
-├"€e0€f0€30€30€f0€e0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€7f€ff€c0€c0€ff€7f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€07€0f€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 17
-"€00€40€60€f0€f0€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€ff€ff€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€0f€0f€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 18
-"€60€70€30€30€f0€e0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€e0€f0€f8€cc€c7€c3€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0e€0f€0f€0c€0c€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 19
-"€60€30€30€30€f0€e0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€60€c0€c6€c6€ff€79€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€06€0c€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 20
-CLA
-├"€f0€f0€00€00€c0€c0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€0c€0c€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€00€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 21
-CLA
-├"€f0€f0€30€30€30€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€63€c3€c3€c3€ff€7e€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€06€0c€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 22
-CLA
-├"€e0€f0€30€30€30€20€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€7f€ff€c3€c3€ff€7e€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€07€0f€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 23
-"€30€30€30€f0€f0€70€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€f0€fe€0f€01€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€0f€0f€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 24
-CLA
-├"€e0€f0€30€30€f0€e0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€79€ff€c6€c6€ff€79€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€07€0f€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 25
-CLA
-├"€e0€f0€30€30€f0€e0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€47€cf€cc€cc€ff€7f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€04€0c€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 26
-"€00€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€e7€e7€e7€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0e€0e€0e€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-4
-STO+ "TX"
-RTN
-LBL 33
-"€00€00€80€e0€70€e0€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€e0€fc€3f€33€30€33€3f€fc€e0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0e€0f€03€03€03€03€03€0f€0e€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-10
-STO+ "TX"
-RTN
-LBL 34
-CLA
-├"€f0€b0€30€30€30€70€e0€c0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€df€c6€c6€c6€ef€7f€39€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0d€0c€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 35
-CLA
-├"€c0€e0€70€30€30€30€70€60€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€7f€e0€c0€c0€c0€e0€60€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0c€0e€06€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 36
-CLA
-├"€f0€b0€30€30€30€e0€e0€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€df€c0€c0€c0€70€7f€1f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0d€0c€0c€0c€07€07€01€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 37
-CLA
-├"€f0€f0€30€30€30€30€30€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€c6€c6€c6€c6€c6€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€0c€0c€0c€0c€0c€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 38
-CLA
-├"€f0€f0€30€30€30€30€30€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€06€06€06€06€06€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 39
-CLA
-├"€c0€e0€70€30€30€30€70€60€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€7f€e0€c0€c6€c6€fe€7e€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 40
-CLA
-├"€f0€f0€00€00€00€00€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€06€06€06€06€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 41
-"€30€f0€f0€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€c0€ff€ff€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0c€0f€0f€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-5
-STO+ "TX"
-RTN
-LBL 43
-CLA
-├"€f0€f0€00€00€80€c0€e0€70€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€06€0f€1f€39€70€e0€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€01€03€07€0e€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-10
-STO+ "TX"
-RTN
-LBL 44
-CLA
-├"€f0€f0€00€00€00€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€c0€c0€c0€c0€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€0c€0c€0c€0c€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-8
-STO+ "TX"
-RTN
-LBL 45
-CLA
-├"€f0€f0€e0€c0€80€80€c0€e0€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€00€01€07€07€01€00€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€00€00€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-11
-STO+ "TX"
-RTN
-LBL 46
-CLA
-├"€f0€f0€f0€c0€00€00€00€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€00€03€0f€3c"
-├"€f0€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€03€0f€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-10
-STO+ "TX"
-RTN
-LBL 47
-CLA
-├"€c0€e0€70€30€30€70€e0€c0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€7f€e0€c0€c0€e0€7f€3f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 48
-CLA
-├"€f0€b0€30€30€30€70€e0€c0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€0c€0c€0c€0e€07€03€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 50
-CLA
-├"€f0€b0€30€30€30€70€e0€c0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€0c€1c€3c"
-├"€7e€e7€c3€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€01€03€07€0e€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 51
-CLA
-├"€e0€f0€30€30€30€30€70€60€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€61€e3€c3€c6€c6€cc€fc€78€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€06€0e€0c€0c€0c€0c€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 52
-"€30€30€30€f0€f0€30€30€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€ff€ff€00€00€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€0f€0f€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 53
-CLA
-├"€f0€f0€00€00€00€00€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€7f€e0€c0€c0€e0€7f€3f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 54
-CLA
-├"€f0€f0€00€00€00€00€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€07€3f€f8€f8€3f€07€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€03€0f€0f€03€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 55
-CLA
-├"€f0€f0€00€00€80€80€00€00€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€ff€f0€3c"
-├"€0f€0f€3c"
-├"€f0€ff€3f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€0f€0f€03€00€00€03€0f€0f€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-11
-STO+ "TX"
-RTN
-LBL 56
-"€30€f0€c0€00€00€c0€f0€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€c0€f0€3f€0f€0f€3f€f0€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0c€0f€03€00€00€03€0f€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 57
-"€30€f0€c0€00€00€c0€f0€30€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€03€ff€ff€03€00€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€0f€0f€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 58
-"€30€30€30€30€30€b0€f0€f0€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€f0€f8€dc€ce€c7€c3€c1€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€0d€0c€0c€0c€0c€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 59
-"€00€fe€fe€06€06€06€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€ff€ff€00€00€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€7f€7f€60€60€60€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 61
-"€06€06€06€fe€fe€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€00€ff€ff€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€60€60€60€7f€7f€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-7
-STO+ "TX"
-RTN
-LBL 65
-"€00€00€80€80€80€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€70€f9€d9€c9€cd€6d€ff€fe€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€07€0f€0d€0c€0c€06€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 66
-CLA
-├"€f8€f8€00€80€80€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€63€c1€c1€e3€7f€3e"
-├"€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€06€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 67
-"€00€00€80€80€80€80€80€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3e"
-├"€7f€e3€c1€c1€c1€c1€41€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0c€0c€04€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 68
-"€00€00€80€80€80€00€f8€f8€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3e"
-├"€7f€e3€c1€c1€63€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€06€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 69
-"€00€00€80€80€80€80€80€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3e"
-├"€7f€fb€c9€c9€cd€cf€47€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0f€0c€0c€0c€0c€04€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 70
-CLA
-├"€80€80€f0€f8€98€98€18€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€01€01€ff€ff€01€01€00€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€0f€0f€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-8
-STO+ "TX"
-RTN
-LBL 71
-"€00€00€80€80€80€80€00€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3e"
-├"€7f€e3€c1€c1€63€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€63€e7€ce€cc€cc€e6€7f€3f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 72
-CLA
-├"€f8€f8€00€80€80€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€03€01€01€03€ff€fe€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 73
-CLA
-├"€98€98€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€7f€ff€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€07€0f€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-4
-STO+ "TX"
-RTN
-LBL 75
-CLA
-├"€f8€f8€00€00€00€80€80€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€1c€1e€3f€73€e1€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€01€01€03€07€0e€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 76
-CLA
-├"€f8€f8€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€7f€ff€c0€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€07€0f€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-4
-STO+ "TX"
-RTN
-LBL 77
-CLA
-├"€80€80€00€80€80€80€00€80€80€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€03€01€ff€ff€03€01€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€0f€0f€00€00€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-11
-STO+ "TX"
-RTN
-LBL 78
-CLA
-├"€80€80€00€80€80€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€03€01€01€03€ff€fe€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€0f€0f€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 79
-"€00€00€80€80€80€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3e"
-├"€7f€e3€c1€c1€e3€7f€3e"
-├"€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 80
-CLA
-├"€80€80€80€80€80€80€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€63€c1€c1€e3€7f€3e"
-├"€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€06€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 81
-"€00€00€80€80€80€00€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3e"
-├"€7f€e3€c1€c1€63€ff€ff€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€06€ff€ff€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 82
-CLA
-├"€80€80€00€80€80€80€80€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€ff€ff€03€03€01€01€03€03€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0f€0f€00€00€00€00€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 83
-"€00€80€80€80€80€80€80€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€67€ef€cd€c9€c9€d9€fb€73€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€06€0e€0c€0c€0c€0d€0f€07€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 84
-CLA
-├"€80€80€f8€f8€80€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€01€01€7f€ff€c1€c1€41€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€07€0f€0c€0c€04€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-8
-STO+ "TX"
-RTN
-LBL 85
-CLA
-├"€80€80€00€00€00€00€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€7f€e0€c0€c0€e0€7f€3f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0c€0c€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 86
-CLA
-├"€80€80€00€00€00€00€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€03€0f€3c"
-├"€f0€f0€3c"
-├"€0f€03€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€00€00€03€0f€0f€03€00€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 87
-CLA
-├"€80€80€00€00€00€00€00€00€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€3f€7f€e0€e0€7f€7f€e0€e0€7f€3f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€03€07€0e€0e€07€07€0e€0e€07€03€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-11
-STO+ "TX"
-RTN
-LBL 88
-CLA
-├"€80€80€00€00€00€00€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€c1€e3€77€3e"
-├"€3e"
-├"€77€e3€c1€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-"€0c€0e€07€03€03€07€0e€0c€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL 89
-CLA
-├"€80€80€00€00€00€00€80€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-"€07€1f€3c"
-├"€70€e0€f8€7f€0f€00€00"
-RCL "TB"
-8
-+
-RCL "TX"
-1
-+
-AGRAPH
-CLA
-├"€c0€c1€e3€77€3e"
-├"€1f€07€00€00€00"
-RCL "TB"
-12
-+
-RCL "TX"
-1
-+
-AGRAPH
-9
-STO+ "TX"
-RTN
-LBL "E47B"
-241
-RCL "BY"
--
-RCL "BH"
--
-STO "BT"
-RCL "BH"
-STO "BR"
-LBL 01
-RCL "BR"
-X≤0?
-RTN
-255
-STO "BB"
-8
-RCL "BR"
-X<Y?
-XEQ 02
-RCL "BW"
-STO "BC"
-RCL "BX"
-1
-+
-STO "BK"
-LBL 03
-RCL "BC"
-X≤0?
-GTO 04
-44
-X>Y?
-X<>Y
-STO "BN"
-CLA
-LBL 05
-RCL "BB"
-XTOA
-DSE "BN"
-GTO 05
-RCL "BT"
-RCL "BK"
-AGRAPH
-44
-STO+ "BK"
--44
-STO+ "BC"
-GTO 03
-LBL 04
-8
-STO+ "BT"
--8
-STO+ "BR"
-GTO 01
-LBL 02
-2
-RCL "BR"
-Y↑X
-1
--
-STO "BB"
-RTN
-END
-LBL "E47S"
-ABS
-STO "TX"
-STO "T0"
-R↓
-ABS
-STO "TL"
-R↓
-STO "TS"
-LBL 99
-233
-RCL "TL"
--
-STO "TB"
-LBL 98
-RCL "TS"
-LENGTH
-X=0?
-RTN
-HEAD "TS"
-C→N
-13
-X=Y?
-GTO 97
-X<>Y
-80
-+
-112
-MOD
-STO "TK"
-XEQ IND "TK"
-GTO 98
-LBL 97
-RCL "T0"
-STO "TX"
-8
-STO- "TL"
-GTO 99
-LBL 00
-"€00€00€00€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 16
-"€7c"
-├"€a2€92€8a€7c"
-├"€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 17
-"€00€84€fe€80€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 18
-CLA
-├"€c4€a2€92€92€8c€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 19
-"€44€82€92€92€6c€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 20
-"€30€28€24€fe€20€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 21
-"€4e€8a€8a€8a€72€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 22
-"€78€94€92€92€60€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 23
-"€02€e2€12€0a€06€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 24
-"€6c€92€92€92€6c€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 25
-"€0c€92€92€52€3c"
-├"€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 26
-"€00€6c€6c€00€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 33
-CLA
-├"€f8€24"
-34
-XTOA
-├"€24€f8€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 34
-CLA
-├"€82€fe€92€92€6c€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 35
-"€7c"
-├"€82€82€82€44€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 36
-CLA
-├"€82€fe€82€82€7c"
-├"€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 37
-CLA
-├"€fe€92€92€92€82€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 38
-CLA
-├"€fe€12€12€12€02€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 41
-"€00€82€fe€82€00€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 43
-CLA
-├"€fe€10€28€44€82€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 46
-CLA
-├"€fe€08€10€20€fe€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 47
-"€7c"
-├"€82€82€82€7c"
-├"€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 57
-"€0e€10€e0€10€0e€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 62
-"€10€08€7c"
-├"€08€10€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 94
-"€10€20€7c"
-├"€20€10€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 95
-"€10€10€54€38€10€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
-RTN
-LBL 96
-"€10€38€54€10€10€00"
-RCL "TB"
-RCL "TX"
-1
-+
-AGRAPH
-6
-STO+ "TX"
 RTN
 END

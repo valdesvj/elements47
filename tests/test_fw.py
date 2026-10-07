@@ -5,7 +5,7 @@
   - the whole table, every row both ways: at each cell 5 (the detail box), then a key (the table again);
     every screen the same as python/c47sim.py, pixel for pixel, and the table back after each box
   - build/ELEM47_num.txt (the numeric fallback): the same screens
-  - your registers R00-R99 the same after ELEM47, no error
+  - the end: R00-R99 and the stack cleared, no error
 The key waits (PAUSE n / KEY? r / GTO) are replaced in a test copy by PAUSE 1 (the firmware puts the drawing
 on the screen at a PAUSE), SNAP (a .bmp) and the next key from the text in the variable TKS (α→x takes its
 first character). rejig writes the .p47 files (in a temporary folder, never committed).
@@ -72,13 +72,13 @@ def run(prog, keys, regs=(), label='ELEM47'):
             p47(os.path.join(d, f + '.txt'), os.path.join(d, f + '.p47'))
         tcl = ['readp %s/E.p47' % d, 'readp %s/TSET.p47' % d, 'xeq TSET']
         tcl += ['reg %02d %d' % (r, v) for r, v in regs] + ['xeq %s' % label, 'puts "X=[reg X]"']
-        tcl += ['puts "R%02d=[reg %02d]"' % (r, r) for r, _ in regs]
+        tcl += ['puts "R%02d=[reg %02d]"' % (r, r) for r, _ in regs] + ['puts "S%s=[reg %s]"' % (k, k) for k in 'XYZT']
         open(os.path.join(d, 't.tcl'), 'w').write('\n'.join(tcl) + '\n')
         r = subprocess.run([SIM, '--headless', '--reset', '--script', os.path.join(d, 't.tcl')], cwd=d,
                            capture_output=True, text=True, timeout=1800)
         out = (r.stdout + r.stderr).split('\n')
         shots = [bmp(f) for f in sorted(glob.glob(os.path.join(d, '*.bmp')))]
-        got = {m.group(1): m.group(2).strip() for l in out for m in [re.match(r'R(\d\d)=(.*)', l)] if m}
+        got = {m.group(1): m.group(2).strip() for l in out for m in [re.match(r'([RS][\dXYZT]+)=(.*)', l)] if m}
         err = [l for l in out if any(w in l for w in ERRORS)]
         return shots, got, err
     finally:
@@ -125,8 +125,8 @@ def main():
     check(a == b and len(a) == len(keys), 'build/ELEM47_num.txt: the same %d screens' % len(a))
     regs = [(r, 1000 + r) for r in range(100)]
     _, got, err = run(prog, [E.RIGHT, E.INFO, ANY, E.END], regs)
-    kept = all(got.get('%02d' % r) == str(v) for r, v in regs)
-    check(kept and not err, 'your registers R00-R99 the same after ELEM47, no error')
+    clear = all(got.get('R%02d' % r) == '0' for r, _ in regs) and all(got.get('S' + k) == '0' for k in 'XYZT')
+    check(clear and not err, 'the end: R00-R99 and the stack cleared (they held numbers before), no error %s' % err[:2])
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))
     return 1 if fails else 0
 

@@ -5,12 +5,15 @@ with the keys; a screen at every key wait (GETKEY), compared with python/c47sim.
   - build/free42/ is up to date with programs_rem/ELEM47.txt
   - every command survives Free42 Paste (it leaves out the steps it does not know)
   - the whole table, every row both ways, the detail box opened and closed at each cell
-  - your registers: SIZE 100 with R00-R99 the same after ELEM47; SIZE 30 stays 30 (ELEM47 needs 52)
+  - the end: the registers and the stack cleared (CLRG, CLST); SIZE 30 becomes 90 (R20-R51, R60-R89 for
+    the text and box routines); one program, one global label
   python3 tests/test_f42.py"""
 import os, re, subprocess, sys, tempfile, shutil
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [os.path.join(ROOT, 'python')]
 import elem47sim as E                                                  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import build_free42 as BF                                              # noqa: E402
 
 F42 = os.environ.get('F42RUN', os.path.expanduser('~/opt/almanac47/tools/f42/f42run'))
 PROG = os.path.join(ROOT, 'build', 'free42', 'ELEM47.txt')
@@ -69,6 +72,9 @@ def main():
     check(open(PROG, encoding='utf-8').read() == before, 'build/free42/ELEM47.txt up to date with programs_rem/ELEM47.txt')
     d = tempfile.mkdtemp(prefix='elem47f42_')
     try:
+        prog = open(PROG, encoding='utf-8').read().split('\n')
+        check(sum(1 for x in prog if x.startswith('LBL "')) == 1 and prog.count('END') == 1,
+              'one program, one global label (ELEM47), the rest local')
         miss, n = pasted(d)
         check(not miss, 'Free42 Paste keeps all %d different commands %s' % (n, miss[:4]))
         rows = [[E.INFO, ANY, E.RIGHT if r % 2 == 0 else E.LEFT] * 18 + [E.INFO, ANY, E.DOWN] for r in range(10)]
@@ -86,13 +92,14 @@ def main():
                 (['%d' % (1000 + r), 'STO %02d' % r] for r in range(size)), []) + ['END']) + '\n')
             dimp = os.path.join(d, 'D.txt')
             open(dimp, 'w').write('LBL "EDIM"\nRCL "REGS"\nDIM?\nEND\n')
+            n = max(size, BF.SIZE)
             out = f42(['paste %s' % PROG, 'paste S.txt', 'paste D.txt', 'xeq ESET', 'xeq ELEM47', 'key 26', 'key 25',
-                       'key 29', 'key 34', 'regs 0 %d' % (size - 1), 'xeq EDIM', 'stack'], d)
+                       'key 29', 'key 34', 'stack', 'regs 0 %d' % (n - 1), 'xeq EDIM', 'stack'], d)
             regs = {m.group(1): m.group(2) for m in re.finditer(r'R(\d\d) (\S+)', out)}
-            kept = all(regs.get('%02d' % r) == str(1000 + r) for r in range(size))
-            y = re.search(r'Y: (\S+)', out)
-            check(kept and y and float(y.group(1)) == size,
-                  'SIZE %d: your registers R00-R%02d the same after ELEM47, SIZE %d again' % (size, size - 1, size))
+            st = re.findall(r'([XYZT]): (\S+)', out)[:4]
+            y = re.findall(r'Y: (\S+)', out)[-1]
+            clear = all(regs.get('%02d' % r) == '0' for r in range(n)) and all(float(v) == 0 for _, v in st)
+            check(clear and float(y) == n, 'SIZE %d: the end: R00-R%02d and the stack cleared, SIZE %d' % (size, n - 1, n))
     finally:
         shutil.rmtree(d, ignore_errors=True)
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))

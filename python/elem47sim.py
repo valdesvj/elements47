@@ -28,6 +28,9 @@ def split(prog):
     import tempfile
     d = tempfile.mkdtemp(prefix='elem47_'); files, cur = [], []
     for ln in open(prog, encoding='utf-8').read().splitlines():
+        if ln.strip() == 'CLREGS':           # c47sim has no CLREGS yet (Almanac 47): R00-R99 set to 0 here
+            cur += ['0'] + ['STO %02d' % r for r in range(100)]
+            continue
         cur.append(ln)
         if ln.strip() == 'END':
             files.append(os.path.join(d, 'p%d.txt' % len(files)))
