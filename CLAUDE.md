@@ -5,6 +5,8 @@
 - Never commit binaries (.p47 files made by rejig, f42run, the patched rejig).
 - Edit the programs in programs_rem/ (commented source), then run python3 tools/build_elem47.py:
   it writes programs/, build/ and listings/. Never edit those three by hand.
+- Development programs (prototypes, not the release): programs_rem/dev/, python3 tools/build_dev.py writes
+  build/dev/ and listings/dev/; python3 tests/test_dev.py. build/dev/dev_test/ keeps old test programs.
 - Text on the C47 screen: ATEXT in GRFNT 21 (GRFNT 10 for the tiny font), as in Almanac 47.
   Restore GRFNT 20 and GRMOD 0 before the program ends.
 - GRMOD and GRFNT take X: write `3 GRMOD`, not `3 STO r GRMOD r` (rejig writes "GRMOD r" as GRMOD and r).
@@ -16,7 +18,8 @@
   build/ELEM47_num.txt is the numeric fallback (listings/ELEM47_labels.txt).
 - Key waits: LBL n / PAUSE 50 / KEY? r / GTO n (not a bare KEY? loop; see Almanac 47 DEVELOPMENT_NOTES).
 - Before changing a screen, check it in the simulator (python/elem47sim.py writes the pictures in docs/);
-  then python3 tests/test_elem47.py.
+  then python3 tests/test_elem47.py, and in the C47 firmware: python3 tests/test_fw.py (T47, see
+  DEVELOPMENT_NOTES for its build in ~/.cache/c47fw).
 - python/c47sim.py, stdfont.py, tinyfont.py come from Almanac 47: fix them there first, then copy.
 - ~/opt/c43 (C47 firmware, git) and ~/opt/rpn (rejig, fossil): only read their files; never branch,
   build or write there.

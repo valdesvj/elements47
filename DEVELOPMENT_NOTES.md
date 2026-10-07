@@ -151,6 +151,17 @@
 - Branch detail-redraw packed 8 elements in 175 characters, but its records had less in them (no state,
   boiling point or configuration then); with today's five fields 4 is the most.
 
+## Oct 7, 2026 - The development programs apart: programs_rem/dev, build/dev
+
+- ELEM47P (branch prototype-cells: the table from a vector of x + iy, one subroutine per job, RESTORE
+  draws again only the cells under the info box) is kept as a development program:
+  programs_rem/dev/ELEM47P.txt, built by tools/build_dev.py into build/dev/ and listings/dev/ (the release
+  files of tools/build_elem47.py are not touched). Its data programs ELP1 and ELP2 are written from
+  python/elements.py. 902 steps (ELEM47P 414, ELP1 247, ELP2 241); global labels ELEM47P, ELP1, ELP2.
+- build/dev/dev_test/ELEM47_H.txt: prototype 1 (the H cell), kept for reference.
+- tests/test_dev.py: ELEM47P (moves, the info box closed three times: the table back each time) and
+  prototype 1, in c47sim and in T47, the same screens.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).

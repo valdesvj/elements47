@@ -59,8 +59,8 @@ def bmp(fn):
     return on
 
 
-def run(prog, keys, regs=()):
-    """ELEM47 (prog) in T47 with the keys; the screens, the registers asked, the error lines."""
+def run(prog, keys, regs=(), label='ELEM47'):
+    """ELEM47 (or label) of prog in T47 with the keys; the screens, the registers asked, the error lines."""
     d = tempfile.mkdtemp(prefix='elem47fw_')
     try:
         testcopy(prog, os.path.join(d, 'E.txt'))
@@ -71,7 +71,7 @@ def run(prog, keys, regs=()):
         for f in ('E', 'TSET'):
             p47(os.path.join(d, f + '.txt'), os.path.join(d, f + '.p47'))
         tcl = ['readp %s/E.p47' % d, 'readp %s/TSET.p47' % d, 'xeq TSET']
-        tcl += ['reg %02d %d' % (r, v) for r, v in regs] + ['xeq ELEM47', 'puts "X=[reg X]"']
+        tcl += ['reg %02d %d' % (r, v) for r, v in regs] + ['xeq %s' % label, 'puts "X=[reg X]"']
         tcl += ['puts "R%02d=[reg %02d]"' % (r, r) for r, _ in regs]
         open(os.path.join(d, 't.tcl'), 'w').write('\n'.join(tcl) + '\n')
         r = subprocess.run([SIM, '--headless', '--reset', '--script', os.path.join(d, 't.tcl')], cwd=d,
