@@ -19,10 +19,10 @@ repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
 
 | | |
 |---|---|
-| Programs | one file, three programs: ELEM47 830 steps (47 local labels), the data ELD1 186 and ELD2 182 steps (one label per element, 4 092 characters); about 8 KB (.p47, estimated) |
+| Program | one program, one global label: ELEM47, 1 036 steps. Everything else is local: 46 named code labels (`:PANEL:`, `:DETAIL:`, …, numbered 00-48 in this build) and the numeric data labels (3 elements per text, up to 195 characters); about 7.8 KB (.p47, estimated) |
 | Memory while running | R20–R51 (your values saved and given back at the end) and the matrix `PT` (9 × 18, deleted at the end) |
 | Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
-| Work (simulator steps) | table 9 300, a cursor move about 230, the detail box 2 100, closing it = the table again (`docs/OPTIMIZATIONS.md`) |
+| Work (simulator steps) | table 9 600, a cursor move about 280, the detail box 2 200, closing it 6 100 (only the cells under the box are drawn again) |
 
 The features below are the plan; the differences so far: 5 instead of + for the details, the 8 4 6 2 keys
 instead of the arrows, ATEXT (not "ATXT") for the text and AGRAPH (not PIXEL) for the lines.

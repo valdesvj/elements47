@@ -2,7 +2,9 @@
 """ELEM47 in the C47 simulator (python/c47sim.py):
   - programs/ and build/ are up to date with programs_rem/ (tools/build_elem47.py)
   - the table: the frame of every one of the 118 cells, the matrix PT = the positions of python/elements.py
-  - the detail box data of every element (LBL 45, ELD1 / ELD2): name, symbol, mass, state, boil, group, config
+  - one program, one global label (ELEM47); the others local
+  - the detail box data of every element (LBL :DETAIL:, the records 3 per label): name, symbol, mass, state,
+    boil, group, config
   - the detail texts (symbol, state, group, config; mass, boiling point)
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table
   - 5: the detail box (frame), any key: the table again with the cursor kept; 0: the end
@@ -13,6 +15,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [os.path.join(ROOT, 'python'), os.path.join(ROOT, 'tools')]
 import c47sim, elem47sim as E
 from elements import ELEMENTS, EXTRA, position
+from build_elem47 import label_numbers
+
+DETAIL = '0_%d' % label_numbers()['DETAIL']       # LBL :DETAIL: in the simulator (numeric build)
 
 fails = []
 
@@ -57,11 +62,14 @@ def cursor_after(keys):
 
 def main():
     plain = open(os.path.join(ROOT, 'programs', 'ELEM47.txt'), encoding='utf-8').read().splitlines()
-    check(sum(1 for ln in plain if ln.startswith('LBL "')) == 3 and plain.count('END') == 3,
-          'one file, three programs: ELEM47, ELD1, ELD2')
-    src = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')
+    check([ln for ln in plain if ln.startswith('LBL "')] == ['LBL "ELEM47"'] and plain.count('END') == 1,
+          'one program, one global label: ELEM47')
+    import re
+    num = label_numbers()
+    src = [re.sub(r' :(\w+):$', lambda m: ' %02d' % num[m.group(1)], ln.rstrip())
+           for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')
            if ln.strip() and not ln.startswith('REM')]
-    check(plain == src, 'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM (run tools/build_elem47.py)')
+    check(plain == src, 'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM, labels numbered (run tools/build_elem47.py)')
     check(open(os.path.join(ROOT, 'build', 'ELEM47.txt')).read().splitlines() == plain, 'build/ELEM47.txt = programs/ELEM47.txt')
 
     shots, c = E.frames([E.INFO])
@@ -82,7 +90,7 @@ def main():
     for z in range(1, 119):
         r, col = position(z); sym, name, mass = ELEMENTS[z - 1]; state, boil, cfg = EXTRA[z - 1]
         c.s = [D(0)] * 4; c.reg.update({E.REG['Z']: D(z), E.REG['ROW']: D(r), E.REG['COL']: D(col)})
-        c.run('0_45')
+        c.run(DETAIL)
         left = CR.join(((sym + ' ')[:2], state, group(z), cfg)); right = CR.join((mass, boil))
         if (c.reg[E.REG['NAME']], c.reg[E.REG['LEFT']], c.reg[E.REG['RIGHT']]) != (name, left, right):
             wrong.append((z, c.reg[E.REG['NAME']], c.reg[E.REG['LEFT']].replace(CR, ' | '), c.reg[E.REG['RIGHT']].replace(CR, ' | ')))
@@ -90,7 +98,7 @@ def main():
           % (wrong[:2] or ''))
     for z in (1, 26, 62, 118):
         c.s = [D(0)] * 4; r, col = position(z); c.reg.update({E.REG['Z']: D(z), E.REG['ROW']: D(r), E.REG['COL']: D(col)})
-        c.run('0_45')
+        c.run(DETAIL)
         print('      %s: %s || %s' % (ELEMENTS[z - 1][0], c.reg[E.REG['LEFT']].replace(CR, ' | '), c.reg[E.REG['RIGHT']].replace(CR, ' | ')))
 
     R, L, U, Dn = E.RIGHT, E.LEFT, E.UP, E.DOWN

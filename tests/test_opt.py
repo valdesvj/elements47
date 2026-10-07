@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""The optimized ELEM47 (this branch) against the reference build of branch prototype-h, as Almanac 47's
+"""ELEM47 (this branch) against the reference build of another branch (default optimize), as Almanac 47's
 test_v2: the same screens pixel for pixel for many key sequences, the same data for every element
 (LBL 30 / the detail box), the same end state, and the step counts of both.
-  python3 tests/test_opt.py [REF]     REF: a git branch or commit (default prototype-h)"""
+  python3 tests/test_opt.py [REF]     REF: a git branch or commit (default optimize; prototype-h no longer
+  matches since c47sim stores the αLEFT result as the firmware does)"""
 import os, subprocess, sys, tempfile
 from decimal import Decimal as D
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [os.path.join(ROOT, 'python')]
 import c47sim, elem47sim as E
 from elements import ELEMENTS, position
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+from build_elem47 import label_numbers
 
-REF = sys.argv[1] if len(sys.argv) > 1 else 'prototype-h'
+REF = sys.argv[1] if len(sys.argv) > 1 else 'optimize'
 fails = []
+REF_REG = E.REG_V1 if REF == 'prototype-h' else E.REG     # the registers of the reference build
 
 
 def check(ok, msg):
@@ -67,10 +71,11 @@ def main():
     for z in range(1, 119):
         r, col = position(z)
         outs = []
-        for c, g in ((ca, E.REG_V1), (cb, E.REG)):
+        num = label_numbers()
+        for c, g, lab in ((ca, REF_REG, ('0_26', '0_45')), (cb, E.REG, ('0_%d' % num['PANEL'], '0_%d' % num['DETAIL']))):
             c.s = [D(0)] * 4; c.pix = []
             c.reg.update({g['Z']: D(z), g['ROW']: D(r), g['COL']: D(col)})
-            c.run('0_26'); c.run('0_45')
+            c.run(lab[0]); c.run(lab[1])
             outs.append(frozenset(c.pix))
         if outs[0] != outs[1]:
             wrong.append(ELEMENTS[z - 1][0])

@@ -87,7 +87,34 @@
   saved with LocR 32 / given back at the end (as Almanac 47 v2). No outlining: nothing repeats enough.
 - tools/build_elem47.py prints the estimated .p47 size of each program.
 
+## Oct 7, 2026 - One global label, local named labels (branch local-labels, from optimize)
+
+- The C47 has local named labels (LBL + the label menu, shown as :NAME:, at most 7 characters), besides
+  the numeric 00-99 and the letters. Local labels are searched forwards from the GTO / XEQ, before the
+  global ones. So ELEM47 now shows one name only: LBL "ELEM47"; ELD1 and ELD2 are gone.
+- programs_rem/ELEM47.txt writes the code labels by name (LBL :PANEL:, XEQ :DETAIL:, 46 of them).
+  tools/build_elem47.py gives each a free local number (LABELS = 'numeric'), stops on a name defined twice
+  or used and not defined, and writes listings/ELEM47_labels.txt (name, number, job). The calculator file
+  keeps numeric labels until rejig's text form of a local named label is known (key one in on the C47,
+  export the program, look at the text); then NAMED and LABELS = 'named' in the build tool. Also to check
+  then: whether the forward search wraps to the start of the program (as the HP-42S does), since
+  :KEYS:, :SEGLOOP:, :STEPLP: and the others are reached by GTO backwards.
+- The data labels stay numeric: they are reached with XEQ IND. The element records are 3 per label
+  (LBL 60-99, up to 126 characters); :RECORD: skips (Z-1) mod 3 records of 5 fields. The symbols are
+  65 elements per label (LBL 36-37, 195 characters). Texts up to 196 characters, the firmware limit for
+  one string (MAX_NUMBER_OF_GLYPHS_IN_STRING), as in branch detail-redraw: tests/calc/LTEST.txt checks it
+  on the C47 (XEQ "LTEST" returns 196); only 69 had been checked there. 89 local numbers used of 100.
+- From branch detail-redraw: closing the detail box draws only what the box covered (:CLOSE:): the cursor
+  off, the box area cleared (:BOXCLR:, the clearing part of :DETAIL:), the cells of rows 3-7, columns 3-16
+  again from PT (:CELLZ: finds the symbol of any Z, :CELL: is the cell drawing shared with the table), then
+  the key legend, the cursor and the panel (the box covers part of both). Simulator steps: closing about
+  9 400 -> 6 100; the table 9 427 -> 9 633 (+2 %, the XEQ :CELL:). Its other changes (category and
+  electronegativity in the box) were made before the box got state, boiling point and configuration
+  (branch prototype-h), so they are not taken.
+- tests/test_opt.py now compares with branch optimize (prototype-h no longer matches since c47sim stores
+  the αLEFT result as the firmware does): every screen the same, pixel for pixel; tests/test_elem47.py all ok.
+
 ## Next
-- Run on the C47 (rejig, then XEQ "ELEM47"); time the table (TICKS) and compare with docs/ELEM47_*.png.
-- Closing the detail box: redraw only the cells under it instead of the whole table.
+- On the C47: XEQ "LTEST" (196), then rejig and XEQ "ELEM47"; time the table (TICKS) and compare with docs/ELEM47_*.png.
 - More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
+- Local named labels in the calculator file: rejig's text form, the wrap-around of the search (see above).
