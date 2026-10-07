@@ -128,6 +128,17 @@
 - Still to check on the C47: XEQ "T" runs to the RTN without an error = GTO :A: finds a label before it
   (the search wraps to the start of the program). ELEM47 needs that (:KEYS:, :SEGLOOP:, :STEPLP: ...).
 
+## Oct 7, 2026 - Checked in the firmware sources (~/opt/c43 master)
+
+- The local label search wraps: manage.c findNamedLabelWithDuplicate takes the first matching label after
+  the current step, else the first one in the program. So GTO :KEYS:, :SEGLOOP:, :STEPLP: backwards work;
+  XEQ "T" on the C47 only confirms it.
+- The string limit is 508 glyphs (defines.h MAX_NUMBER_OF_GLYPHS_IN_STRING, since January 2024; 196 was
+  the WP43 value). But a 508-character text in a program does not come through in T47 (next section):
+  the data stays at 196 characters per text.
+- Closing the detail box, checked in the simulator over the whole table (190 open / close, every row
+  both ways): the screen after closing is the screen before opening, pixel for pixel.
+
 ## Oct 7, 2026 - ELEM47 in the C47 firmware (T47)
 
 - T47 is the PC simulator built from the firmware sources with a Tcl script mode. Built from a copy of
