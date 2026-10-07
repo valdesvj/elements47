@@ -6,10 +6,11 @@ Three programs, three global labels:
           1-7 letters and digits); the build gives each name a free local number 00-99 (the calculator
           files have numeric local labels only; listings/ELEM47_labels.txt says which number is which).
           Its data labels stay numeric (reached with XEQ IND): LBL 29 the segments of the table,
-          LBL 36-37 the symbols (65 elements each: a digit, the column of the symbol in its cell, then the
-          symbol in 2 characters).
+          LBL 36-37 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
+          the symbol in its cell).
   ELD1    the element records of Z 1-60: LBL 60-74; ELD2 those of Z 61-118: LBL 75-89. 4 elements per
-  ELD2    label, "name/mass/state letter/boiling point/configuration" joined by "/" (15 fields).
+  ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
+          "|" after each record).
           XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
 The DATA part at the end of programs_rem/ELEM47.txt (from the end of ELEM47) is written from
 python/elements.py.
@@ -29,7 +30,7 @@ from elements import ELEMENTS, EXTRA, SEGMENTS
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
 SYM0, SYMS = 36, 65  # the symbol pieces: LBL 36, 37; 65 elements (195 characters) each
-REC0, PER = 60, 4    # the element records: LBL 60-89, 4 elements each (172 characters at most)
+REC0, PER = 60, 4    # the element records: LBL 60-89, 4 elements each (176 characters at most)
 SPLIT = 60           # ELD1: Z 1-60 (LBL 60-74), ELD2: Z 61-118 (LBL 75-89)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
@@ -83,18 +84,18 @@ def data():
     for z0, n, r, c in SEGMENTS:
         out += [str(n), str(r), str(c), 'XEQ :SEGMENT:']
     out.append('RTN')
-    sym = ''.join(str(offset(s)) + (s + ' ')[:2] for s, _, _ in ELEMENTS)
+    sym = ''.join((s + ' ')[:2] + str(offset(s)) for s, _, _ in ELEMENTS)
     out.append('REM the symbols: %d elements per label' % SYMS)
     for k in range((len(ELEMENTS) + SYMS - 1) // SYMS):
         out += ['LBL %02d' % (SYM0 + k), '"%s"' % sym[3 * SYMS * k:3 * SYMS * (k + 1)], 'RTN']
     out.append('END')
     for name, z0, z1 in (('ELD1', 1, SPLIT), ('ELD2', SPLIT + 1, len(ELEMENTS))):
         out += ['REM ==== %s: the records of Z %d-%d (%d per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records'
-                ' of 5 fields; R43 the label ====' % (name, z0, z1, PER, REC0, PER, PER),
+                ', "|" after each one; R43 the label ====' % (name, z0, z1, PER, REC0, PER, PER),
                 'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
         for k in range((z0 - 1) // PER, (z1 + PER - 1) // PER):
             recs = [record(z) for z in range(PER * k + 1, min(PER * k + PER, len(ELEMENTS)) + 1)]
-            out += ['LBL %02d' % (REC0 + k), '"%s"' % '/'.join(recs), 'RTN']
+            out += ['LBL %02d' % (REC0 + k), '"%s"' % ''.join(r + '|' for r in recs), 'RTN']
         out.append('END')
     long = [s for s in out if s.startswith('"') and len(s) - 2 > MAXSTR]
     if long:

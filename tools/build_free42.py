@@ -18,9 +18,10 @@ Almanac 47 converts NAV (its tools/build_free42.py):
   texts        a C47 "..." goes on the stack: XSTR "..."; the CR glyph is character 13 (€0d).
                x→α r: RCL r X<>Y APPEND STO r;  αIP r: CLA AIP ASTO ST X, then the same;
                αSL r: SUBSTR from X;  αLEFT r: SUBSTR 0 to X;  αPOS r: POS;  α→x r: HEAD r C→N.
+  matrix       STOSEQ: STOEL J+.
   keys         PAUSE 50 / KEY? 33 / GTO: GETKEY, STO 33; the key codes of :KEYS: in Free42 codes
                (8 20, 2 30, 4 24, 6 26, 5 25, 0 34).
-  registers    SIZE 76 if smaller (ELEM47 uses R20-R51, E47T, E47S and E47B R60-R75); at the end
+  registers    SIZE 76 if smaller (ELEM47 uses R20-R53, E47T, E47S and E47B R60-R75); at the end
                CLRG and CLST, as CLREGS and CLSTK on the C47.
   programs     ELEM47, ELD1 and ELD2 as on the C47 (the code; the element records); E47T (the GRFNT 21
                glyphs, and E47B); E47S (the GRFNT 10 glyphs). The glyph labels stay near the text loop that
@@ -119,7 +120,7 @@ def label_of(ch):
     return k - 32 if k >= 32 else k + 80
 
 
-# the registers of E47T, E47S and E47B (Free42 only; ELEM47 uses R20-R51; all cleared by CLRG at the end)
+# the registers of E47T, E47S and E47B (Free42 only; ELEM47 uses R20-R53; all cleared by CLRG at the end)
 TX, T0, TL, TS, TB, TK = range(60, 66)
 BY, BX, BW, BH, BT, BR, BB, BC, BK, BN = range(66, 76)
 SIZE = 76
@@ -211,17 +212,23 @@ def main_program(steps):
             del S[k:k + 2]
     S = [s for s in S if s != 'WSIZE 64']
     # the cell box, the cursor, the detail frame and the header bar
-    S = replace(S, ['RCL 40', 'RCL 39', 'AGRAPH 20'] + ['AGRAPH 21'] * 21 + ['AGRAPH 20'], ['XEQ :FCELL:'])
-    S = replace(S, ['3', 'GRMOD', 'RCL 40', '1', '+', 'RCL 39', '1', '+'] + ['AGRAPH 23'] * 21 + ['0', 'GRMOD'],
+    # the C47 draws 22 columns per cell and the right edge of the last one after the segment; :FCELL: the whole box
+    S = replace(S, ['RCL 40', 'RCL 39', 'AGRAPH 20'] + ['AGRAPH 21'] * 21, ['XEQ :FCELL:'])
+    S = replace(S, ['GTO :SEGLOOP:', 'RCL 40', 'RCL 39', 'AGRAPH 20', 'RTN'], ['GTO :SEGLOOP:', 'RTN'])
+    S = replace(S, ['3', 'GRMOD', 'RCL 53', 'RCL 39', '1', '+'] + ['AGRAPH 23'] * 21 + ['0', 'GRMOD'],
                 ['XEQ :FCURS:'])
     i = S.index('111111111111111111111111111111111111111111111111111111111111#2')
-    j = S.index('GTO :BOXLINE:')
+    j = S.index('XEQ :HLINE:')
     assert S[i - 2:i] == ['0', 'GRMOD']
     S[i - 2:j + 1] = fbx(50, 60, 1, 120, 0) + fbx(349, 60, 1, 120, 0) + fbx(51, 60, 298, 1, 0)
     i = S.index('1111111111111111111111#2')
-    j = S.index('GTO :HDRBAR:')
+    j = S.index('XEQ :HLINE:')
     assert S[i - 2:i] == ['3', 'GRMOD'] and S[j + 1:j + 3] == ['0', 'GRMOD']
     S[i - 2:j + 3] = fbx(51, 158, 298, 22, 3) + GRMOD[0]
+    i = S.index('LBL :HLINE:')                          # the C47 lines: E47B draws them on Free42
+    j = S.index('GTO :HLLOOP:', i)
+    assert S[j + 1] == 'RTN'
+    del S[i:j + 2]
     # the key waits and the key codes
     for lab in (':KEYS:', ':INFOKEY:'):
         S = replace(S, ['PAUSE 50', 'KEY? 33', 'GTO ' + lab], ['GETKEY', 'STO 33'])
@@ -258,6 +265,8 @@ def main_program(steps):
             out += ['RCL ' + arg, 'X<>Y', 'POS']
         elif op == 'α→𝑥':
             out += ['HEAD ' + arg, 'C→N']
+        elif s == 'STOSEQ':
+            out += ['STOEL', 'J+']
         elif s == 'CLSTK':
             out.append('CLST')
         elif s == 'CHS':
@@ -268,7 +277,7 @@ def main_program(steps):
     out = out[:k] + cell_routine() + cursor_routine() + out[k:]
     bad = [s for s in out if s.endswith('#2') or s.split(' ')[0] in (
         'GRMOD', 'GRFNT', 'ATEXT', 'KEY?', 'PAUSE', 'LocR', 'WSIZE', 'x→α', 'αIP', 'αSL', 'αLEFT', 'αPOS',
-        'α→𝑥', 'DELITM', 'CLSTK', 'CLREGS', 'CHS') or s.startswith('AGRAPH ') or 'R.' in s]
+        'α→𝑥', 'DELITM', 'CLSTK', 'CLREGS', 'CHS', 'STOSEQ') or s.startswith('AGRAPH ') or 'R.' in s]
     if bad:
         raise SystemExit('free42: C47 steps left: %s' % bad[:5])
     return out

@@ -17,7 +17,7 @@ import c47sim, elem47sim as E
 from elements import ELEMENTS, EXTRA, position
 from build_elem47 import label_numbers
 
-DETAIL = '0_%02d' % label_numbers()['DETAIL']   # its local number in ELEM47 (c47sim: program 0)
+DETAIL = '0_%d' % label_numbers()['DETAIL']    # its local number in ELEM47 (c47sim: program 0, no leading 0)
 
 fails = []
 

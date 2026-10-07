@@ -13,7 +13,7 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.2.0: 00.109.05
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R51 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
+Uses R20-R53 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
 STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
 
 Free42 (DM42 / DM42n stock firmware, Free42 3.3)

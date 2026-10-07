@@ -221,6 +221,44 @@
   (GRFNT 10). Their work registers are R60-R75 (no named variables left behind), SIZE 76; CLRG, CLST at
   the end as before.
 
+## Oct 7, 2026 - Speed: fewer steps, the calling routines first
+
+- Measured in the firmware (tools/bench_fw.py: T47's CPU instructions with perf, the start of T47 taken
+  off) and profiled (perf record): a step costs about 11 000 instructions whatever it does (the
+  interpreter, the stack and register copies, the memory blocks), AGRAPH and ATEXT themselves under 10 %.
+  So the steps run count, and one more thing: at every RTN the firmware finds the step after the XEQ again
+  by counting the steps from the start of the program (lblGtoXeq.c fnReturn -> nextStep.c
+  defineCurrentStep), about 190 instructions per step counted. An XEQ at step 600 costs about 10 steps
+  more on its return than one at step 10. A local GTO / XEQ goes straight to the label (labelList).
+- The routines that call others on a move or a detail box are now at the start of ELEM47 (LBL "ELEM47",
+  GTO :INIT:, then :MOVE:, :CURSOR:, :PANEL:, :RECORD:, :INFO:, :CLOSE:, :CLSEG:, :DETAIL:); the code run
+  once and the routines that call nothing come after. Steps counted at RTNs: a move 3 180 -> 430, a box
+  opened and closed 69 600 -> 11 500.
+- The cell (118 in the table, 58 again when the box closes): drawn inside the segment loop (no XEQ),
+  22 columns each (the right edge is the next cell's left edge; the last one after the segment), the rows
+  of the number and the symbol computed once per segment (R52, R53 in :CELLPOS:), the symbol "Fe3" (the
+  digit after it) taken with αLEFT and α→x straight from the piece, PT filled by STOSEQ after one STOIJ
+  per segment: 51 + 17 steps -> 57 steps per cell (with the loop).
+- Closing the box: the 5 segments under it (rows 3-7, columns 3-16, :CLSEG: finds the symbols of the
+  first Z) through the table's segment loop, instead of 70 cells by PT with the symbol found per cell.
+- The bottom line and the header bar of the box (298 columns each): one routine :HLINE:, 4 + 21 x 14
+  AGRAPH unrolled, 340 steps instead of 894 each.
+- The records end with "|": skipping a record is one αPOS, not five; the configuration is cut at "|".
+- The cursor off uses the position of the last cursor drawn (:CURSXOR:, no :CELLPOS:); FBLOCK is inline.
+- The same screens pixel for pixel: tests/test_opt.py (simulator), tests/test_fw.py (T47),
+  tests/test_f42.py (Free42). ELEM47 795 -> 805 steps (Free42 1 008 -> 1 004).
+
+| | simulator steps before | after | firmware instructions before | after |
+|---|---|---|---|---|
+| the table | 9 573 | 7 897 (-18 %) | 120 M | 101 M (-16 %) |
+| a cursor move | 315 | 245 (-22 %) | 3.75 M | 2.71 M (-28 %) |
+| the detail box | 2 185 | 1 039 (-52 %) | | |
+| closing it | 6 079 | 4 065 (-33 %) | | |
+| box opened and closed | | | 121 M | 72 M (-41 %) |
+
+- Not done (small): the segment list (LBL 29, 14 XEQ :SEGMENT: at the end of ELEM47, about 2 % of the
+  table) could go in the code; one more register for the number column would save 1 step per cell.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).
