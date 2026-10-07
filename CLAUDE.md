@@ -12,7 +12,8 @@
   that block (tools/build_elem47.py, the save list in programs_rem/ELEM47.txt).
 - Optimizations must keep the screens: python3 tests/test_opt.py (pixel for pixel against branch optimize).
 - One global label, LBL "ELEM47". Code labels by name in programs_rem (LBL :NAME:, 1-7 letters or digits);
-  data labels reached with XEQ IND stay numeric. The build numbers the names (listings/ELEM47_labels.txt).
+  data labels reached with XEQ IND stay numeric. build/ELEM47.txt keeps the names;
+  build/ELEM47_num.txt is the numeric fallback (listings/ELEM47_labels.txt).
 - Key waits: LBL n / PAUSE 50 / KEY? r / GTO n (not a bare KEY? loop; see Almanac 47 DEVELOPMENT_NOTES).
 - Before changing a screen, check it in the simulator (python/elem47sim.py writes the pictures in docs/);
   then python3 tests/test_elem47.py.

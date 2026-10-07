@@ -1,4 +1,4 @@
-ELEM47 local labels (numeric build): name, number on the C47, what it does
+ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), what it does
 
 :TABLE:    00  the table
 :KEYS:     01  keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored

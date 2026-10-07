@@ -10,15 +10,15 @@ One program, one global label: LBL "ELEM47". Everything else is local to it:
     "name/mass/state letter/boiling point/configuration" joined by "/" (15 fields).
 The DATA part at the end of programs_rem/ELEM47.txt is written from python/elements.py.
 
-Two ways to write the named labels (LABELS below):
-  'numeric'  each name gets a free local number 00-99 (the build checked in the simulator and on the C47);
-             listings/ELEM47_labels.txt says which number is which name
-  'named'    the C47 local named labels themselves. Not used yet: set NAMED to the text form rejig
-             reads for a local named label first (key one in on the C47 and export it to see it).
+The named labels go to the calculator file as they are: rejig (0.30.0 and later) reads LBL :NAME: as a
+local named label (byte 249 in the .p47, the global labels are 253: checked with a test program keyed in
+on the C47, Oct 7, 2026). A second file keeps the old way, each name a free local number 00-99, in case
+the C47 or an older rejig refuses the named ones; listings/ELEM47_labels.txt says which number is which.
 
 Files written:
   programs/ELEM47.txt        the program without REM lines (to convert with rejig)
-  build/ELEM47.txt           the calculator file (the same steps)
+  build/ELEM47.txt           the calculator file (the same steps), local named labels
+  build/ELEM47_num.txt       the same program with numeric local labels (the fallback)
   listings/ELEM47_doc.txt    numbered steps with the comments (step numbers = lines of programs/)
   listings/ELEM47_labels.txt the local labels: name, number, what it does
   python3 tools/build_elem47.py"""
@@ -34,8 +34,6 @@ SYM0, SYMS = 36, 65  # the symbol pieces: LBL 36, 37; 65 elements (195 character
 REC0, PER = 60, 3    # the element records: LBL 60-99, 3 elements each
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
-LABELS = 'numeric'   # 'numeric' or 'named' (see above)
-NAMED = None         # the rejig text of a local named label, e.g. '%s' % name, once known
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
 
 
@@ -65,6 +63,8 @@ def estimate(steps):
             b += 2 + len(s.encode('utf-8')) - 2
         elif re.fullmatch(r'-?[\d.]+(E-?\d+)?|[01]+#2', s):
             b += 2 + len(s)
+        elif NAMED_RE.match(s):
+            b += 3 + len(s.split(':')[1])      # command, 249, length, the name (bytes of the test program)
         else:
             b += 2.3
     return int(round(b))
@@ -101,8 +101,8 @@ def data():
 
 
 def resolve(steps):
-    """The named labels: their numbers (LABELS 'numeric') or the C47 form (LABELS 'named').
-    Stops on a name defined twice, a name used but not defined, more labels than 00-99."""
+    """The steps with each named label replaced by a free local number (the fallback file), and the
+    numbers. Stops on a name defined twice, a name used but not defined, more labels than 00-99."""
     defs = [m.group(2) for s in steps for m in [NAMED_RE.match(s)] if m and m.group(1) == 'LBL']
     dup = sorted({d for d in defs if defs.count(d) > 1})
     if dup:
@@ -113,10 +113,6 @@ def resolve(steps):
     bad = [s for s in steps if re.match(r'(LBL|GTO|XEQ) :', s) and not NAMED_RE.match(s)]
     if bad:
         raise SystemExit('a named label is 1-7 letters or digits between colons: %s' % bad[:3])
-    if LABELS == 'named':
-        if NAMED is None:
-            raise SystemExit("LABELS = 'named': set NAMED to rejig's text form of a local named label first")
-        return [NAMED_RE.sub(lambda m: '%s %s' % (m.group(1), NAMED % m.group(2)), s) for s in steps], {}
     taken = {int(m.group(1)) for s in steps for m in [re.fullmatch(r'LBL (\d\d)', s)] if m}
     free = [n for n in range(100) if n not in taken]
     if len(defs) > len(free):
@@ -128,7 +124,7 @@ def resolve(steps):
 def labels_text(lines, num):
     """listings/ELEM47_labels.txt: each named label, its number in this build, and the first comment
     line above it."""
-    out = ['ELEM47 local labels (%s build): name, number on the C47, what it does' % LABELS, '']
+    out = ['ELEM47 local labels: name (build/ELEM47.txt), number (build/ELEM47_num.txt), what it does', '']
     for i, ln in enumerate(lines):
         m = NAMED_RE.match(ln)
         if m and m.group(1) == 'LBL':
@@ -138,7 +134,7 @@ def labels_text(lines, num):
             note = lines[j][3:].strip(' -') if j < i else ''
             note = re.sub(r'^(LBL )?:%s:\s*' % m.group(2), '', note)
             out.append(':%s:%s %s  %s' % (m.group(2), ' ' * (8 - len(m.group(2))),
-                                          '%02d' % num[m.group(2)] if num else '--', note[:90]))
+                                          '%02d' % num[m.group(2)], note[:90]))
     out += ['', 'Numeric data labels (XEQ IND): 29 the segments, %d-%d the symbols, %d-%d the records.' % (
         SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + (len(ELEMENTS) - 1) // PER)]
     return '\n'.join(out) + '\n'
@@ -151,11 +147,11 @@ def build():
     lines = lines[:k + 1] + data()
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
-    named = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
-    steps, num = resolve(named)
+    steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
+    numeric, num = resolve(steps)
     if sum(1 for s in steps if s.startswith('LBL "')) != 1 or steps.count('END') != 1:
         raise SystemExit('ELEM47 is one program with one global label')
-    nums = [s for s in steps if re.fullmatch(r'LBL \d\d', s)]
+    nums = [s for s in numeric if re.fullmatch(r'LBL \d\d', s)]
     dup = sorted({t for t in nums if nums.count(t) > 1})
     if dup:
         raise SystemExit('labels used twice: %s' % ', '.join(dup))
@@ -166,12 +162,14 @@ def build():
         if ln.startswith('REM'):
             listing.append('      ; ' + ln[3:].strip())
         else:
-            listing.append('%4d  %s' % (n + 1, steps[n] + ('' if steps[n] == ln else '    ' + ln.split(' ', 1)[1])))
+            listing.append('%4d  %s' % (n + 1, steps[n] + ('' if numeric[n] == ln else '    (%s)' % numeric[n].split(' ', 1)[1])))
             n += 1
     plain = '\n'.join(steps) + '\n'
     for d in ('programs', 'build'):
         with open(os.path.join(ROOT, d, NAME + '.txt'), 'w', encoding='utf-8') as fh:
             fh.write(plain)
+    with open(os.path.join(ROOT, 'build', NAME + '_num.txt'), 'w', encoding='utf-8') as fh:
+        fh.write('\n'.join(numeric) + '\n')
     with open(os.path.join(ROOT, 'listings', NAME + '_doc.txt'), 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(listing) + '\n')
     with open(os.path.join(ROOT, 'listings', NAME + '_labels.txt'), 'w', encoding='utf-8') as fh:
@@ -180,7 +178,7 @@ def build():
 
 
 def label_numbers():
-    """name -> number of the named labels in the numeric build (for the tests)."""
+    """name -> number of the named labels in build/ELEM47_num.txt (for the tests)."""
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', NAME + '.txt'), encoding='utf-8')]
     return resolve([ln for ln in lines if ln.strip() and not ln.startswith('REM')])[1]
 
@@ -188,6 +186,6 @@ def label_numbers():
 if __name__ == '__main__':
     st, num = build()
     txt = [s for s in st if s.startswith('"')]
-    print('%-8s %5d steps %3d labels (%d named, 1 global) %5d text characters, longest %d  about %5d bytes (.p47, estimated)' % (
-        NAME, len(st), sum(1 for s in st if re.fullmatch(r'LBL \d\d', s)), len(num), sum(len(s) - 2 for s in txt),
+    print('%-8s %5d steps, labels: 1 global, %d local named, %d numeric (data)  %5d text characters, longest %d  about %5d bytes (.p47, estimated)' % (
+        NAME, len(st), len(num), sum(1 for s in st if re.fullmatch(r'LBL \d\d', s)), sum(len(s) - 2 for s in txt),
         max(len(s) - 2 for s in txt), estimate(st)))

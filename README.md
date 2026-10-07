@@ -19,7 +19,7 @@ repository is in `PROGRAM_MAP.txt`. Test: `python3 tests/test_elem47.py`.
 
 | | |
 |---|---|
-| Program | one program, one global label: ELEM47, 1 036 steps. Everything else is local: 46 named code labels (`:PANEL:`, `:DETAIL:`, …, numbered 00-48 in this build) and the numeric data labels (3 elements per text, up to 195 characters); about 7.8 KB (.p47, estimated) |
+| Program | one program, one global label: ELEM47, 1 036 steps. Everything else is local: 46 local named code labels (`:PANEL:`, `:DETAIL:`, …; `build/ELEM47_num.txt` has them as numbers 00-48) and the numeric data labels (3 elements per text, up to 195 characters); about 8.5 KB (.p47, estimated) |
 | Memory while running | R20–R51 (your values saved and given back at the end) and the matrix `PT` (9 × 18, deleted at the end) |
 | Screen | cells 23 × 26 px with shared edges, the table uses x 1–397, rows 1–235 of 400 × 240 |
 | Work (simulator steps) | table 9 600, a cursor move about 280, the detail box 2 200, closing it 6 100 (only the cells under the box are drawn again) |

@@ -10,8 +10,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path[:0] = [os.path.join(ROOT, 'python')]
 import c47sim, elem47sim as E
 from elements import ELEMENTS, position
-sys.path.insert(0, os.path.join(ROOT, 'tools'))
-from build_elem47 import label_numbers
 
 REF = sys.argv[1] if len(sys.argv) > 1 else 'optimize'
 fails = []
@@ -71,8 +69,7 @@ def main():
     for z in range(1, 119):
         r, col = position(z)
         outs = []
-        num = label_numbers()
-        for c, g, lab in ((ca, REF_REG, ('0_26', '0_45')), (cb, E.REG, ('0_%d' % num['PANEL'], '0_%d' % num['DETAIL']))):
+        for c, g, lab in ((ca, REF_REG, ('0_26', '0_45')), (cb, E.REG, (':PANEL:', ':DETAIL:'))):
             c.s = [D(0)] * 4; c.pix = []
             c.reg.update({g['Z']: D(z), g['ROW']: D(r), g['COL']: D(col)})
             c.run(lab[0]); c.run(lab[1])

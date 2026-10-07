@@ -3,13 +3,12 @@ ELEMENTS 47 - PROGRAM MAP
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
 ELEM47    ELEM47          1036   one program; all its other labels are local
-(build/ELEM47.txt)
+(build/ELEM47.txt; build/ELEM47_num.txt the same with numeric labels)
 
 LOCAL LABELS OF ELEM47
-  The code labels are written by name in programs_rem/ELEM47.txt, as the C47 shows local named
-  labels: LBL :PANEL:, XEQ :PANEL:. tools/build_elem47.py gives each name a free local number for
-  the calculator file (LABELS = 'numeric'); listings/ELEM47_labels.txt lists name, number and job.
-  When rejig's text form of a local named label is known, LABELS = 'named' writes the names.
+  The code labels are C47 local named labels: LBL :PANEL:, XEQ :PANEL: (rejig 0.30.0 and later).
+  build/ELEM47_num.txt: the same program with a free local number for each name (the fallback);
+  listings/ELEM47_labels.txt lists name, number and job.
 
   :TABLE: :KEYS:          the table, then the key wait (PAUSE 50 / KEY? 33)
   :UP: :DOWN: :LEFT: :RIGHT: :MOVE:   8 2 4 6: direction, cursor off, :STEP:, cursor on, panel

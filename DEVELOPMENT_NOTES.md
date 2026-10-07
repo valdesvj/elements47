@@ -114,7 +114,21 @@
 - tests/test_opt.py now compares with branch optimize (prototype-h no longer matches since c47sim stores
   the αLEFT result as the firmware does): every screen the same, pixel for pixel; tests/test_elem47.py all ok.
 
+## Oct 7, 2026 - Local named labels in the calculator file
+
+- Victor keyed in a test program on the C47 (LBL "T", GTO :B:, LBL :A:, RTN, LBL :B:, GTO :A:) and sent its
+  .p47 bytes: a global label is 1 253 len name, a local named label 1 249 len name (LBL) and 2 249 len name
+  (GTO); RTN 4, END 133 178. rejig reads LBL :NAME: as a local named label since 0.30.0 (its ChangeLog:
+  colons always significant; :A:-:L: need the colons to differ from the letter labels A-L).
+- build/ELEM47.txt now has the local named labels as they are; build/ELEM47_num.txt is the same program
+  with numeric local labels (the fallback, if the C47 or an older rejig refuses the named ones).
+  Tests: both give the same screens; test_opt runs the named one.
+- Cost: a named label takes 3 + its length bytes at each LBL / GTO / XEQ (a numeric one 2): about 8.5 KB
+  instead of 7.8 KB (estimate). Speed of the search by name on the C47: to be timed.
+- Still to check on the C47: XEQ "T" runs to the RTN without an error = GTO :A: finds a label before it
+  (the search wraps to the start of the program). ELEM47 needs that (:KEYS:, :SEGLOOP:, :STEPLP: ...).
+
 ## Next
 - On the C47: XEQ "LTEST" (196), then rejig and XEQ "ELEM47"; time the table (TICKS) and compare with docs/ELEM47_*.png.
 - More data in the detail box (category, electronegativity, state); Free42 port (AGRAPH fonts, no ATEXT).
-- Local named labels in the calculator file: rejig's text form, the wrap-around of the search (see above).
+- On the C47: XEQ "T" (the backward GTO :A:), then ELEM47 from build/ELEM47.txt; if it fails, build/ELEM47_num.txt.

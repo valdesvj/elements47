@@ -17,7 +17,7 @@ import c47sim, elem47sim as E
 from elements import ELEMENTS, EXTRA, position
 from build_elem47 import label_numbers
 
-DETAIL = '0_%d' % label_numbers()['DETAIL']       # LBL :DETAIL: in the simulator (numeric build)
+DETAIL = ':DETAIL:'                 # the local named label, as in build/ELEM47.txt
 
 fails = []
 
@@ -66,10 +66,15 @@ def main():
           'one program, one global label: ELEM47')
     import re
     num = label_numbers()
-    src = [re.sub(r' :(\w+):$', lambda m: ' %02d' % num[m.group(1)], ln.rstrip())
-           for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')
+    src = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')
            if ln.strip() and not ln.startswith('REM')]
-    check(plain == src, 'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM, labels numbered (run tools/build_elem47.py)')
+    check(plain == src, 'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM (run tools/build_elem47.py)')
+    fallback = open(os.path.join(ROOT, 'build', 'ELEM47_num.txt'), encoding='utf-8').read().splitlines()
+    check(fallback == [re.sub(r' :(\w+):$', lambda m: ' %02d' % num[m.group(1)], ln) for ln in plain],
+          'build/ELEM47_num.txt = the same steps, each local named label a local number')
+    keys = [E.DOWN, E.RIGHT, E.INFO, 1, E.LEFT, E.INFO, 2, E.END]
+    check(E.frames(keys)[0] == E.frames(keys, os.path.join(ROOT, 'build', 'ELEM47_num.txt'))[0],
+          'named and numeric labels: the same screens')
     check(open(os.path.join(ROOT, 'build', 'ELEM47.txt')).read().splitlines() == plain, 'build/ELEM47.txt = programs/ELEM47.txt')
 
     shots, c = E.frames([E.INFO])
