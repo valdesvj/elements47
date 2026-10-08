@@ -19,7 +19,7 @@ elements without a standard atomic weight. State, boiling point and configuratio
 | | C47 / R47 | Free42 (DM42 / DM42n stock firmware) |
 |---|---|---|
 | File (release zip) | `C47_R47/ELEM47.p47` (from `build/ELEM47.txt`, rejig) | `Free42_DM42/ELEM47.raw` (from `build/free42/ELEM47.txt`) |
-| Programs | `ELEM47` (the code, 816 steps, numeric local labels), `ELD1` and `ELD2` (the element records, Z 1–60 and 61–118, 49 steps each, 4 elements per text) | `ELEM47` (1 022 steps), `ELD1`, `ELD2` as on the C47, `E47T` (with `E47B`) and `E47S`: the C47 fonts, one local label per character |
+| Programs | `ELEM47` (the code, 810 steps, numeric local labels 00–50), `A` and `B` (the element records, Z 1–60 and 61–118, 49 steps each, 4 elements per text) | `ELEM47` (1 016 steps), `A`, `B` as on the C47, `E47T` (with `E47B`) and `E47S`: the C47 fonts, one local label per character |
 | Needs | ATEXT and GRFNT: firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0 | Free42 3.3 (strings: XSTR, SUBSTR, POS, HEAD) |
 | Memory | R20–R55 and the matrix `PT` (9 × 18) | R20–R75 (SIZE 76 if smaller) and `PT` |
 | Screen | shown when ELEM47 waits for a key (the C47 draws off screen) | the same with `RefLCD` (DM42 / DM42n): 0 while drawing, -1 before each key wait, 7 at the end |

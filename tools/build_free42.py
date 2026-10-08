@@ -26,12 +26,12 @@ Almanac 47 converts NAV (its tools/build_free42.py):
                (8 20, 2 30, 4 24, 6 26, 5 25, 0 34).
   registers    SIZE 76 if smaller (ELEM47 uses R20-R54, E47T, E47S and E47B R60-R75); at the end
                CLRG and CLST, as CLREGS and CLSTK on the C47.
-  programs     ELEM47, ELD1 and ELD2 as on the C47 (the code; the element records); E47T (the GRFNT 21
+  programs     ELEM47, A and B as on the C47 (the code; the element records); E47T (the GRFNT 21
                glyphs, and E47B); E47S (the GRFNT 10 glyphs). The glyph labels stay near the text loop that
                calls them (the one-program build was slower).
   labels       the named local labels numbered as in build/ELEM47.txt (Free42: 00-99 only).
 
-Files: build/free42/ELEM47.txt (ELEM47, ELD1, ELD2, E47T, E47S; paste or rejig to .raw), listings/free42/.
+Files: build/free42/ELEM47.txt (ELEM47, A, B, E47T, E47S; paste or rejig to .raw), listings/free42/.
   python3 tools/build_free42.py"""
 import os, re, sys
 from decimal import Decimal as D
@@ -278,7 +278,7 @@ def main_program(steps):
             out.append('+/-')
         else:
             out.append(s)
-    k = next(i for i, s in enumerate(out) if s == 'LBL 36')
+    k = next(i for i, s in enumerate(out) if s == 'LBL %02d' % B.SYM0)
     out = out[:k] + cell_routine() + cursor_routine() + out[k:]
     bad = [s for s in out if s.endswith('#2') or s.split(' ')[0] in (
         'GRMOD', 'GRFNT', 'ATEXT', 'KEY?', 'PAUSE', 'LocR', 'WSIZE', 'x→α', 'αIP', 'αSL', 'αLEFT', 'αPOS',

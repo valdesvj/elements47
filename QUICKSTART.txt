@@ -5,7 +5,7 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.2.0: 00.109.05
 5 Oct 2026, or later).
 
 1. Load C47_R47/ELEM47.p47 (from the release zip, or convert build/ELEM47.txt with rejig). Three
-   programs: ELEM47 (the one you run), ELD1 and ELD2 (the element data, called by ELEM47).
+   programs: ELEM47 (the one you run), A and B (the element data, called by ELEM47).
 2. XEQ "ELEM47". The table is drawn (a few seconds), the cursor on H.
 3. Keys:
      8 up   2 down   4 left   6 right   (empty cells are skipped; at the edge the cursor stays)
@@ -20,7 +20,7 @@ STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is se
 Free42 (DM42 / DM42n stock firmware, Free42 3.3)
 1. Load Free42_DM42/ELEM47.raw from the release zip (exported by the Free42 3.3 core), or Paste
    build/free42/ELEM47.txt in Free42 (PRGM mode) and export your own .raw. Five programs: ELEM47,
-   ELD1, ELD2 (the data), E47T and E47S (the C47 fonts).
+   A, B (the data), E47T and E47S (the C47 fonts).
 2. XEQ "ELEM47": the same table and keys. Uses R20-R75 (SIZE 76 if smaller) and PT; at the end
    CLRG and CLST. As on the C47 the screen changes all at once, when it is finished: ELEM47 sets
    RefLCD to 0 while it draws and back to 7 at the end (0). If you stop it another way (EXIT, R/S)

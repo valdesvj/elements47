@@ -2,7 +2,7 @@
 """ELEM47 in the C47 simulator (python/c47sim.py):
   - programs/ and build/ are up to date with programs_rem/ (tools/build_elem47.py)
   - the table: the frame of every one of the 118 cells, the matrix PT = the positions of python/elements.py
-  - three programs: ELEM47 (the code, numeric local labels), ELD1 and ELD2 (the element records)
+  - three programs: ELEM47 (the code, numeric local labels), A and B (the element records)
   - the detail box data of every element (LBL :DETAIL:, the records 4 per label): name, symbol, mass, state,
     boil, group, config
   - the detail texts (symbol, state, group, config; mass, boiling point)
@@ -63,8 +63,8 @@ def cursor_after(keys):
 
 def main():
     plain = open(os.path.join(ROOT, 'programs', 'ELEM47.txt'), encoding='utf-8').read().splitlines()
-    check([ln for ln in plain if ln.startswith('LBL "')] == ['LBL "ELEM47"', 'LBL "ELD1"', 'LBL "ELD2"']
-          and plain.count('END') == 3, 'three programs: ELEM47 (the code), ELD1 and ELD2 (the records)')
+    check([ln for ln in plain if ln.startswith('LBL "')] == ['LBL "ELEM47"', 'LBL "A"', 'LBL "B"']
+          and plain.count('END') == 3, 'three programs: ELEM47 (the code), A and B (the records)')
     import re
     num = label_numbers()
     src = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')
