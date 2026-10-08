@@ -17,7 +17,7 @@ sys.path[:0] = [os.path.join(ROOT, 'python')]
 import elem47sim as E                                                  # noqa: E402
 
 SIM = os.environ.get('C47SIM', os.path.expanduser('~/.cache/c47fw/t47'))
-ANY = 72                         # the key 1: not used by ELEM47, so "any key" (closes the box)
+ANY = 72                         # the key 1: not used by ELEM47 (ignored, also with the box open)
 ERRORS = ('rror', 'ndefined', 'ut of range', 'nvalid', 'not found')
 fails = []
 
@@ -102,8 +102,8 @@ def main():
         return 0
     quick = 'quick' in sys.argv[1:]
     check(ltest() == '196', 'LTEST: a 196-character text in a program, αLENG 196')
-    moves = lambda ks: [k for k in ks if k not in (E.INFO, ANY)]
-    rows = [[E.INFO, ANY, E.RIGHT if r % 2 == 0 else E.LEFT] * 18 + [E.INFO, ANY, E.DOWN] for r in range(10)]
+    moves = lambda ks: [k for k in ks if k != E.INFO]
+    rows = [[E.INFO, E.INFO, E.RIGHT if r % 2 == 0 else E.LEFT] * 18 + [E.INFO, E.INFO, E.DOWN] for r in range(10)]
     prog = os.path.join(ROOT, 'build', 'ELEM47.txt')
     boxes = back = same = total = 0
     for r0 in range(0, 2 if quick else 10, 2):
@@ -118,8 +118,15 @@ def main():
         check(not err and len(fw) == len(py), 'rows %d-%d: %d screens, no error %s' % (r0 + 1, r0 + 2, len(fw), err[:2]))
     check(same == total, 'every screen the same as c47sim, pixel for pixel (%d of %d)' % (same, total))
     check(boxes and back == boxes, 'the detail box opened and closed %d times: the table back every time (%d)' % (boxes, back))
+    # inside the box: the arrows (the box of each element on the way), 5 closes it
+    bk = [E.INFO] + [E.RIGHT] * 17 + [E.DOWN] * 8 + [E.LEFT] * 17 + [E.UP] * 8 + [E.INFO, E.END]
+    fw, _, err = run(prog, bk + [])
+    py, _ = E.frames(bk, prog)
+    check(not err and fw == py, 'moves inside the detail box (every cell), 5: %d screens the same as c47sim %s' % (len(py), err[:2]))
+    fw, _, err = run(prog, [E.INFO, ANY, E.RIGHT, E.INFO, E.END])
+    check(not err and len(fw) == 5 and fw[2] == fw[1] != fw[3], 'key 1 with the box open: ignored; He after the move')
     regs = [(r, 1000 + r) for r in range(100)]
-    _, got, err = run(prog, [E.RIGHT, E.INFO, ANY, E.END], regs)
+    _, got, err = run(prog, [E.RIGHT, E.INFO, E.INFO, E.END], regs)
     clear = all(got.get('R%02d' % r) == '0' for r, _ in regs) and all(got.get('S' + k) == '0' for k in 'XYZT')
     check(clear and not err, 'the end: R00-R99 and the stack cleared (they held numbers before), no error %s' % err[:2])
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))

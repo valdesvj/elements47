@@ -4,11 +4,12 @@
 Three programs, three global labels:
   ELEM47  the code. Its labels are written by name in the source (LBL :PANEL:, XEQ :PANEL:, GTO :KEYS:,
           1-7 letters and digits); the build gives each name a free local number 00-99 (the calculator
-          files have numeric local labels only; listings/ELEM47_labels.txt says which number is which).
+          files have numeric local labels only; listings/ELEM47_labels.txt says which number is which): the
+          data labels 00-01 first, then the names in order, no gaps.
           The segments of the table (count, row, first column) are written into LBL :CELLS:, after the
-          line SEG_MARK. Its data labels stay numeric (reached with XEQ IND): LBL 36-37 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
+          line SEG_MARK. Its data labels stay numeric (reached with XEQ IND): LBL 00-01 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
           the symbol in its cell).
-  ELD1    the element records of Z 1-60: LBL 60-74; ELD2 those of Z 61-118: LBL 75-89. 4 elements per
+  ELD1    the element records of Z 1-60: LBL 00-14; ELD2 those of Z 61-118: LBL 15-29. 4 elements per
   ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
           "|" after each record).
           XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
@@ -30,9 +31,10 @@ from elements import ELEMENTS, EXTRA, SEGMENTS
 NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
 SEG_MARK = 'REM ==== SEGMENTS'
-SYM0, SYMS = 36, 65  # the symbol pieces: LBL 36, 37; 65 elements (195 characters) each
-REC0, PER = 60, 4    # the element records: LBL 60-89, 4 elements each (176 characters at most)
-SPLIT = 60           # ELD1: Z 1-60 (LBL 60-74), ELD2: Z 61-118 (LBL 75-89)
+SYM0, SYMS = 0, 65   # the symbol pieces: LBL 00, 01; 65 elements (195 characters) each
+REC0, PER = 0, 4     # the element records: LBL 00-29, 4 elements each (176 characters at most)
+SPLIT = 60           # ELD1: Z 1-60 (LBL 00-14), ELD2: Z 61-118 (LBL 15-29)
+DATA = ('ELD1', 'ELD2')    # the names of the two record programs (global labels)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
@@ -95,7 +97,7 @@ def data():
     for k in range((len(ELEMENTS) + SYMS - 1) // SYMS):
         out += ['LBL %02d' % (SYM0 + k), '"%s"' % sym[3 * SYMS * k:3 * SYMS * (k + 1)], 'RTN']
     out.append('END')
-    for name, z0, z1 in (('ELD1', 1, SPLIT), ('ELD2', SPLIT + 1, len(ELEMENTS))):
+    for name, z0, z1 in ((DATA[0], 1, SPLIT), (DATA[1], SPLIT + 1, len(ELEMENTS))):
         out += ['REM ==== %s: the records of Z %d-%d (%d per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records'
                 ', "|" after each one; R43 the label ====' % (name, z0, z1, PER, REC0, PER, PER),
                 'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
@@ -111,7 +113,9 @@ def data():
 
 def resolve(steps):
     """The steps with each named label replaced by a free local number (the fallback file), and the
-    numbers. Stops on a name defined twice, a name used but not defined, more labels than 00-99."""
+    numbers: the numbers 00-99 not taken by a numeric label of the first program (the other programs
+    have their own local labels), in order. Stops on a name defined twice, a name used but not defined,
+    more labels than 00-99."""
     defs = [m.group(2) for s in steps for m in [NAMED_RE.match(s)] if m and m.group(1) == 'LBL']
     dup = sorted({d for d in defs if defs.count(d) > 1})
     if dup:
@@ -122,7 +126,8 @@ def resolve(steps):
     bad = [s for s in steps if re.match(r'(LBL|GTO|XEQ) :', s) and not NAMED_RE.match(s)]
     if bad:
         raise SystemExit('a named label is 1-7 letters or digits between colons: %s' % bad[:3])
-    taken = {int(m.group(1)) for s in steps for m in [re.fullmatch(r'LBL (\d\d)', s)] if m}
+    first = steps[:steps.index('END') + 1] if 'END' in steps else steps
+    taken = {int(m.group(1)) for s in first for m in [re.fullmatch(r'LBL (\d\d)', s)] if m}
     free = [n for n in range(100) if n not in taken]
     if len(defs) > len(free):
         raise SystemExit('%d named labels, only %d local numbers free' % (len(defs), len(free)))
@@ -144,9 +149,9 @@ def labels_text(lines, num):
             note = re.sub(r'^(LBL )?:%s:\s*' % m.group(2), '', note)
             out.append(':%s:%s %s  %s' % (m.group(2), ' ' * (8 - len(m.group(2))),
                                           '%02d' % num[m.group(2)], note[:90]))
-    out += ['', 'Numeric data labels (XEQ IND): %d-%d the symbols; the records %d-%d in ELD1, '
-            '%d-%d in ELD2.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + SPLIT // PER - 1,
-                                REC0 + SPLIT // PER, REC0 + (len(ELEMENTS) - 1) // PER)]
+    out += ['', 'Numeric data labels (XEQ IND): %02d-%02d the symbols; the records %02d-%02d in %s, '
+            '%02d-%02d in %s.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + SPLIT // PER - 1, DATA[0],
+                                REC0 + SPLIT // PER, REC0 + (len(ELEMENTS) - 1) // PER, DATA[1])]
     return '\n'.join(out) + '\n'
 
 
@@ -161,16 +166,18 @@ def build():
     b = lines.index('RTN', a)
     lines[a:b] = segments()
     r = lines.index('LBL :RECORD:')
-    if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 21:r + 22] != [str(PER)] \
-            or lines[r + 11:r + 12] != [str(REC0 + SPLIT // PER - 1)] or SPLIT % PER:
-        raise SystemExit('LBL :RECORD: must divide by PER = %d and split at LBL %d' % (PER, REC0 + SPLIT // PER - 1))
+    if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 19:r + 20] != [str(PER)] \
+            or lines[r + 9:r + 10] != [str(REC0 + SPLIT // PER - 1)] or REC0 or SYM0 or SPLIT % PER \
+            or lines[r + 12:r + 16] != ['XEQ "%s"' % DATA[0], 'GTO :RECIN:', 'LBL :RECD2:', 'XEQ "%s"' % DATA[1]]:
+        raise SystemExit('LBL :RECORD: must divide by PER = %d, split at LBL %d and call %s, %s (REC0 = SYM0 = 0: '
+                         'no + before XEQ IND)' % ((PER, REC0 + SPLIT // PER - 1) + DATA))
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
     steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
     numeric, num = resolve(steps)
-    if [s for s in steps if s.startswith('LBL "')] != ['LBL "ELEM47"', 'LBL "ELD1"', 'LBL "ELD2"'] \
+    if [s for s in steps if s.startswith('LBL "')] != ['LBL "ELEM47"'] + ['LBL "%s"' % d for d in DATA] \
             or steps.count('END') != 3:
-        raise SystemExit('three programs: ELEM47, ELD1, ELD2')
+        raise SystemExit('three programs: ELEM47, %s, %s' % DATA)
     for p in programs(numeric):
         nums = [s for s in p if re.fullmatch(r'LBL \d\d', s)]
         dup = sorted({t for t in nums if nums.count(t) > 1})

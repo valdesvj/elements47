@@ -4,6 +4,7 @@ running it, minus those of a run of an empty program (T47's start). Deterministi
   table  the table drawn, then 0
   moves  46 cursor moves (the whole of row 1 to 18 and back, 6 down, 6 up)
   boxes  the detail box opened and closed 6 times (rows 1-7)
+  inbox  the moves of 'moves' with the detail box open (5 first, 5 at the end)
 The key waits are replaced by the next key from the text TKS (as tests/test_fw.py, without PAUSE and SNAP).
 Needs T47 (tests/test_fw.py, DEVELOPMENT_NOTES) and perf.
   python3 tools/bench_fw.py [build/ELEM47.txt]"""
@@ -45,7 +46,8 @@ R, L, U, D, I, A, Q = E.RIGHT, E.LEFT, E.UP, E.DOWN, E.INFO, F.ANY, E.END
 SCRIPTS = {
     'table': [Q],
     'moves': [R] * 17 + [D] * 6 + [L] * 17 + [U] * 6 + [Q],
-    'boxes': sum(([I, A] + [R] * 3 + [D] for _ in range(6)), []) + [Q],
+    'boxes': sum(([I, I] + [R] * 3 + [D] for _ in range(6)), []) + [Q],
+    'inbox': [I] + [R] * 17 + [D] * 6 + [L] * 17 + [U] * 6 + [I, Q],
 }
 if __name__ == '__main__':
     prog = sys.argv[1] if len(sys.argv) > 1 else ROOT + '/build/ELEM47.txt'

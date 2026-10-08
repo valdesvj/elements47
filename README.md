@@ -8,7 +8,8 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 `ELEM47` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
 **5** opens the detail box (symbol, mass, state, boiling point, group number and name, electron
-configuration), any key closes it, **0** ends.
+configuration); with the box open **8 4 6 2** move to the next element and show its box, **5** closes
+it, **0** ends.
 The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
 (the digit cross 8 4 6 2 with 5 and 0, beside the same places in arrows and words).
 Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34
@@ -18,9 +19,10 @@ elements without a standard atomic weight. State, boiling point and configuratio
 | | C47 / R47 | Free42 (DM42 / DM42n stock firmware) |
 |---|---|---|
 | File (release zip) | `C47_R47/ELEM47.p47` (from `build/ELEM47.txt`, rejig) | `Free42_DM42/ELEM47.raw` (from `build/free42/ELEM47.txt`) |
-| Programs | `ELEM47` (the code, 805 steps, numeric local labels), `ELD1` and `ELD2` (the element records, Z 1–60 and 61–118, 49 steps each, 4 elements per text) | `ELEM47` (1 004 steps), `ELD1`, `ELD2` as on the C47, `E47T` (with `E47B`) and `E47S`: the C47 fonts, one local label per character |
+| Programs | `ELEM47` (the code, 810 steps, numeric local labels 00–50), `ELD1` and `ELD2` (the element records, Z 1–60 and 61–118, 49 steps each, 4 elements per text) | `ELEM47` (1 016 steps), `ELD1`, `ELD2` as on the C47, `E47T` (with `E47B`) and `E47S`: the C47 fonts, one local label per character |
 | Needs | ATEXT and GRFNT: firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0 | Free42 3.3 (strings: XSTR, SUBSTR, POS, HEAD) |
-| Memory | R20–R53 and the matrix `PT` (9 × 18) | R20–R75 (SIZE 76 if smaller) and `PT` |
+| Memory | R20–R55 and the matrix `PT` (9 × 18) | R20–R75 (SIZE 76 if smaller) and `PT` |
+| Screen | shown when ELEM47 waits for a key (the C47 draws off screen) | the same with `RefLCD` (DM42 / DM42n): 0 while drawing, -1 before each key wait, 7 at the end |
 | At the end (0) | `PT` deleted, **the registers and the stack cleared** (CLREGS, CLSTK) | `PT` deleted, CLRG, CLST |
 
 Same screens on both, pixel for pixel. Tested in the C47 firmware itself (T47, built from the firmware
