@@ -16,7 +16,7 @@
   v2.2.0: it does not keep the user's registers.
 - Optimizations must keep the screens: python3 tests/test_opt.py (pixel for pixel against the build of branch optimize,
   kept in tests/ref/ELEM47_optimize.txt).
-- Three programs, global labels: ELEM47 (the code), A and B (the element records, Z 1-60 and 61-118; branch compact, ELD1 and ELD2 on main).
+- Three programs, global labels: ELEM47 (the code), ELD1 and ELD2 (the element records, Z 1-60 and 61-118).
   Code labels by name in programs_rem (LBL :NAME:, 1-7 letters or digits); the build numbers them:
   build/ELEM47.txt has numeric local labels only (listings/ELEM47_labels.txt). Data labels (XEQ IND) stay
   numeric. Free42 adds E47T (with E47B) and E47S, the fonts.

@@ -9,10 +9,10 @@ Three programs, three global labels:
           The segments of the table (count, row, first column) are written into LBL :CELLS:, after the
           line SEG_MARK. Its data labels stay numeric (reached with XEQ IND): LBL 00-01 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
           the symbol in its cell).
-  A       the element records of Z 1-60: LBL 00-14; B those of Z 61-118: LBL 15-29. 4 elements per
-  B       label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
+  ELD1    the element records of Z 1-60: LBL 00-14; ELD2 those of Z 61-118: LBL 15-29. 4 elements per
+  ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
           "|" after each record).
-          XEQ "A" (or "B") with R43 the label: XEQ IND 43 there.
+          XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
 The DATA part at the end of programs_rem/ELEM47.txt (from the end of ELEM47) is written from
 python/elements.py.
 
@@ -33,8 +33,8 @@ MARK = 'REM ==== DATA'
 SEG_MARK = 'REM ==== SEGMENTS'
 SYM0, SYMS = 0, 65   # the symbol pieces: LBL 00, 01; 65 elements (195 characters) each
 REC0, PER = 0, 4     # the element records: LBL 00-29, 4 elements each (176 characters at most)
-SPLIT = 60           # A: Z 1-60 (LBL 00-14), B: Z 61-118 (LBL 15-29)
-DATA = ('A', 'B')    # the names of the two record programs (global labels)
+SPLIT = 60           # ELD1: Z 1-60 (LBL 00-14), ELD2: Z 61-118 (LBL 15-29)
+DATA = ('ELD1', 'ELD2')    # the names of the two record programs (global labels)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')

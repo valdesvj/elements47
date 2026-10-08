@@ -50,4 +50,4 @@ ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), 
 :GRPF:     49  
 :GRPNAME:  50  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 
-Numeric data labels (XEQ IND): 00-01 the symbols; the records 00-14 in A, 15-29 in B.
+Numeric data labels (XEQ IND): 00-01 the symbols; the records 00-14 in ELD1, 15-29 in ELD2.

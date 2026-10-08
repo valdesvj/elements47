@@ -3,10 +3,10 @@ ELEMENTS 47 - PROGRAM MAP
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
 ELEM47    ELEM47           810   the code (build/ELEM47.txt)
-          A                 49   the records of Z 1-60 (LBL 00-14)
-          B                 49   the records of Z 61-118 (LBL 15-29)
+          ELD1              49   the records of Z 1-60 (LBL 00-14)
+          ELD2              49   the records of Z 61-118 (LBL 15-29)
 ELEM47    ELEM47          1016   Free42: build/free42/ELEM47.txt (tools/build_free42.py)
-          A, B            49 + 49  the records, as on the C47
+          ELD1, ELD2      49 + 49  the records, as on the C47
           E47T (E47B)     1884   the GRFNT 21 font, one local label per character; E47B the boxes
           E47S             329   the GRFNT 10 font (tinyFont)
 
@@ -42,7 +42,7 @@ LOCAL LABELS OF ELEM47
   Data labels, numeric (XEQ IND):
   00-01   the symbols, 65 elements each (2 characters, then a digit = the column in the cell)
   00-29   the records, 4 elements each: "name/mass/state letter/boiling point/configuration|";
-          00-14 in A, 15-29 in B (:RECORD: puts the label in R43, XEQ "A" or "B",
+          00-14 in ELD1, 15-29 in ELD2 (:RECORD: puts the label in R43, XEQ "ELD1" or "ELD2",
           which does XEQ IND 43)
 
 Folders:

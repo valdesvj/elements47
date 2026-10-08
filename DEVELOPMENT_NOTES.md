@@ -282,15 +282,15 @@
   screen before it, then the whole table (main's build: 40 different screens, the table building up).
   Free42 ELEM47 1 022 steps. Free42 on a PC or phone has no RefLCD (and draws only 131 x 16).
 
-## Oct 8, 2026 - Branch compact (experimental): labels from 00, data programs A and B
-- The record programs are now A (Z 1-60, LBL 00-14) and B (Z 61-118, LBL 15-29): global labels "A" and "B"
-  (quoted: a string label, not the local label A; checked in T47 and f42run). The symbols are LBL 00-01 in
-  ELEM47 and the named labels follow, 02-50, no gaps (tools/build_elem47.py: only ELEM47's own numeric
+## Oct 8, 2026 - Branch compact (experimental): labels from 00
+- The symbols are LBL 00-01 in ELEM47 and the named labels follow, 02-50, no gaps; the records are
+  LBL 00-14 in ELD1 (Z 1-60) and 15-29 in ELD2 (Z 61-118) (tools/build_elem47.py: only ELEM47's own numeric
   labels are taken, the other programs have their own).
 - With the data labels from 0, no offset: "36 +" (symbols, twice) and "60 +" (records) are gone, :CELLS:
-  starts R50 at -1 (was 35), the split compares with 14 (was 74). ELEM47 810 steps (816), the .p47
-  23 939 bytes (24 034). Free42 1 016 steps (1 022). The screens are the same (tests/test_opt.py).
-- Risk: a user program called "A" or "B" on the calculator is replaced when the file is loaded.
+  starts R50 at -1 (was 35), the split compares with 14 (was 74). ELEM47 810 steps (816); Free42 1 016
+  steps (1 022). The screens are the same (tests/test_opt.py).
+- Tried and dropped: the record programs named "A" and "B" (they worked in T47 and f42run; the names
+  ELD1 / ELD2 kept).
 
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).

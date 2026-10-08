@@ -104,8 +104,8 @@ GRMOD
 RTN
 REM ---- LBL :RECORD: the record of Z = R30, "name/mass/state/boiling point/configuration|", in R44;
 REM R37 name, R35 mass (LBL :FIELD: takes the fields in order; R44 keeps the rest).
-REM The records are 4 per label, each one ends with "|": LBL (Z-1) div 4 (00-14 in A, 15-29 in
-REM B, XEQ IND 43 there), then (Z-1) mod 4 records skipped, one "|" each ----
+REM The records are 4 per label, each one ends with "|": LBL (Z-1) div 4 (00-14 in ELD1, 15-29
+REM in ELD2, XEQ IND 43 there), then (Z-1) mod 4 records skipped, one "|" each ----
 LBL :RECORD:
 RCL 30
 1
@@ -118,10 +118,10 @@ STO 43
 14
 X<Y?
 GTO :RECD2:
-XEQ "A"
+XEQ "ELD1"
 GTO :RECIN:
 LBL :RECD2:
-XEQ "B"
+XEQ "ELD2"
 LBL :RECIN:
 STO 44
 RCL 24
@@ -908,8 +908,8 @@ LBL 01
 "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
 RTN
 END
-REM ==== A: the records of Z 1-60 (4 per label): LBL 0 + (Z-1) div 4, then (Z-1) mod 4 records, "|" after each one; R43 the label ====
-LBL "A"
+REM ==== ELD1: the records of Z 1-60 (4 per label): LBL 0 + (Z-1) div 4, then (Z-1) mod 4 records, "|" after each one; R43 the label ====
+LBL "ELD1"
 XEQ IND 43
 RTN
 LBL 00
@@ -958,8 +958,8 @@ LBL 14
 "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2|Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2|Praseodymium/140.91/S/3793/[Xe] 4f3 6s2|Neodymium/144.24/S/3347/[Xe] 4f4 6s2|"
 RTN
 END
-REM ==== B: the records of Z 61-118 (4 per label): LBL 0 + (Z-1) div 4, then (Z-1) mod 4 records, "|" after each one; R43 the label ====
-LBL "B"
+REM ==== ELD2: the records of Z 61-118 (4 per label): LBL 0 + (Z-1) div 4, then (Z-1) mod 4 records, "|" after each one; R43 the label ====
+LBL "ELD2"
 XEQ IND 43
 RTN
 LBL 15
