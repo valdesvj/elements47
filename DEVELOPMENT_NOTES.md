@@ -292,6 +292,28 @@
 - Tried and dropped: the record programs named "A" and "B" (they worked in T47 and f42run; the names
   ELD1 / ELD2 kept).
 
+## Oct 9, 2026 - Branch local-registers (a dev build, the release stays)
+- The release does not save the globals: it works in R20-R55, keeps the key in R33, and CLREGS at key 0.
+  This branch does not change programs_rem/ELEM47.txt or build/ELEM47.txt. tools/build_locr.py reads that
+  source and writes build/dev/locr/ (ELEM47.txt, VERSION.txt, ELEM47.p47) and listings/dev/locr/.
+  The .p47 is gitignored, same as the others.
+- The working registers are local, R.00-R.35, one LocR 48 at LBL "ELEM47". An XEQ starts a level with no
+  local registers (and KEY? takes no local), so an internal XEQ is a same-level call: ISG stores the return
+  label in R90-R97 and GTO enters the routine; its RTN is GTO 99, which DSE-pops the label. The label number
+  sits in X for a moment, so T is parked in R.47 and put back (LBL :CLSEG: reads T, the first Z of a segment).
+  The key, and the label ELD1/ELD2 execute, is the global R00. Key 0 copies R00 and R90-R97 back. No CLREGS.
+  EXIT or R/S does not run that copy. WSIZE 64 is still left as the release leaves it.
+- Inlined, one call and one block: :CLOSE:, :CELLS:, :SYMPCE:, :KELVIN:, :STATES:, :GRPNAME:. :FIELDK: counts
+  down with DSE. 47 internal calls, deepest 3, return sequence LBL 99, 5 local labels free.
+  ELEM47 1 377 steps (the release is 810), ELD1 49, ELD2 49.
+- The screens are the release's, pixel for pixel (tests/test_locr.py: the tour, the gaps, the f-block, the
+  edges, other keys, closing the box, moves inside the box), in c47sim and in T47 for the close and the
+  inbox sequences. R00-R99 seeded before the run are back at key 0, and the stack is clear.
+  python/c47sim.py and python/elem47sim.py are the same as main.
+- It is slower. Each internal call is several steps instead of XEQ and RTN. Simulator steps, release then
+  this build: the table 7 833 -> 8 526 (+693), a move 243 -> 399, the detail box 1 038 -> 1 259, closing it
+  4 029 -> 4 391. A whole tour 27 412 -> 35 512.
+
 ## Next
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).

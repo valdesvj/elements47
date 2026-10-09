@@ -1,0 +1,17 @@
+Elements 47 dev build: local registers (branch local-registers)
+
+Release build/ELEM47.txt is unchanged. This file is the same table with the working
+registers in R.00-R.35 (LocR 48 at LBL "ELEM47").
+
+Globals touched, and given back at key 0: R00 (the key, and the label ELD1/ELD2 run),
+R90-R97 (the return stack). No CLREGS. The other registers are not written.
+EXIT or R/S does not run the copy back.
+Each internal call parks T in R.47 while the return label is in X, then puts T back.
+
+Inlined (one call, one block): :CLOSE: (13, 34 steps), :CELLS: (18, 65 steps), :SYMPCE: (32, 6 steps), :KELVIN: (43, 2 steps, conditional), :STATES: (44, 2 steps), :GRPNAME: (50, 6 steps)
+Internal calls still done with ISG / DSE: 47. Return sequence: LBL 99.
+Deepest internal call: 3 (the return stack holds 8). Local labels left free: 5.
+LBL :FIELDK: counts down with DSE.
+
+R20-R55 of the release are R.00-R.35 here, in the same order. R33 (the key) is R00.
+Steps: ELEM47 1377, ELD1 49, ELD2 49.
