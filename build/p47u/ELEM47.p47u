@@ -2,8 +2,8 @@
 @ Author:  Victor Valdes
 @ Version: 1.1.0
 @ Source:  https://github.com/valdesvj/elements47
-@ Tested:  the whole table, the detail box opened and closed at every cell (571 screens): the same
-@          screens pixel for pixel as the previous version (Python model of the C47)
+@ Tested:  run on a C47 by the author; the whole table with the detail box opened and closed at every
+@          cell (571 screens): the same screens pixel for pixel as the previous version (simulator)
 @ Input:   none (XEQ 'ELEM47')
 @ Output:  the periodic table on the screen; key 0 ends: R00-R99 and the stack cleared
 @
@@ -21,9 +21,12 @@
 @ RTN. No tail calls or jumps between routines; two routines have a second entry label that the first runs
 @ into (the cursor runs into the cursor XOR, the detail box into the box from a record already read). The labels are the
 @ routines (XEQ) and the data (XEQ IND).
-@ Speed: the drawing is unrolled where it runs most: 21 AGRAPH for the cursor, 21 for the top and bottom
-@ of each cell, 37 per round of the loop for the box lines (a loop costs about 3 steps per AGRAPH); the
-@ routines of the key loop come first in the program (each RTN counts the steps from the top).
+@ The horizontal lines of the table are PIXEL with Y < 0 (one full screen row, one step each), the parts
+@ without cells cleared again (AGRAPH in GRMOD 2, ATEXT of spaces in GRMOD 1): about 30 % faster than drawing
+@ them cell by cell. Each cell draws only its left edge.
+@ Speed: the drawing is unrolled where it runs most: 21 AGRAPH for the cursor, 37 per round of the loop
+@ for the box lines (a loop costs about 3 steps per AGRAPH); the routines of the key loop come first in the
+@ program (each RTN counts the steps from the top).
 @ ELEM47 uses R20-R56 and the matrix PT (deleted at the end), and clears R00-R99 and the stack when it ends
 @ (CLREGS, CLSTK): store anything you need elsewhere first.
 @ Data: standard atomic weights CIAAW 2024 (abridged, as the IUPAC periodic table; "-" where there is none),
@@ -210,7 +213,8 @@ RTN
 @ panel (the box covers part of the key legend and of the panel). The same screen as drawing the whole table ----
 LBL 06
 XEQ 03
-XEQ 20
+XEQ 22
+XEQ 21
 0
 GRMOD
 @ the cell patterns again (the detail box left its own in R20)
@@ -329,7 +333,7 @@ RCL 29
 STO 38
 "↵"
 x→α 38
-XEQ 21
+XEQ 23
 RCL 45
 αPOS 51
 STO 24
@@ -348,8 +352,8 @@ IF 06
   "  "
   x→α 38
 ENDIF 06
-XEQ 22
-XEQ 23
+XEQ 24
+XEQ 25
 XEQ 17
 RCL 35
 x→α 38
@@ -358,7 +362,7 @@ x→α 38
 RCL 47
 x→α 38
 @ then the box: cleared, the frame, the header, the labels and the two value texts
-XEQ 20
+XEQ 22
 @ the frame (GRMOD 0): the sides (two halves of 60 rows), the bottom line; the top line comes
 @ with the header bar
 0
@@ -441,8 +445,10 @@ RTN
 LBL 10
 11111111111111111111111111#2
 STO 20
-10000000000000000000000001#2
+@ R21: rows 0, 25 and 50 of a column (three horizontal lines at once, cleared by AGRAPH in GRMOD 2)
+100000000000000000000000010000000000000000000000001#2
 STO 21
+XEQ 20
 1
 STO 25
 -1
@@ -585,32 +591,11 @@ DO 03
   66
   X=Y?
   XEQ 14
-  @ the box: 22 columns (edge, 21 inner; GRMOD 0), unrolled. Its right edge is the left edge of the next
-  @ cell, or the last column of the segment (after the loop)
+  @ the left edge of the cell (GRMOD 0; the top and the bottom are the PIXEL rows of :GRID:). Its right edge
+  @ is the left edge of the next cell, or the last column of the segment (after the loop)
   RCL 40
   RCL 39
   AGRAPH 20
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
-  AGRAPH 21
   @ the number, tinyFont: a space first (no empty string), row R52, column R54
   10
   GRFNT
@@ -812,9 +797,130 @@ DO 05
 WHILE 05
 ENDDO 05
 RTN
+@ ---- LBL :GRID: the horizontal lines of the table, before the cells: PIXEL with Y < 0 (X 0) draws row |Y|
+@ across the whole screen, black, in one step (screen.c fnPixel); then the parts with no cell under or over
+@ them are cleared again (the screen holds only these rows yet): AGRAPH in GRMOD 2 for columns 0, 398, 399,
+@ ATEXT of spaces in GRMOD 1 (GRFNT 21: 7 x 20 pixels each, from row Y up) for the rest. Rows of the table:
+@ 238 (the top of period 1) ... 63 (the bottom of period 7), 54, 29, 4 (rows 8-9, columns 3-17) ----
+LBL 20
+-4
+0
+PIXEL
+-29
+0
+PIXEL
+-54
+0
+PIXEL
+-188
+0
+PIXEL
+-213
+0
+PIXEL
+-238
+0
+PIXEL
+2
+GRMOD
+188
+0
+AGRAPH 21
+DROP
+398
+AGRAPH 21
+AGRAPH 21
+@ rows 63-163 (with the same clearing, shared with :CLOSE:); leaves GRMOD 1, GRFNT 21
+XEQ 21
+@ rows 4, 29, 54: x 0-44 and 376-399 (rows 0-59)
+"      ↵      ↵      "
+40
+0
+ATEXT Z
+" ↵ ↵ "
+40
+38
+ATEXT Z
+"   ↵   ↵   "
+40
+376
+ATEXT Z
+" ↵ ↵ "
+40
+393
+ATEXT Z
+@ row 238: x 24-374, between H and He (rows 219-238)
+"                                                  "
+219
+24
+ATEXT Z
+" "
+219
+368
+ATEXT Z
+@ rows 213, 188: x 46-264, the empty columns 3-12 of periods 2-3 (rows 179-218)
+"                               ↵                               "
+199
+46
+ATEXT Z
+" ↵ "
+199
+258
+ATEXT Z
+0
+GRMOD
+RTN
+@ ---- LBL :ROWS: rows 63, 88, 113, 138, 163 (PIXEL), then cleared again: columns 0, 398, 399 (AGRAPH 21 in
+@ GRMOD 2, rows 63-113 and 138-188) and column 3 of periods 6-7 (x 46-66, rows 63 and 88: ATEXT of spaces in
+@ GRMOD 1). The table, and closing the detail box (the rows under it). Leaves GRMOD 1, GRFNT 21 ----
+LBL 21
+-63
+0
+PIXEL
+-88
+0
+PIXEL
+-113
+0
+PIXEL
+-138
+0
+PIXEL
+-163
+0
+PIXEL
+2
+GRMOD
+63
+0
+AGRAPH 21
+DROP
+398
+AGRAPH 21
+AGRAPH 21
+138
+0
+AGRAPH 21
+DROP
+398
+AGRAPH 21
+AGRAPH 21
+1
+GRMOD
+21
+GRFNT
+"   "
+88
+46
+ATEXT Z
+"   "
+63
+46
+ATEXT Z
+RTN
 @ ---- LBL :BOXCLR: the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
 @ x 20 rows each): 42 spaces from x 50 and one more column of spaces at x 343. Leaves GRMOD 1, GRFNT 21 ----
-LBL 20
+LBL 22
 1
 GRMOD
 21
@@ -836,13 +942,13 @@ ATEXT Z
 ATEXT Z
 RTN
 @ the names of the states, in the order of R51 "SLG-"
-LBL 21
+LBL 23
 "Solid/Liquid/Gas/-"
 STO 35
 RTN
 @ LBL :GROUP: the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
 @ 4-9 columns 13-18, 10-11 rows 8-9
-LBL 22
+LBL 24
 RCL 31
 STO 24
 7
@@ -883,7 +989,7 @@ ELSE 08
 ENDIF 08
 RTN
 @ LBL :GRPNAME: the names of the groups in R35, "/" between them (texts of 64 characters at most)
-LBL 23
+LBL 25
 "Nonmetal/Alkali metals/Alkaline earth metals/"
 STO 35
 "Transition metals/Boron group/Carbon group/Pnictogens/"

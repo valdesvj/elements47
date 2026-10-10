@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """Write build/p47u/ELEM47.p47u, the file for the PROGRAMS folder of the C47 release (res/PROGRAMS of the
 firmware: BUILD.md there). A rejig source: the '@' header the index reads (Index, Author, Version) and the
-other fields, then the three programs of build/ELEM47.txt (ELEM47, ELD1, ELD2) with the indentation and the
-comments of programs_rem/ELEM47.txt ('@' lines: not compiled). The steps are those of build/ELEM47.txt, numeric
-labels and numbered structures (tests/test_elem47.py checks it). The file name is the main program's name.
-  python3 tools/build_elem47.py && python3 tools/build_p47u.py"""
+other fields, then the three programs of the PIXEL variant, build/pixel/ELEM47.txt (ELEM47, ELD1, ELD2), with
+the indentation and the comments of programs_rem/pixel/ELEM47.txt ('@' lines: not compiled). The steps are
+those of build/pixel/ELEM47.txt, numeric labels and numbered structures (tests/test_elem47.py checks it). The
+file name is the main program's name. SUB = '' would take the release (build/ELEM47.txt) instead.
+  python3 tools/build_pixel.py && python3 tools/build_p47u.py"""
 import os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import build_elem47 as B
 
 VERSION = '1.1.0'
+SUB = 'pixel'          # the variant of programs_rem/ and build/ submitted (the table's lines by PIXEL)
 # what a run produced; after tests/test_fw.py passes in T47, say so here
-TESTED = ('the whole table, the detail box opened and closed at every cell (571 screens): the same\n'
-          '@          screens pixel for pixel as the previous version (Python model of the C47)')
+TESTED = ('run on a C47 by the author; the whole table with the detail box opened and closed at every\n'
+          '@          cell (571 screens): the same screens pixel for pixel as the previous version (simulator)')
 HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @ Author:  Victor Valdes
 @ Version: %s
@@ -36,9 +38,12 @@ HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @ RTN. No tail calls or jumps between routines; two routines have a second entry label that the first runs
 @ into (the cursor runs into the cursor XOR, the detail box into the box from a record already read). The labels are the
 @ routines (XEQ) and the data (XEQ IND).
-@ Speed: the drawing is unrolled where it runs most: 21 AGRAPH for the cursor, 21 for the top and bottom
-@ of each cell, 37 per round of the loop for the box lines (a loop costs about 3 steps per AGRAPH); the
-@ routines of the key loop come first in the program (each RTN counts the steps from the top).
+@ The horizontal lines of the table are PIXEL with Y < 0 (one full screen row, one step each), the parts
+@ without cells cleared again (AGRAPH in GRMOD 2, ATEXT of spaces in GRMOD 1): about 30 %% faster than drawing
+@ them cell by cell. Each cell draws only its left edge.
+@ Speed: the drawing is unrolled where it runs most: 21 AGRAPH for the cursor, 37 per round of the loop
+@ for the box lines (a loop costs about 3 steps per AGRAPH); the routines of the key loop come first in the
+@ program (each RTN counts the steps from the top).
 @ ELEM47 uses R20-R56 and the matrix PT (deleted at the end), and clears R00-R99 and the stack when it ends
 @ (CLREGS, CLSTK): store anything you need elsewhere first.
 @ Data: standard atomic weights CIAAW 2024 (abridged, as the IUPAC periodic table; "-" where there is none),
@@ -48,7 +53,7 @@ HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 
 
 def build():
-    lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', B.NAME + '.txt'), encoding='utf-8')]
+    lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', SUB, B.NAME + '.txt'), encoding='utf-8')]
     steps = B.plain_steps(lines)
     out, n = [], 0
     start = lines.index('LBL "%s"' % B.NAME)      # the REM header of the source: replaced by HEADER

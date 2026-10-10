@@ -376,6 +376,10 @@
   label), then ELEM47, ELD1, ELD2 with the indentation and the comments of programs_rem ('@' lines, not
   compiled; the source's own REM header left out), the steps those of build/ELEM47.txt (test_elem47 checks it).
   The Tested field says what has been run; to update after tests/test_fw.py in T47.
+- Then (Victor: the PIXEL variant, run on his C47 and working): build_p47u takes the variant (SUB = 'pixel':
+  programs_rem/pixel, build/pixel/ELEM47.txt), 1 227 steps with ELD1 and ELD2; the header adds the PIXEL
+  lines, the style (no GTO, STRUCT only, a test before one XEQ / RTN in a few places, two second entry
+  labels, no tail calls) and the unrolled drawing. Tested: run on a C47 by the author, and the simulator.
 
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
