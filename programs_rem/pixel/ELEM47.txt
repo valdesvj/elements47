@@ -1,4 +1,4 @@
-REM ELEM47 v1.0.0 - Elements 47: the periodic table on the C47 / R47
+REM ELEM47 v1.1.0 - Elements 47: the periodic table on the C47 / R47
 REM The 118 elements in an 18 x 9 grid (rows 1-7 the periods, 8 lanthanides, 9 actinides),
 REM cells 23 x 26 pixels sharing their edges (pitch 22 x 25). The empty space of periods 1-3
 REM holds the title, the selected element (name, Z, mass) and the keys.

@@ -71,6 +71,16 @@ def main():
           'programs/ELEM47.txt = programs_rem/ELEM47.txt without REM and indentation, each named label its local '
           'number, the structures numbered')
     check(not any(re.match(r'GTO ', ln) for ln in plain[:plain.index('END')]), 'ELEM47: no GTO (STRUCT)')
+    sys.path.insert(0, os.path.join(ROOT, 'tools'))
+    import build_p47u
+    p47u = build_p47u.build()
+    head = [ln for ln in open(p47u, encoding='utf-8').read().split('\n')[:3]]
+    sub = os.path.join(ROOT, 'build', build_p47u.SUB, 'ELEM47.txt')
+    want = open(sub, encoding='utf-8').read().splitlines()
+    check(build_p47u.steps_of(p47u) == [ln for ln in want if ln] and head[0].startswith('@ Index:')
+          and os.path.basename(p47u) == 'ELEM47.p47u',
+          'build/p47u/ELEM47.p47u (the C47 release PROGRAMS folder): the @ header, the same steps as %s'
+          % os.path.relpath(sub, ROOT))
     check(not any(re.search(r' :\w+:$', ln) for ln in plain), 'numeric local labels only')
     check(open(os.path.join(ROOT, 'build', 'ELEM47.txt')).read().splitlines() == plain, 'build/ELEM47.txt = programs/ELEM47.txt')
 

@@ -366,6 +366,21 @@
   tools/build_pixel.py -> build/pixel/, listings/pixel/. In the firmware: ELEM47_PROG=build/pixel/ELEM47.txt
   python3 tests/test_fw.py, python3 tools/bench_fw.py build/pixel/ELEM47.txt.
 
+## Oct 10, 2026 - build/p47u/ELEM47.p47u for the PROGRAMS folder of the C47 release
+- Asked on the forum: programs for the release's PROGRAMS folder (firmware res/PROGRAMS, BUILD.md there) as a
+  rejig source <name>.p47u, the file named after the main program, with an '@' header: Index (3-8 words,
+  the one field the index needs), Author, Version, then Source, Tested, Input, Output and notes. The
+  release's Makefile compiles each .p47u with rejig, exports a .rtf with T47 (XPORTP) and builds
+  Example-programs.txt from the headers (mkindex.py).
+- tools/build_p47u.py writes build/p47u/ELEM47.p47u: the header (Version 1.1.0: STRUCT, one record per
+  label), then ELEM47, ELD1, ELD2 with the indentation and the comments of programs_rem ('@' lines, not
+  compiled; the source's own REM header left out), the steps those of build/ELEM47.txt (test_elem47 checks it).
+  The Tested field says what has been run; to update after tests/test_fw.py in T47.
+- Then (Victor: the PIXEL variant, run on his C47 and working): build_p47u takes the variant (SUB = 'pixel':
+  programs_rem/pixel, build/pixel/ELEM47.txt), 1 227 steps with ELD1 and ELD2; the header adds the PIXEL
+  lines, the style (no GTO, STRUCT only, a test before one XEQ / RTN in a few places, two second entry
+  labels, no tail calls) and the unrolled drawing. Tested: run on a C47 by the author, and the simulator.
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.
