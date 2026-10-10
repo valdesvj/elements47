@@ -9,10 +9,15 @@ Three programs, three global labels:
           The segments of the table (count, row, first column) are written into LBL :CELLS:, after the
           line SEG_MARK. Its data labels stay numeric (reached with XEQ IND): LBL 00-01 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
           the symbol in its cell).
-  ELD1    the element records of Z 1-60: LBL 00-14; ELD2 those of Z 61-118: LBL 15-29. 4 elements per
-  ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
-          "|" after each record).
-          XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
+          Branch struct (C47 only): the code is written with the C47 STRUCT commands (app note AN0007 of the
+          firmware: IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL), indented in the source (two spaces
+          per level), without numbers: the build checks the structures as VALID does and gives the partner
+          numbers (IF, DO and REPEAT in three series, from 01, in the order the openers appear), as rejig
+          writes them (IF 01). The build/ELEM47.txt file holds three programs and the C47 checks only the
+          last one as it loads, so the numbers must be in the file.
+  ELD1    the element records, one per label: Z 1-60 in ELD1 (LBL 01-60), Z 61-118 in ELD2 (LBL 01-58, Z - 60),
+  ELD2    each one "name/mass/state letter/boiling point/configuration" (the fields joined by "/"; up to
+          196 characters, room for more fields). XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
 The DATA part at the end of programs_rem/ELEM47.txt (from the end of ELEM47) is written from
 python/elements.py.
 
@@ -32,12 +37,76 @@ NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
 SEG_MARK = 'REM ==== SEGMENTS'
 SYM0, SYMS = 0, 65   # the symbol pieces: LBL 00, 01; 65 elements (195 characters) each
-REC0, PER = 0, 4     # the element records: LBL 00-29, 4 elements each (176 characters at most)
-SPLIT = 60           # ELD1: Z 1-60 (LBL 00-14), ELD2: Z 61-118 (LBL 15-29)
+SPLIT = 60           # the element records, one per label: ELD1 Z 1-60 (LBL 01-60), ELD2 Z 61-118 (LBL 01-58)
 DATA = ('ELD1', 'ELD2')    # the names of the two record programs (global labels)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
+# the C47 STRUCT commands (AN0007): the openers, the closers, and the series of the partner numbers
+OPENERS = {'IF': 'ENDIF', 'DO': 'ENDDO', 'REPEAT': 'UNTIL'}
+STRUCT = ('IF', 'ELSE', 'ENDIF', 'DO', 'WHILE', 'ENDDO', 'REPEAT', 'UNTIL')
+NOT_USED = ('FOR', 'NEXT', 'FORₓ', 'NEXTₓ', 'FOR𝑦ˣ', 'FORᵀᴼᴾ')       # FOR takes its three values off the stack
+
+
+def is_test(step):
+    """A step that leaves a test answer (the firmware's structTest list: the comparisons, the flag and type
+    tests ending with ?, the counters, KEY?)."""
+    op = step.split(' ')[0]
+    return op.endswith('?') or op in ('DSE', 'ISG', 'DSZ', 'ISZ', 'DSL', 'ISE')
+
+
+def structures(steps):
+    """The steps with the partner numbers of the STRUCT commands, as VALID numbers them (manage.c /
+    structured.c structWalkProgram): per program, IF, DO and REPEAT in three series from 1, in the order
+    the openers appear; ELSE, WHILE, ENDDO, ENDIF, UNTIL take the number of their opener. Stops on what
+    VALID refuses (a closer without its opener or of another kind, a structure left open at END or across
+    a routine (RTN then LBL), a DO without WHILE, an IF / WHILE / UNTIL without a test just before it) and
+    on a test before ELSE, ENDIF, DO, ENDDO, REPEAT or UNTIL: the firmware never skips those (structured.c
+    structNoLegacySkip)."""
+    out, open_, n = [], [], {}
+
+    def fail(i, msg):
+        raise SystemExit('STRUCT, step %d (%s): %s' % (i + 1, steps[i], msg))
+    for i, s in enumerate(steps):
+        op = s.split(' ')[0]
+        prev = steps[i - 1] if i else ''
+        if op in NOT_USED:
+            fail(i, 'FOR / NEXT not used here (they take the start, end and step off the stack)')
+        if op in STRUCT and s != op:
+            fail(i, 'written without a number: the build numbers the structures')
+        if op in ('IF', 'WHILE', 'UNTIL') and not is_test(prev):
+            fail(i, 'no test just before it')
+        if op in ('ELSE', 'ENDIF', 'DO', 'ENDDO', 'REPEAT', 'UNTIL') and is_test(prev) and not op == 'UNTIL':
+            fail(i, 'a test before it: the firmware never skips a structure step')
+        if s == 'END' or (s.startswith('LBL ') and prev == 'RTN'):
+            if open_:
+                fail(i, 'structure %s %02d still open' % tuple(open_[-1][:2]))
+            if s == 'END':
+                n = {}
+        if op in OPENERS:
+            n[op] = n.get(op, 0) + 1
+            open_.append([op, n[op], False])
+            out.append('%s %02d' % (op, n[op]))
+            continue
+        if op in STRUCT:
+            want = {'ELSE': 'IF', 'ENDIF': 'IF', 'WHILE': 'DO', 'ENDDO': 'DO', 'UNTIL': 'REPEAT'}[op]
+            if not open_ or open_[-1][0] != want:
+                fail(i, 'no %s open here' % want)
+            top = open_[-1]
+            if op in ('ELSE', 'WHILE'):
+                if top[2]:
+                    fail(i, 'a second %s' % op)
+                top[2] = True
+            if op == 'ENDDO' and not top[2]:
+                fail(i, 'a DO without WHILE')
+            if op in ('ENDIF', 'ENDDO', 'UNTIL'):
+                open_.pop()
+            out.append('%s %02d' % (op, top[1]))
+            continue
+        out.append(s)
+    if open_:
+        raise SystemExit('STRUCT: %s %02d still open at the end' % tuple(open_[-1][:2]))
+    return out
 
 
 def offset(sym):
@@ -98,12 +167,10 @@ def data():
         out += ['LBL %02d' % (SYM0 + k), '"%s"' % sym[3 * SYMS * k:3 * SYMS * (k + 1)], 'RTN']
     out.append('END')
     for name, z0, z1 in ((DATA[0], 1, SPLIT), (DATA[1], SPLIT + 1, len(ELEMENTS))):
-        out += ['REM ==== %s: the records of Z %d-%d (%d per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records'
-                ', "|" after each one; R43 the label ====' % (name, z0, z1, PER, REC0, PER, PER),
-                'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
-        for k in range((z0 - 1) // PER, (z1 + PER - 1) // PER):
-            recs = [record(z) for z in range(PER * k + 1, min(PER * k + PER, len(ELEMENTS)) + 1)]
-            out += ['LBL %02d' % (REC0 + k), '"%s"' % ''.join(r + '|' for r in recs), 'RTN']
+        out += ['REM ==== %s: the records of Z %d-%d, one per label: LBL Z - %d; R43 the label ===='
+                % (name, z0, z1, z0 - 1), 'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
+        for z in range(z0, z1 + 1):
+            out += ['LBL %02d' % (z - z0 + 1), '"%s"' % record(z), 'RTN']
         out.append('END')
     long = [s for s in out if s.startswith('"') and len(s) - 2 > MAXSTR]
     if long:
@@ -150,13 +217,14 @@ def labels_text(lines, num):
             out.append(':%s:%s %s  %s' % (m.group(2), ' ' * (8 - len(m.group(2))),
                                           '%02d' % num[m.group(2)], note[:90]))
     out += ['', 'Numeric data labels (XEQ IND): %02d-%02d the symbols; the records %02d-%02d in %s, '
-            '%02d-%02d in %s.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + SPLIT // PER - 1, DATA[0],
-                                REC0 + SPLIT // PER, REC0 + (len(ELEMENTS) - 1) // PER, DATA[1])]
+            '01-%02d in %s.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, 1, SPLIT, DATA[0],
+                                len(ELEMENTS) - SPLIT, DATA[1])]
     return '\n'.join(out) + '\n'
 
 
-def build():
-    src = os.path.join(ROOT, 'programs_rem', NAME + '.txt')
+def build(sub=''):
+    """sub: a folder of programs_rem (a variant, e.g. loops): written only to build/sub and listings/sub."""
+    src = os.path.join(ROOT, 'programs_rem', sub, NAME + '.txt')
     lines = [ln.rstrip() for ln in open(src, encoding='utf-8')]
     k = next(i for i, ln in enumerate(lines) if ln.startswith(MARK))
     lines = lines[:k + 1] + data()
@@ -166,15 +234,20 @@ def build():
     b = lines.index('RTN', a)
     lines[a:b] = segments()
     r = lines.index('LBL :RECORD:')
-    if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 19:r + 20] != [str(PER)] \
-            or lines[r + 9:r + 10] != [str(REC0 + SPLIT // PER - 1)] or REC0 or SYM0 or SPLIT % PER \
-            or lines[r + 12:r + 16] != ['XEQ "%s"' % DATA[0], 'GTO :RECIN:', 'LBL :RECD2:', 'XEQ "%s"' % DATA[1]]:
-        raise SystemExit('LBL :RECORD: must divide by PER = %d, split at LBL %d and call %s, %s (REC0 = SYM0 = 0: '
-                         'no + before XEQ IND)' % ((PER, REC0 + SPLIT // PER - 1) + DATA))
+    rec = source_steps(lines[r:])
+    rec = ' / ' + ' / '.join(rec[:rec.index('RTN')]) + ' / '
+
+    def has(*seq):
+        return ' / ' + ' / '.join(seq) + ' / ' in rec
+    if not has('RCL 30', 'STO 43', str(SPLIT), 'X<Y?', 'IF', 'STO- 43', 'XEQ "%s"' % DATA[1], 'ELSE', 'XEQ "%s"' % DATA[0],
+               'ENDIF') or SYM0:
+        raise SystemExit('LBL :RECORD: must split at Z %d (ELD2: label Z - %d) and call %s, %s (SYM0 = 0: no + before '
+                         'XEQ IND)' % ((SPLIT, SPLIT) + DATA))
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
-    steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
+    steps = source_steps(lines)
     numeric, num = resolve(steps)
+    numeric = structures(numeric)
     if [s for s in steps if s.startswith('LBL "')] != ['LBL "ELEM47"'] + ['LBL "%s"' % d for d in DATA] \
             or steps.count('END') != 3:
         raise SystemExit('three programs: ELEM47, %s, %s' % DATA)
@@ -187,18 +260,21 @@ def build():
     for ln in lines:
         if not ln.strip():
             continue
-        if ln.startswith('REM'):
-            listing.append('      ; ' + ln[3:].strip())
+        ind = ln[:len(ln) - len(ln.lstrip())]
+        if ln.lstrip().startswith('REM'):
+            listing.append('      ' + ind + '; ' + ln.lstrip()[3:].strip())
         else:
-            listing.append('%4d  %s' % (n + 1, steps[n] + ('' if numeric[n] == ln else '    (%s)' % numeric[n].split(' ', 1)[1])))
+            listing.append('%4d  %s' % (n + 1, ind + steps[n] + ('' if numeric[n] == steps[n] else '    (%s)' % numeric[n].split(' ', 1)[1])))
             n += 1
     plain = '\n'.join(numeric) + '\n'
-    for d in ('programs', 'build'):
+    for d in (('programs', 'build') if not sub else (os.path.join('build', sub),)):
+        os.makedirs(os.path.join(ROOT, d), exist_ok=True)
         with open(os.path.join(ROOT, d, NAME + '.txt'), 'w', encoding='utf-8') as fh:
             fh.write(plain)
-    with open(os.path.join(ROOT, 'listings', NAME + '_doc.txt'), 'w', encoding='utf-8') as fh:
+    os.makedirs(os.path.join(ROOT, 'listings', sub), exist_ok=True)
+    with open(os.path.join(ROOT, 'listings', sub, NAME + '_doc.txt'), 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(listing) + '\n')
-    with open(os.path.join(ROOT, 'listings', NAME + '_labels.txt'), 'w', encoding='utf-8') as fh:
+    with open(os.path.join(ROOT, 'listings', sub, NAME + '_labels.txt'), 'w', encoding='utf-8') as fh:
         fh.write(labels_text(lines, num))
     return steps, num
 
@@ -216,7 +292,18 @@ def programs(steps):
 def label_numbers():
     """name -> number of the named labels of ELEM47 in build/ELEM47.txt (for the tests)."""
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', NAME + '.txt'), encoding='utf-8')]
-    return resolve([ln for ln in lines if ln.strip() and not ln.startswith('REM')])[1]
+    return resolve(source_steps(lines))[1]
+
+
+def source_steps(lines):
+    """The steps of the source lines: no REM, no empty lines, the indentation off."""
+    return [ln.strip() for ln in lines if ln.strip() and not ln.lstrip().startswith('REM')]
+
+
+def plain_steps(lines):
+    """The steps of build/ELEM47.txt from the source lines: local numbers for the named labels, partner
+    numbers for the structures (for the tests)."""
+    return structures(resolve(source_steps(lines))[0])
 
 
 if __name__ == '__main__':

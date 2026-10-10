@@ -11,7 +11,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import c47sim
 
-PROG = os.path.join(ROOT, 'build', 'ELEM47.txt')
+PROG = os.environ.get('ELEM47_PROG') or os.path.join(ROOT, 'build', 'ELEM47.txt')   # ELEM47_PROG: a variant (build/loops)
 W, H = 400, 240
 LCD_BG, LCD_ON = (199, 205, 186), (34, 38, 30)
 
@@ -22,9 +22,57 @@ REG = dict(Z='30', ROW='31', COL='32', NAME='37', LEFT='38', RIGHT='48')
 REG_V1 = dict(Z='36', ROW='37', COL='38', NAME='43', LEFT='44', RIGHT='54')     # before the optimize branch
 
 
+INVERSE = {'X=0?': 'X≠0?', 'X<0?': 'X≥0?', 'X>0?': 'X≤0?', 'X=Y?': 'X≠Y?', 'X<Y?': 'X≥Y?', 'X>Y?': 'X≤Y?'}
+INVERSE.update({v: k for k, v in list(INVERSE.items())})
+
+
+def lower(steps, tag):
+    """The C47 STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL, numbered as in
+    build/ELEM47.txt) written with labels and GTO for c47sim, which has no STRUCT yet (Almanac 47): the
+    same jumps as the firmware (structured.c). A test before IF, WHILE or UNTIL is inverted where it can be
+    (test + IF -> inverted test + GTO, as many steps); KEY? and DSE are not: test, GTO, GTO, LBL. WHILE just
+    before its ENDDO: test + GTO back to the DO. The label names carry tag (the program), so they stay local.
+    The step counts are close to the firmware's, not the same: ENDIF and the labels count as steps here."""
+    has_else = {s.split()[1] for s in steps if s.startswith('ELSE ')}
+    out, i = [], 0
+    while i < len(steps):
+        s = steps[i]
+        op, _, k = s.partition(' ')
+        lab = lambda kind, end='': '%s%s%s%s' % (tag, kind, k, end)
+        if op in ('IF', 'WHILE', 'UNTIL'):
+            test = out.pop()
+            if op == 'IF':
+                go = lab('I', 'F' if k in has_else else 'E')     # false: the ELSE, else the ENDIF
+            elif op == 'WHILE':
+                go = lab('D', 'E')                                # false: past the ENDDO
+                if steps[i + 1] == 'ENDDO ' + k:                  # WHILE just before ENDDO: true goes back to the DO
+                    out += [test, 'GTO ' + lab('D'), 'LBL ' + lab('D', 'E')]
+                    i += 2
+                    continue
+            else:
+                go = lab('R')                                     # UNTIL false: back to the REPEAT
+            if test in INVERSE:
+                out += [INVERSE[test], 'GTO ' + go]
+            else:
+                out += [test, 'GTO ' + lab(op[0], 'T'), 'GTO ' + go, 'LBL ' + lab(op[0], 'T')]
+        elif op == 'ELSE':
+            out += ['GTO ' + lab('I', 'E'), 'LBL ' + lab('I', 'F')]
+        elif op == 'ENDIF':
+            out.append('LBL ' + lab('I', 'E'))
+        elif op in ('DO', 'REPEAT'):
+            out.append('LBL ' + lab(op[0]))
+        elif op == 'ENDDO':
+            out += ['GTO ' + lab('D'), 'LBL ' + lab('D', 'E')]
+        else:
+            out.append(s)
+        i += 1
+    return out
+
+
 def split(prog):
     """The programs of a file (each ends with END) as separate files, so their numeric labels stay local
-    (c47sim.load: one program per file, as on the C47). Returns the file names."""
+    (c47sim.load: one program per file, as on the C47), the STRUCT commands lowered (lower). Returns the
+    file names."""
     import tempfile
     d = tempfile.mkdtemp(prefix='elem47_'); files, cur = [], []
     for ln in open(prog, encoding='utf-8').read().splitlines():
@@ -34,6 +82,7 @@ def split(prog):
         cur.append(ln)
         if ln.strip() == 'END':
             files.append(os.path.join(d, 'p%d.txt' % len(files)))
+            cur = lower(cur, 'S%d' % len(files))
             open(files[-1], 'w', encoding='utf-8').write('\n'.join(cur) + '\n'); cur = []
     return files
 

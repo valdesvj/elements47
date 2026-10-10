@@ -9,1002 +9,1244 @@
       ; At the end (key 0) the registers and the stack are cleared (CLREGS, CLSTK), as Almanac 47 v2.2.0.
       ; Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
       ; Z row column, R33 key, R34-R51 text and work (R36 = 1: the detail box open), R52-R53 the rows of the
-      ; number and the symbol of a cell, R54 the column of the number, R55 text (the box).
+      ; number and the symbol of a cell, R54 the column of the number, R55 text (the box), R56 the column of the
+      ; cell - 48 (the symbol: + the code of its digit).
+      ; Branch struct, C47 only: the control flow in the C47 STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO,
+      ; REPEAT / UNTIL: the firmware's app note AN0007), indented two spaces per level here; tools/build_elem47.py
+      ; checks them and gives the partner numbers (IF 01 ...). No GTO: the labels are the routines (XEQ) and the
+      ; data (XEQ IND). A test before a single step (X<0? RTN, X≠0? XEQ) stays as it is.
    1  LBL "ELEM47"
-      ; the routines of a move first: each RTN goes back by counting the steps from the start of the program
-   2  GTO :INIT:    (19)
-      ; move: cursor off (XOR), new cell, cursor on, panel
-   3  LBL :MOVE:    (02)
-   4  XEQ :CURSXOR:    (04)
-   5  XEQ :STEP:    (38)
-   6  XEQ :CURSOR:    (03)
-   7  XEQ :PANEL:    (05)
-      ; the detail box open (R36): its new element, from the record the panel has just read
-   8  RCL 36
-   9  X≠0?
-  10  XEQ :DETREC:    (16)
-  11  GTO :KEYS:    (21)
+      ; the main part first: the key loop calls the routines of a move and of the box, and each RTN goes back by
+      ; counting the steps from the start of the program
+   2  XEQ :INIT:    (11)
+      ; ---- keys: 8 up, 2 down, 4 left, 6 right, 5 the detail box, 0 the end; other keys ignored ----
+   3  DO    (01)
+        ; wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Almanac 47
+   4    DO    (02)
+   5      PAUSE 50
+   6      KEY? 33
+   7    WHILE    (02)
+   8    ENDDO    (02)
+   9    RCL 33
+  10    82
+  11    X≠Y?
+  12  WHILE    (01)
+        ; the direction of a move from the key code k: R41 = k div 10 - 6 rows, R42 = k mod 10 - 3 columns
+        ; (8: 53 -> -1 0, 2: 73 -> 1 0, 4: 62 -> 0 -1, 6: 64 -> 0 1); |R41| + |R42| = 1 for these four keys only
+  13    RCL 33
+  14    10
+  15    ÷
+  16    IP
+  17    6
+  18    -
+  19    STO 41
+  20    RCL 33
+  21    10
+  22    MOD
+  23    3
+  24    -
+  25    STO 42
+        ; a move: cursor off (XOR), the new cell, cursor on, the panel; the detail box open (R36): its new
+        ; element, from the record the panel has just read
+  26    ABS
+  27    RCL 41
+  28    ABS
+  29    +
+  30    1
+  31    X=Y?
+  32    IF    (01)
+  33      XEQ :CURSXOR:    (03)
+  34      XEQ :STEP:    (18)
+  35      XEQ :CURSOR:    (02)
+  36      XEQ :PANEL:    (04)
+  37      RCL 36
+  38      X≠0?
+  39      XEQ :DETREC:    (09)
+  40    ENDIF    (01)
+        ; 5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws only what
+        ; the box covered). The arrows with the box open: the cursor, the panel and the box of the new element
+  41    RCL 33
+  42    63
+  43    X=Y?
+  44    IF    (02)
+  45      RCL 36
+  46      X≠0?
+  47      IF    (03)
+  48        0
+  49        STO 36
+  50        XEQ :CLOSE:    (06)
+  51      ELSE    (03)
+  52        1
+  53        STO 36
+  54        XEQ :DETAIL:    (08)
+  55      ENDIF    (03)
+  56    ENDIF    (02)
+  57  ENDDO    (01)
+      ; ---- 0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared ----
+  58  0
+  59  GRMOD
+  60  20
+  61  GRFNT
+  62  DELITM "PT"
+  63  CLLCD
+  64  CLREGS
+  65  CLSTK
+  66  RTN
       ; ---- LBL :CURSOR: the cursor, the inside of the cell inverted (XOR, unrolled); twice = off ----
-  12  LBL :CURSOR:    (03)
-  13  RCL 31
-  14  STO 26
-  15  RCL 32
-  16  STO 27
-  17  XEQ :CELLPOS:    (33)
+  67  LBL :CURSOR:    (02)
+  68  RCL 31
+  69  STO 26
+  70  RCL 32
+  71  STO 27
+  72  XEQ :CELLPOS:    (15)
       ; LBL :CURSXOR: the cursor drawn again where it was (R39, R40, R53 of the last one): off
-  18  LBL :CURSXOR:    (04)
-  19  3
-  20  GRMOD
-  21  RCL 53
-  22  RCL 39
-  23  1
-  24  +
-  25  AGRAPH 23
-  26  AGRAPH 23
-  27  AGRAPH 23
-  28  AGRAPH 23
-  29  AGRAPH 23
-  30  AGRAPH 23
-  31  AGRAPH 23
-  32  AGRAPH 23
-  33  AGRAPH 23
-  34  AGRAPH 23
-  35  AGRAPH 23
-  36  AGRAPH 23
-  37  AGRAPH 23
-  38  AGRAPH 23
-  39  AGRAPH 23
-  40  AGRAPH 23
-  41  AGRAPH 23
-  42  AGRAPH 23
-  43  AGRAPH 23
-  44  AGRAPH 23
-  45  AGRAPH 23
-  46  0
-  47  GRMOD
-  48  RTN
+  73  LBL :CURSXOR:    (03)
+  74  3
+  75  GRMOD
+  76  RCL 53
+  77  RCL 39
+  78  1
+  79  +
+  80  AGRAPH 23
+  81  AGRAPH 23
+  82  AGRAPH 23
+  83  AGRAPH 23
+  84  AGRAPH 23
+  85  AGRAPH 23
+  86  AGRAPH 23
+  87  AGRAPH 23
+  88  AGRAPH 23
+  89  AGRAPH 23
+  90  AGRAPH 23
+  91  AGRAPH 23
+  92  AGRAPH 23
+  93  AGRAPH 23
+  94  AGRAPH 23
+  95  AGRAPH 23
+  96  AGRAPH 23
+  97  AGRAPH 23
+  98  AGRAPH 23
+  99  AGRAPH 23
+ 100  AGRAPH 23
+ 101  0
+ 102  GRMOD
+ 103  RTN
       ; ---- LBL :PANEL: the panel: name, Z, mass. GRMOD 1: each character clears its box first, and the
       ; spaces after the text clear the rest of the longest one before (name 13, Z 2, mass 5 spaces) ----
-  49  LBL :PANEL:    (05)
-  50  1
-  51  GRMOD
-  52  21
-  53  GRFNT
-  54  XEQ :RECORD:    (06)
-  55  RCL 37
-  56  STO 38
-  57  "             "
-  58  x→α 38
-  59  RCL 38
-  60  211
-  61  50
-  62  ATEXT Z
-  63  " "
-  64  STO 38
-  65  RCL 30
-  66  αIP 38
-  67  1
-  68  αSL 38
-  69  "  "
-  70  x→α 38
-  71  RCL 38
-  72  190
-  73  50
-  74  ATEXT Z
-  75  RCL 35
-  76  STO 38
-  77  "     "
-  78  x→α 38
-  79  RCL 38
-  80  170
-  81  50
-  82  ATEXT Z
-  83  0
-  84  GRMOD
-  85  RTN
-      ; ---- LBL :RECORD: the record of Z = R30, "name/mass/state/boiling point/configuration|", in R44;
+ 104  LBL :PANEL:    (04)
+ 105  1
+ 106  GRMOD
+ 107  21
+ 108  GRFNT
+ 109  XEQ :RECORD:    (05)
+ 110  RCL 37
+ 111  STO 38
+ 112  "             "
+ 113  x→α 38
+ 114  RCL 38
+ 115  211
+ 116  50
+ 117  ATEXT Z
+ 118  " "
+ 119  STO 38
+ 120  RCL 30
+ 121  αIP 38
+ 122  1
+ 123  αSL 38
+ 124  "  "
+ 125  x→α 38
+ 126  RCL 38
+ 127  190
+ 128  50
+ 129  ATEXT Z
+ 130  RCL 35
+ 131  STO 38
+ 132  "     "
+ 133  x→α 38
+ 134  RCL 38
+ 135  170
+ 136  50
+ 137  ATEXT Z
+ 138  0
+ 139  GRMOD
+ 140  RTN
+      ; ---- LBL :RECORD: the record of Z = R30, "name/mass/state/boiling point/configuration", in R44;
       ; R37 name, R35 mass (LBL :FIELD: takes the fields in order; R44 keeps the rest).
-      ; The records are 4 per label, each one ends with "|": LBL (Z-1) div 4 (00-14 in ELD1, 15-29
-      ; in ELD2, XEQ IND 43 there), then (Z-1) mod 4 records skipped, one "|" each ----
-  86  LBL :RECORD:    (06)
-  87  RCL 30
-  88  1
-  89  -
-  90  STO 24
-  91  4
-  92  ÷
-  93  IP
-  94  STO 43
-  95  14
-  96  X<Y?
-  97  GTO :RECD2:    (07)
-  98  XEQ "ELD1"
-  99  GTO :RECIN:    (08)
- 100  LBL :RECD2:    (07)
- 101  XEQ "ELD2"
- 102  LBL :RECIN:    (08)
- 103  STO 44
- 104  RCL 24
- 105  4
- 106  MOD
- 107  STO 24
- 108  X=0?
- 109  GTO :RECGOT:    (10)
- 110  LBL :RECSKIP:    (09)
- 111  "|"
- 112  αPOS 44
- 113  1
- 114  +
- 115  αSL 44
- 116  DSE 24
- 117  GTO :RECSKIP:    (09)
- 118  LBL :RECGOT:    (10)
- 119  XEQ :FIELD:    (35)
- 120  RCL 35
- 121  STO 37
- 122  XEQ :FIELD:    (35)
- 123  RTN
-      ; 5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws only what the box
-      ; covered). The arrows with the box open: the cursor, the panel and the box of the new element (LBL :MOVE:)
- 124  LBL :INFO:    (11)
- 125  RCL 36
- 126  X≠0?
- 127  GTO :BCLOSE:    (12)
- 128  1
- 129  STO 36
- 130  XEQ :DETAIL:    (15)
- 131  GTO :KEYS:    (21)
- 132  LBL :BCLOSE:    (12)
- 133  0
- 134  STO 36
- 135  XEQ :CLOSE:    (13)
- 136  GTO :KEYS:    (21)
+      ; One record per label: LBL Z in ELD1 (Z 1-60), LBL Z - 60 in ELD2 (Z 61-118); R43 the label,
+      ; XEQ IND 43 there ----
+ 141  LBL :RECORD:    (05)
+ 142  RCL 30
+ 143  STO 43
+ 144  60
+ 145  X<Y?
+ 146  IF    (04)
+ 147    STO- 43
+ 148    XEQ "ELD2"
+ 149  ELSE    (04)
+ 150    XEQ "ELD1"
+ 151  ENDIF    (04)
+ 152  STO 44
+ 153  XEQ :FIELD:    (16)
+ 154  RCL 35
+ 155  STO 37
+ 156  XEQ :FIELD:    (16)
+ 157  RTN
       ; ---- LBL :CLOSE: the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
-      ; under it drawn again (rows 3-7, columns 3-16: 5 segments, LBL :CLSEG:), then the keys, the cursor and the
+      ; under it drawn again (rows 3-7, columns 3-16: 5 segments, LBL :CLSYM: and LBL :SEGMENT:), then the keys, the cursor and the
       ; panel (the box covers part of the key legend and of the panel). The same screen as drawing the whole table ----
- 137  LBL :CLOSE:    (13)
- 138  XEQ :CURSXOR:    (04)
- 139  XEQ :BOXCLR:    (42)
- 140  0
- 141  GRMOD
+ 158  LBL :CLOSE:    (06)
+ 159  XEQ :CURSXOR:    (03)
+ 160  XEQ :BOXCLR:    (20)
+ 161  0
+ 162  GRMOD
       ; the cell patterns again (the detail box left its own in R20)
- 142  11111111111111111111111111#2
- 143  STO 20
-      ; the segments under the box: first Z, count, row, first column
- 144  13
- 145  4
- 146  3
- 147  13
- 148  XEQ :CLSEG:    (14)
- 149  21
- 150  14
- 151  4
- 152  3
- 153  XEQ :CLSEG:    (14)
- 154  39
- 155  14
- 156  5
- 157  3
- 158  XEQ :CLSEG:    (14)
- 159  72
- 160  13
- 161  6
- 162  4
- 163  XEQ :CLSEG:    (14)
- 164  104
+ 163  11111111111111111111111111#2
+ 164  STO 20
+      ; the segments under the box: the first Z (LBL :CLSYM:), then count, row, first column (LBL :SEGMENT:)
  165  13
- 166  7
+ 166  XEQ :CLSYM:    (07)
  167  4
- 168  XEQ :CLSEG:    (14)
- 169  XEQ :TITLE:    (27)
- 170  XEQ :CURSOR:    (03)
- 171  XEQ :PANEL:    (05)
- 172  RTN
-      ; LBL :CLSEG: a segment of the table again: T = first Z, Z = count, Y = row, X = first column. The symbols
-      ; from piece (Z-1) div 65 (R50 the label, R34 the text from Z on, R49 = 66 - (Z-1) mod 65 for LBL :SEGLOOP:),
-      ; then LBL :SEGMENT: from the position on. (Z-1) mod 65 is never 0 here (Z 1 and 66 are not under the box):
-      ; αSL always has something to skip
- 173  LBL :CLSEG:    (14)
- 174  STO 27
- 175  R↓
- 176  STO 26
- 177  R↓
- 178  STO 28
- 179  R↓
- 180  STO 25
- 181  1
- 182  -
- 183  STO 24
- 184  65
- 185  ÷
- 186  IP
- 187  STO 50
- 188  XEQ IND 50
- 189  STO 34
- 190  RCL 24
- 191  65
- 192  MOD
- 193  STO 24
- 194  3
- 195  ×
- 196  αSL 34
- 197  66
- 198  RCL 24
- 199  -
- 200  STO 49
- 201  GTO :SEGPOS:    (29)
+ 168  3
+ 169  13
+ 170  XEQ :SEGMENT:    (13)
+ 171  21
+ 172  XEQ :CLSYM:    (07)
+ 173  14
+ 174  4
+ 175  3
+ 176  XEQ :SEGMENT:    (13)
+ 177  39
+ 178  XEQ :CLSYM:    (07)
+ 179  14
+ 180  5
+ 181  3
+ 182  XEQ :SEGMENT:    (13)
+ 183  72
+ 184  XEQ :CLSYM:    (07)
+ 185  13
+ 186  6
+ 187  4
+ 188  XEQ :SEGMENT:    (13)
+ 189  104
+ 190  XEQ :CLSYM:    (07)
+ 191  13
+ 192  7
+ 193  4
+ 194  XEQ :SEGMENT:    (13)
+ 195  XEQ :TITLE:    (12)
+ 196  XEQ :CURSOR:    (02)
+ 197  XEQ :PANEL:    (04)
+ 198  RTN
+      ; LBL :CLSYM: R25 = X, the first Z of a segment drawn again, and its symbols: piece (Z-1) div 65 (R50 the
+      ; label), R34 the text from Z on. (Z-1) mod 65 is never 0 here (Z 1 and 66 are not under the box): αSL
+      ; always has something to skip
+ 199  LBL :CLSYM:    (07)
+ 200  STO 25
+ 201  1
+ 202  -
+ 203  STO 24
+ 204  65
+ 205  ÷
+ 206  IP
+ 207  STO 50
+ 208  XEQ IND 50
+ 209  STO 34
+ 210  RCL 24
+ 211  65
+ 212  MOD
+ 213  3
+ 214  ×
+ 215  αSL 34
+ 216  RTN
       ; ---- LBL :DETAIL: the detail box (symbol, mass, state, boiling point, group, configuration),
       ; x 50-349, rows 60-179, over the table ----
- 202  LBL :DETAIL:    (15)
+ 217  LBL :DETAIL:    (08)
       ; the element first, then the box (a move with the box open: the box changes at once, no empty box)
       ; the data of the element: name and mass (LBL :RECORD:; the mass to R48), state, boiling point, configuration
- 203  XEQ :RECORD:    (06)
+ 218  XEQ :RECORD:    (05)
       ; LBL :DETREC: from here after LBL :PANEL: (a move with the box open): the record is read
- 204  LBL :DETREC:    (16)
- 205  RCL 35
- 206  STO 48
- 207  XEQ :FIELD:    (35)
- 208  RCL 35
- 209  STO 45
- 210  XEQ :FIELD:    (35)
- 211  RCL 35
- 212  STO 46
-      ; the configuration: what is left, up to the "|"
- 213  "|"
- 214  αPOS 44
- 215  αLEFT 44
- 216  STO 47
+ 219  LBL :DETREC:    (09)
+ 220  RCL 35
+ 221  STO 48
+ 222  XEQ :FIELD:    (16)
+ 223  RCL 35
+ 224  STO 45
+ 225  XEQ :FIELD:    (16)
+ 226  RCL 35
+ 227  STO 46
+      ; the configuration: what is left of the record
+ 228  RCL 44
+ 229  STO 47
       ; the symbol: 2 characters at 3 x ((Z-1) mod 65) of piece (Z-1) div 65
- 217  RCL 30
- 218  1
- 219  -
- 220  STO 28
- 221  65
- 222  ÷
- 223  IP
- 224  STO 43
- 225  XEQ IND 43
- 226  STO 29
- 227  RCL 28
- 228  65
- 229  MOD
- 230  3
- 231  ×
- 232  αSL 29
- 233  2
- 234  αLEFT 29
+ 230  RCL 30
+ 231  1
+ 232  -
+ 233  STO 28
+ 234  65
+ 235  ÷
+ 236  IP
+ 237  STO 43
+ 238  XEQ IND 43
+ 239  STO 29
+ 240  RCL 28
+ 241  65
+ 242  MOD
+ 243  3
+ 244  ×
+ 245  αSL 29
+ 246  2
+ 247  αLEFT 29
       ; αLEFT gives the text in X (the register stays as it was): store it back
- 235  STO 29
+ 248  STO 29
       ; the right values in R48: mass (kept when the record was read), boiling point (+ " K" unless "-")
- 236  "↵"
- 237  x→α 48
- 238  RCL 46
- 239  x→α 48
- 240  "-"
- 241  αPOS 46
- 242  X<0?
- 243  XEQ :KELVIN:    (43)
+ 249  "↵"
+ 250  x→α 48
+ 251  RCL 46
+ 252  x→α 48
+ 253  "-"
+ 254  αPOS 46
+ 255  X<0?
+ 256  IF    (05)
+ 257    " K"
+ 258    x→α 48
+ 259  ENDIF    (05)
       ; the left values in R38: symbol, state (the letter in R45 -> a word of LBL :STATES:), group, config
- 244  RCL 29
- 245  STO 38
- 246  "↵"
- 247  x→α 38
- 248  XEQ :STATES:    (44)
- 249  RCL 45
- 250  αPOS 51
- 251  STO 24
- 252  XEQ :FIELDK:    (36)
- 253  RCL 35
- 254  x→α 38
- 255  "↵"
- 256  x→α 38
-      ; group: the number (columns 1-18; none for rows 8-9), then the name of the group
- 257  RCL 31
- 258  7
- 259  X<Y?
- 260  GTO :GRPNAM:    (17)
- 261  RCL 32
- 262  αIP 38
- 263  "  "
- 264  x→α 38
- 265  LBL :GRPNAM:    (17)
- 266  XEQ :GROUP:    (45)
- 267  XEQ :GRPNAME:    (50)
- 268  XEQ :FIELDK:    (36)
+ 260  RCL 29
+ 261  STO 38
+ 262  "↵"
+ 263  x→α 38
+ 264  XEQ :STATES:    (21)
+ 265  RCL 45
+ 266  αPOS 51
+ 267  STO 24
+ 268  XEQ :FIELDK:    (17)
  269  RCL 35
  270  x→α 38
  271  "↵"
  272  x→α 38
- 273  RCL 47
- 274  x→α 38
+      ; group: the number (columns 1-18; none for rows 8-9), then the name of the group
+ 273  RCL 31
+ 274  7
+ 275  X≥Y?
+ 276  IF    (06)
+ 277    RCL 32
+ 278    αIP 38
+ 279    "  "
+ 280    x→α 38
+ 281  ENDIF    (06)
+ 282  XEQ :GROUP:    (22)
+ 283  XEQ :GRPNAME:    (23)
+ 284  XEQ :FIELDK:    (17)
+ 285  RCL 35
+ 286  x→α 38
+ 287  "↵"
+ 288  x→α 38
+ 289  RCL 47
+ 290  x→α 38
       ; then the box: cleared, the frame, the header, the labels and the two value texts
- 275  XEQ :BOXCLR:    (42)
+ 291  XEQ :BOXCLR:    (20)
       ; the frame (GRMOD 0): the sides (two halves of 60 rows), the bottom line; the top line comes
       ; with the header bar
- 276  0
- 277  GRMOD
- 278  111111111111111111111111111111111111111111111111111111111111#2
- 279  STO 20
- 280  60
- 281  50
- 282  AGRAPH 20
- 283  120
- 284  50
- 285  AGRAPH 20
- 286  60
- 287  349
- 288  AGRAPH 20
- 289  120
- 290  349
- 291  AGRAPH 20
- 292  1#2
- 293  STO 20
- 294  60
- 295  51
- 296  XEQ :HLINE:    (40)
+ 292  0
+ 293  GRMOD
+ 294  111111111111111111111111111111111111111111111111111111111111#2
+ 295  STO 20
+ 296  60
+ 297  50
+ 298  AGRAPH 20
+ 299  120
+ 300  50
+ 301  AGRAPH 20
+ 302  60
+ 303  349
+ 304  AGRAPH 20
+ 305  120
+ 306  349
+ 307  AGRAPH 20
+ 308  1#2
+ 309  STO 20
+ 310  60
+ 311  51
+ 312  XEQ :HLINE:    (19)
       ; header: Z (in R55), name, and the key hint in the tinyFont
- 297  " "
- 298  STO 55
- 299  RCL 30
- 300  αIP 55
- 301  RCL 55
- 302  158
- 303  51
- 304  ATEXT Z
- 305  RCL 37
- 306  158
- 307  90
- 308  ATEXT Z
- 309  10
- 310  GRFNT
- 311  "5: BACK"
- 312  162
- 313  304
- 314  ATEXT Z
- 315  21
- 316  GRFNT
+ 313  " "
+ 314  STO 55
+ 315  RCL 30
+ 316  αIP 55
+ 317  RCL 55
+ 318  158
+ 319  51
+ 320  ATEXT Z
+ 321  RCL 37
+ 322  158
+ 323  90
+ 324  ATEXT Z
+ 325  10
+ 326  GRFNT
+ 327  "5: BACK"
+ 328  162
+ 329  304
+ 330  ATEXT Z
+ 331  21
+ 332  GRFNT
       ; two columns of labels and values, each one ATEXT with the lines joined by CR:
       ; Symbol Fe          Mass 55.845
       ; State  Solid       Boil 3134 K
       ; Group  8  Transition metals
       ; Config [Ar] 3d6 4s2
- 317  "Symbol↵State↵Group↵Config"
- 318  134
- 319  58
- 320  ATEXT Z
- 321  "Mass↵Boil"
- 322  134
- 323  226
- 324  ATEXT Z
+ 333  "Symbol↵State↵Group↵Config"
+ 334  134
+ 335  58
+ 336  ATEXT Z
+ 337  "Mass↵Boil"
+ 338  134
+ 339  226
+ 340  ATEXT Z
       ; the right values (R48), the left values (R38)
- 325  RCL 48
- 326  134
- 327  272
- 328  ATEXT Z
- 329  RCL 38
- 330  134
- 331  130
- 332  ATEXT Z
+ 341  RCL 48
+ 342  134
+ 343  272
+ 344  ATEXT Z
+ 345  RCL 38
+ 346  134
+ 347  130
+ 348  ATEXT Z
       ; header bar and top line: XOR (GRMOD 3) rows 158-179 over the inside, white text on black
- 333  3
- 334  GRMOD
- 335  1111111111111111111111#2
- 336  STO 20
- 337  158
- 338  51
- 339  XEQ :HLINE:    (40)
- 340  0
- 341  GRMOD
- 342  RTN
+ 349  3
+ 350  GRMOD
+ 351  1111111111111111111111#2
+ 352  STO 20
+ 353  158
+ 354  51
+ 355  XEQ :HLINE:    (19)
+ 356  0
+ 357  GRMOD
+ 358  RTN
       ; ---- LBL :CELLS: every cell, the matrix PT filled on the way. The segments in the code (no XEQ to the
       ; end of the program: each RTN of :SEGMENT: counts the steps from the start up to here) ----
- 343  LBL :CELLS:    (18)
- 344  11111111111111111111111111#2
- 345  STO 20
- 346  10000000000000000000000001#2
- 347  STO 21
- 348  1
- 349  STO 25
- 350  STO 49
- 351  -1
- 352  STO 50
+ 359  LBL :CELLS:    (10)
+ 360  11111111111111111111111111#2
+ 361  STO 20
+ 362  10000000000000000000000001#2
+ 363  STO 21
+ 364  1
+ 365  STO 25
+ 366  -1
+ 367  STO 50
+ 368  XEQ :SYMPCE:    (14)
       ; ==== SEGMENTS: written by tools/build_elem47.py from python/elements.py (count, row, first column, in
       ; the order of Z), do not edit up to the RTN ====
- 353  1
- 354  1
- 355  1
- 356  XEQ :SEGMENT:    (28)
- 357  1
- 358  1
- 359  18
- 360  XEQ :SEGMENT:    (28)
- 361  2
- 362  2
- 363  1
- 364  XEQ :SEGMENT:    (28)
- 365  6
- 366  2
- 367  13
- 368  XEQ :SEGMENT:    (28)
- 369  2
- 370  3
+ 369  1
+ 370  1
  371  1
- 372  XEQ :SEGMENT:    (28)
- 373  6
- 374  3
- 375  13
- 376  XEQ :SEGMENT:    (28)
- 377  18
- 378  4
+ 372  XEQ :SEGMENT:    (13)
+ 373  1
+ 374  1
+ 375  18
+ 376  XEQ :SEGMENT:    (13)
+ 377  2
+ 378  2
  379  1
- 380  XEQ :SEGMENT:    (28)
- 381  18
- 382  5
- 383  1
- 384  XEQ :SEGMENT:    (28)
+ 380  XEQ :SEGMENT:    (13)
+ 381  6
+ 382  2
+ 383  13
+ 384  XEQ :SEGMENT:    (13)
  385  2
- 386  6
+ 386  3
  387  1
- 388  XEQ :SEGMENT:    (28)
- 389  15
- 390  8
- 391  3
- 392  XEQ :SEGMENT:    (28)
- 393  15
- 394  6
- 395  4
- 396  XEQ :SEGMENT:    (28)
- 397  2
- 398  7
+ 388  XEQ :SEGMENT:    (13)
+ 389  6
+ 390  3
+ 391  13
+ 392  XEQ :SEGMENT:    (13)
+ 393  18
+ 394  4
+ 395  1
+ 396  XEQ :SEGMENT:    (13)
+ 397  18
+ 398  5
  399  1
- 400  XEQ :SEGMENT:    (28)
- 401  15
- 402  9
- 403  3
- 404  XEQ :SEGMENT:    (28)
+ 400  XEQ :SEGMENT:    (13)
+ 401  2
+ 402  6
+ 403  1
+ 404  XEQ :SEGMENT:    (13)
  405  15
- 406  7
- 407  4
- 408  XEQ :SEGMENT:    (28)
- 409  RTN
-      ; ---- the start: the matrix PT, the patterns, the cursor on H ----
- 410  LBL :INIT:    (19)
- 411  WSIZE 64
- 412  9
- 413  18
- 414  NEWMAT
- 415  STO "PT"
- 416  INDEX "PT"
+ 406  8
+ 407  3
+ 408  XEQ :SEGMENT:    (13)
+ 409  15
+ 410  6
+ 411  4
+ 412  XEQ :SEGMENT:    (13)
+ 413  2
+ 414  7
+ 415  1
+ 416  XEQ :SEGMENT:    (13)
+ 417  15
+ 418  9
+ 419  3
+ 420  XEQ :SEGMENT:    (13)
+ 421  15
+ 422  7
+ 423  4
+ 424  XEQ :SEGMENT:    (13)
+ 425  RTN
+      ; ---- LBL :INIT: the start: the matrix PT, the patterns, the cursor on H, the table ----
+ 426  LBL :INIT:    (11)
+ 427  WSIZE 64
+ 428  9
+ 429  18
+ 430  NEWMAT
+ 431  STO "PT"
+ 432  INDEX "PT"
       ; cursor pattern: 24 rows (the inside of a cell); the state letters
- 417  111111111111111111111111#2
- 418  STO 23
- 419  "SLG-"
- 420  STO 51
- 421  0
- 422  STO 36
- 423  1
- 424  STO 30
- 425  STO 31
- 426  STO 32
-      ; ---- the table ----
- 427  LBL :TABLE:    (20)
- 428  CLLCD
- 429  XEQ :CELLS:    (18)
- 430  XEQ :TITLE:    (27)
- 431  XEQ :CURSOR:    (03)
- 432  XEQ :PANEL:    (05)
-      ; ---- keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored ----
- 433  LBL :KEYS:    (21)
- 434  PAUSE 50
- 435  KEY? 33
- 436  GTO :KEYS:    (21)
- 437  RCL 33
- 438  53
- 439  X=Y?
- 440  GTO :UP:    (22)
- 441  DROP
- 442  73
- 443  X=Y?
- 444  GTO :DOWN:    (23)
- 445  DROP
- 446  62
- 447  X=Y?
- 448  GTO :LEFT:    (24)
- 449  DROP
- 450  64
- 451  X=Y?
- 452  GTO :RIGHT:    (25)
- 453  DROP
- 454  63
- 455  X=Y?
- 456  GTO :INFO:    (11)
- 457  DROP
- 458  82
- 459  X=Y?
- 460  GTO :QUIT:    (26)
- 461  GTO :KEYS:    (21)
- 462  LBL :UP:    (22)
- 463  1
- 464  CHS
- 465  STO 41
- 466  0
- 467  STO 42
- 468  GTO :MOVE:    (02)
- 469  LBL :DOWN:    (23)
- 470  1
- 471  STO 41
- 472  0
- 473  STO 42
- 474  GTO :MOVE:    (02)
- 475  LBL :LEFT:    (24)
- 476  0
- 477  STO 41
- 478  1
- 479  CHS
- 480  STO 42
- 481  GTO :MOVE:    (02)
- 482  LBL :RIGHT:    (25)
- 483  0
- 484  STO 41
- 485  1
- 486  STO 42
- 487  GTO :MOVE:    (02)
-      ; ---- 0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared ----
- 488  LBL :QUIT:    (26)
- 489  0
- 490  GRMOD
- 491  20
- 492  GRFNT
- 493  DELITM "PT"
- 494  CLLCD
- 495  CLREGS
- 496  CLSTK
- 497  RTN
+ 433  111111111111111111111111#2
+ 434  STO 23
+ 435  "SLG-"
+ 436  STO 51
+ 437  0
+ 438  STO 36
+ 439  1
+ 440  STO 30
+ 441  STO 31
+ 442  STO 32
+      ; the table
+ 443  CLLCD
+ 444  XEQ :CELLS:    (10)
+ 445  XEQ :TITLE:    (12)
+ 446  XEQ :CURSOR:    (02)
+ 447  XEQ :PANEL:    (04)
+ 448  RTN
       ; ---- LBL :TITLE: the title (row 1, columns 13-17) and the keys, drawn once ----
- 498  LBL :TITLE:    (27)
- 499  21
- 500  GRFNT
- 501  "ELEMENTS 47"
- 502  217
- 503  270
- 504  ATEXT Z
+ 449  LBL :TITLE:    (12)
+ 450  21
+ 451  GRFNT
+ 452  "ELEMENTS 47"
+ 453  217
+ 454  270
+ 455  ATEXT Z
       ; the keys in the tinyFont (6 columns each, so spaces line them up), one ATEXT per cross with CR:
       ; the digits (5 left of 4, 0 under 2), then the same places in words and arrows
- 505  10
- 506  GRFNT
- 507  "   8↵5 4 6↵   2↵   0"
- 508  200
- 509  152
- 510  ATEXT Z
- 511  "      ↑↵INFO ← →↵      ↓↵     END"
- 512  200
- 513  194
- 514  ATEXT Z
- 515  RTN
-      ; LBL :SEGMENT: a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
-      ; then 22 columns to the right for each cell
- 516  LBL :SEGMENT:    (28)
- 517  STO 27
- 518  R↓
- 519  STO 26
- 520  R↓
- 521  STO 28
- 522  LBL :SEGPOS:    (29)
- 523  XEQ :CELLPOS:    (33)
-      ; R54 the column of the number (4 to the left of the cell), 22 more for each cell
- 524  RCL 39
- 525  4
- 526  -
- 527  STO 54
+ 456  10
+ 457  GRFNT
+ 458  "   8↵5 4 6↵   2↵   0"
+ 459  200
+ 460  152
+ 461  ATEXT Z
+ 462  "      ↑↵INFO ← →↵      ↓↵     END"
+ 463  200
+ 464  194
+ 465  ATEXT Z
+ 466  RTN
+      ; LBL :SEGMENT: a segment. Z = count, Y = row, X = first column; R25 = its first Z, R34 its symbols. The
+      ; position once, then 22 columns to the right for each cell
+ 467  LBL :SEGMENT:    (13)
+ 468  STO 27
+ 469  R↓
+ 470  STO 26
+ 471  R↓
+ 472  STO 28
+ 473  XEQ :CELLPOS:    (15)
+      ; R54 the column of the number (4 to the left of the cell), R56 = R39 - 48 (the column of the symbol is R56
+      ; + the code of its digit), 22 more for each cell
+ 474  RCL 39
+ 475  4
+ 476  -
+ 477  STO 54
+ 478  44
+ 479  -
+ 480  STO 56
       ; PT: the first cell of the segment indexed once, then STOSEQ (STOEL, then J+) for each cell
- 528  RCL 26
- 529  RCL 27
- 530  STOIJ
- 531  LBL :SEGLOOP:    (30)
- 532  RCL 25
- 533  STOSEQ
-      ; the symbol: the next 3 characters of the symbols (a new piece every 65 elements, R49 counts):
-      ; the symbol, then a digit (the column of the symbol in the cell, so it is centred)
- 534  DSE 49
- 535  GTO :SYMBOL:    (31)
- 536  XEQ :SYMPCE:    (32)
- 537  LBL :SYMBOL:    (31)
-      ; the box: 22 columns (edge, 21 inner; GRMOD 0), unrolled. Its right edge is the left edge of the next
-      ; cell, or the last column of the segment (after the loop)
- 538  RCL 40
- 539  RCL 39
- 540  AGRAPH 20
- 541  AGRAPH 21
- 542  AGRAPH 21
- 543  AGRAPH 21
- 544  AGRAPH 21
- 545  AGRAPH 21
- 546  AGRAPH 21
- 547  AGRAPH 21
- 548  AGRAPH 21
- 549  AGRAPH 21
- 550  AGRAPH 21
- 551  AGRAPH 21
- 552  AGRAPH 21
- 553  AGRAPH 21
- 554  AGRAPH 21
- 555  AGRAPH 21
- 556  AGRAPH 21
- 557  AGRAPH 21
- 558  AGRAPH 21
- 559  AGRAPH 21
- 560  AGRAPH 21
- 561  AGRAPH 21
-      ; the number, tinyFont: a space first (no empty string), row R52, column R54
- 562  10
- 563  GRFNT
- 564  " "
- 565  STO 38
- 566  RCL 25
- 567  αIP 38
- 568  RCL 38
- 569  RCL 52
- 570  RCL 54
- 571  ATEXT Z
-      ; the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
- 572  21
- 573  GRFNT
- 574  2
- 575  αLEFT 34
- 576  2
- 577  αSL 34
- 578  DROP
- 579  RCL 53
- 580  α→𝑥 34
- 581  48
- 582  -
- 583  RCL 39
- 584  +
- 585  ATEXT Z
- 586  1
- 587  STO+ 25
- 588  22
- 589  STO+ 39
- 590  STO+ 54
- 591  DSE 28
- 592  GTO :SEGLOOP:    (30)
+ 481  RCL 26
+ 482  RCL 27
+ 483  STOIJ
+      ; the cells, R28 of them
+ 484  DO    (03)
+ 485    RCL 25
+ 486    STOSEQ
+        ; the symbol: the next 3 characters of the symbols (a new piece at Z 66; STOSEQ keeps the Z in X):
+        ; the symbol, then a digit (the column of the symbol in the cell, so it is centred)
+ 487    66
+ 488    X=Y?
+ 489    XEQ :SYMPCE:    (14)
+        ; the box: 22 columns (edge, 21 inner; GRMOD 0), unrolled. Its right edge is the left edge of the next
+        ; cell, or the last column of the segment (after the loop)
+ 490    RCL 40
+ 491    RCL 39
+ 492    AGRAPH 20
+ 493    AGRAPH 21
+ 494    AGRAPH 21
+ 495    AGRAPH 21
+ 496    AGRAPH 21
+ 497    AGRAPH 21
+ 498    AGRAPH 21
+ 499    AGRAPH 21
+ 500    AGRAPH 21
+ 501    AGRAPH 21
+ 502    AGRAPH 21
+ 503    AGRAPH 21
+ 504    AGRAPH 21
+ 505    AGRAPH 21
+ 506    AGRAPH 21
+ 507    AGRAPH 21
+ 508    AGRAPH 21
+ 509    AGRAPH 21
+ 510    AGRAPH 21
+ 511    AGRAPH 21
+ 512    AGRAPH 21
+ 513    AGRAPH 21
+        ; the number, tinyFont: a space first (no empty string), row R52, column R54
+ 514    10
+ 515    GRFNT
+ 516    " "
+ 517    STO 38
+ 518    RCL 25
+ 519    αIP 38
+ 520    RCL 38
+ 521    RCL 52
+ 522    RCL 54
+ 523    ATEXT Z
+        ; the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
+ 524    21
+ 525    GRFNT
+ 526    2
+ 527    αLEFT 34
+ 528    2
+ 529    αSL 34
+ 530    DROP
+ 531    RCL 53
+ 532    α→𝑥 34
+ 533    RCL+ 56
+ 534    ATEXT Z
+ 535    1
+ 536    STO+ 25
+ 537    22
+ 538    STO+ 39
+ 539    STO+ 54
+ 540    STO+ 56
+ 541    DSE 28
+ 542  WHILE    (03)
+ 543  ENDDO    (03)
       ; the right edge of the last cell
- 593  RCL 40
- 594  RCL 39
- 595  AGRAPH 20
- 596  RTN
+ 544  RCL 40
+ 545  RCL 39
+ 546  AGRAPH 20
+ 547  RTN
       ; LBL :SYMPCE: the next piece of symbols (labels 00-01, R50 the label), 65 elements
- 597  LBL :SYMPCE:    (32)
- 598  1
- 599  STO+ 50
- 600  XEQ IND 50
- 601  STO 34
- 602  65
- 603  STO 49
- 604  RTN
+ 548  LBL :SYMPCE:    (14)
+ 549  1
+ 550  STO+ 50
+ 551  XEQ IND 50
+ 552  STO 34
+ 553  RTN
       ; ---- LBL :CELLPOS: the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
       ; lanthanides and actinides: 9 rows lower, a gap under the periods); R53 = R40 + 1 (the symbol, the cursor),
       ; R52 = R40 + 18 (the number) ----
- 605  LBL :CELLPOS:    (33)
- 606  RCL 27
- 607  22
- 608  ×
- 609  21
- 610  -
- 611  STO 39
- 612  238
- 613  RCL 26
- 614  25
- 615  ×
- 616  -
- 617  STO 40
- 618  RCL 26
- 619  7
- 620  X≥Y?
- 621  GTO :CPROWS:    (34)
- 622  9
- 623  STO- 40
- 624  LBL :CPROWS:    (34)
- 625  RCL 40
- 626  1
- 627  +
- 628  STO 53
- 629  17
- 630  +
- 631  STO 52
- 632  RTN
+ 554  LBL :CELLPOS:    (15)
+ 555  RCL 27
+ 556  22
+ 557  ×
+ 558  21
+ 559  -
+ 560  STO 39
+ 561  238
+ 562  RCL 26
+ 563  25
+ 564  ×
+ 565  -
+ 566  STO 40
+ 567  RCL 26
+ 568  7
+ 569  X<Y?
+ 570  IF    (07)
+ 571    9
+ 572    STO- 40
+ 573  ENDIF    (07)
+ 574  RCL 40
+ 575  1
+ 576  +
+ 577  STO 53
+ 578  17
+ 579  +
+ 580  STO 52
+ 581  RTN
       ; LBL :FIELD: the next field of R44 in R35 (the last field: all that is left)
- 633  LBL :FIELD:    (35)
- 634  RCL 44
- 635  STO 35
- 636  "/"
- 637  αPOS 44
- 638  X<0?
- 639  RTN
- 640  STO 24
- 641  αLEFT 35
+ 582  LBL :FIELD:    (16)
+ 583  RCL 44
+ 584  STO 35
+ 585  "/"
+ 586  αPOS 44
+ 587  X<0?
+ 588  RTN
+ 589  STO 24
+ 590  αLEFT 35
       ; αLEFT gives the text in X (the register stays as it was): store it back
- 642  STO 35
- 643  RCL 24
- 644  1
- 645  +
- 646  αSL 44
- 647  RTN
+ 591  STO 35
+ 592  RCL 24
+ 593  1
+ 594  +
+ 595  αSL 44
+ 596  RTN
       ; ---- LBL :FIELDK: field R24 (from 0) of the text "a/b/c" in R35, left in R35 ----
- 648  LBL :FIELDK:    (36)
- 649  RCL 24
- 650  X=0?
- 651  GTO :FCUT:    (37)
- 652  "/"
- 653  αPOS 35
- 654  1
- 655  +
- 656  αSL 35
- 657  1
- 658  STO- 24
- 659  GTO :FIELDK:    (36)
+ 597  LBL :FIELDK:    (17)
+ 598  DO    (04)
+ 599    RCL 24
+ 600    X≠0?
+ 601  WHILE    (04)
+ 602    "/"
+ 603    αPOS 35
+ 604    1
+ 605    +
+ 606    αSL 35
+ 607    1
+ 608    STO- 24
+ 609  ENDDO    (04)
       ; cut at the next "/" (none after the last field)
- 660  LBL :FCUT:    (37)
- 661  "/"
- 662  αPOS 35
- 663  X<0?
- 664  RTN
- 665  αLEFT 35
+ 610  "/"
+ 611  αPOS 35
+ 612  X<0?
+ 613  RTN
+ 614  αLEFT 35
       ; αLEFT gives the text in X (the register stays as it was): store it back
- 666  STO 35
- 667  RTN
+ 615  STO 35
+ 616  RTN
       ; ---- LBL :STEP: move the cursor by R41 rows, R42 columns, skipping empty cells ----
- 668  LBL :STEP:    (38)
- 669  RCL 31
- 670  STO 26
- 671  RCL 32
- 672  STO 27
- 673  LBL :STEPLP:    (39)
- 674  RCL 41
- 675  STO+ 26
- 676  RCL 42
- 677  STO+ 27
- 678  RCL 26
- 679  X=0?
- 680  RTN
- 681  9
- 682  X<Y?
- 683  RTN
- 684  RCL 27
- 685  X=0?
- 686  RTN
- 687  18
- 688  X<Y?
- 689  RTN
- 690  RCL 26
- 691  RCL 27
- 692  STOIJ
- 693  RCLEL
- 694  X=0?
- 695  GTO :STEPLP:    (39)
- 696  STO 30
- 697  RCL 26
- 698  STO 31
- 699  RCL 27
- 700  STO 32
- 701  RTN
+ 617  LBL :STEP:    (18)
+ 618  RCL 31
+ 619  STO 26
+ 620  RCL 32
+ 621  STO 27
+      ; on in the direction until a cell that is not empty (PT); outside the table: RTN, the cursor stays
+ 622  REPEAT    (01)
+ 623    RCL 41
+ 624    STO+ 26
+ 625    RCL 42
+ 626    STO+ 27
+ 627    RCL 26
+ 628    X=0?
+ 629    RTN
+ 630    9
+ 631    X<Y?
+ 632    RTN
+ 633    RCL 27
+ 634    X=0?
+ 635    RTN
+ 636    18
+ 637    X<Y?
+ 638    RTN
+ 639    RCL 26
+ 640    RCL 27
+ 641    STOIJ
+ 642    RCLEL
+ 643    X≠0?
+ 644  UNTIL    (01)
+ 645  STO 30
+ 646  RCL 26
+ 647  STO 31
+ 648  RCL 27
+ 649  STO 32
+ 650  RTN
       ; LBL :HLINE: 298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
-      ; 4, then 21 times 14 (unrolled: 340 steps instead of 894 for one AGRAPH per loop). R22 the count
- 702  LBL :HLINE:    (40)
- 703  AGRAPH 20
- 704  AGRAPH 20
- 705  AGRAPH 20
- 706  AGRAPH 20
- 707  21
- 708  STO 22
- 709  R↓
- 710  LBL :HLLOOP:    (41)
- 711  AGRAPH 20
- 712  AGRAPH 20
- 713  AGRAPH 20
- 714  AGRAPH 20
- 715  AGRAPH 20
- 716  AGRAPH 20
- 717  AGRAPH 20
- 718  AGRAPH 20
- 719  AGRAPH 20
- 720  AGRAPH 20
- 721  AGRAPH 20
- 722  AGRAPH 20
- 723  AGRAPH 20
- 724  AGRAPH 20
- 725  DSE 22
- 726  GTO :HLLOOP:    (41)
- 727  RTN
+      ; 2, then 8 times 37 (unrolled: 8 rounds of the loop, not 21 of 14). R22 the count
+ 651  LBL :HLINE:    (19)
+ 652  AGRAPH 20
+ 653  AGRAPH 20
+ 654  8
+ 655  STO 22
+ 656  R↓
+ 657  DO    (05)
+ 658    AGRAPH 20
+ 659    AGRAPH 20
+ 660    AGRAPH 20
+ 661    AGRAPH 20
+ 662    AGRAPH 20
+ 663    AGRAPH 20
+ 664    AGRAPH 20
+ 665    AGRAPH 20
+ 666    AGRAPH 20
+ 667    AGRAPH 20
+ 668    AGRAPH 20
+ 669    AGRAPH 20
+ 670    AGRAPH 20
+ 671    AGRAPH 20
+ 672    AGRAPH 20
+ 673    AGRAPH 20
+ 674    AGRAPH 20
+ 675    AGRAPH 20
+ 676    AGRAPH 20
+ 677    AGRAPH 20
+ 678    AGRAPH 20
+ 679    AGRAPH 20
+ 680    AGRAPH 20
+ 681    AGRAPH 20
+ 682    AGRAPH 20
+ 683    AGRAPH 20
+ 684    AGRAPH 20
+ 685    AGRAPH 20
+ 686    AGRAPH 20
+ 687    AGRAPH 20
+ 688    AGRAPH 20
+ 689    AGRAPH 20
+ 690    AGRAPH 20
+ 691    AGRAPH 20
+ 692    AGRAPH 20
+ 693    AGRAPH 20
+ 694    AGRAPH 20
+ 695    DSE 22
+ 696  WHILE    (05)
+ 697  ENDDO    (05)
+ 698  RTN
       ; ---- LBL :BOXCLR: the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
       ; x 20 rows each): 42 spaces from x 50 and one more column of spaces at x 343. Leaves GRMOD 1, GRFNT 21 ----
- 728  LBL :BOXCLR:    (42)
- 729  1
- 730  GRMOD
- 731  21
- 732  GRFNT
- 733  "                                          ↵"
- 734  STO 55
- 735  x→α 55
- 736  x→α 55
- 737  x→α 55
- 738  x→α 55
- 739  x→α 55
- 740  RCL 55
- 741  160
- 742  50
- 743  ATEXT Z
- 744  " ↵ ↵ ↵ ↵ ↵ "
- 745  160
- 746  343
- 747  ATEXT Z
- 748  RTN
-      ; " K" after a boiling point
- 749  LBL :KELVIN:    (43)
- 750  " K"
- 751  x→α 48
- 752  RTN
+ 699  LBL :BOXCLR:    (20)
+ 700  1
+ 701  GRMOD
+ 702  21
+ 703  GRFNT
+ 704  "                                          ↵"
+ 705  STO 55
+ 706  x→α 55
+ 707  x→α 55
+ 708  x→α 55
+ 709  x→α 55
+ 710  x→α 55
+ 711  RCL 55
+ 712  160
+ 713  50
+ 714  ATEXT Z
+ 715  " ↵ ↵ ↵ ↵ ↵ "
+ 716  160
+ 717  343
+ 718  ATEXT Z
+ 719  RTN
       ; the names of the states, in the order of R51 "SLG-"
- 753  LBL :STATES:    (44)
- 754  "Solid/Liquid/Gas/-"
- 755  STO 35
- 756  RTN
+ 720  LBL :STATES:    (21)
+ 721  "Solid/Liquid/Gas/-"
+ 722  STO 35
+ 723  RTN
       ; LBL :GROUP: the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
       ; 4-9 columns 13-18, 10-11 rows 8-9
- 757  LBL :GROUP:    (45)
- 758  RCL 31
- 759  STO 24
- 760  7
- 761  X<Y?
- 762  GTO :GRPF:    (49)
- 763  RCL 32
- 764  STO 24
- 765  RCL 30
- 766  1
- 767  X=Y?
- 768  GTO :GRP0:    (48)
- 769  RCL 32
- 770  2
- 771  X<Y?
- 772  GTO :GRPD:    (46)
- 773  RTN
- 774  LBL :GRPD:    (46)
- 775  3
- 776  STO 24
- 777  RCL 32
- 778  12
- 779  X<Y?
- 780  GTO :GRPP:    (47)
- 781  RTN
- 782  LBL :GRPP:    (47)
- 783  RCL 32
- 784  9
- 785  -
- 786  STO 24
- 787  RTN
- 788  LBL :GRP0:    (48)
- 789  0
- 790  STO 24
- 791  RTN
- 792  LBL :GRPF:    (49)
- 793  2
- 794  STO+ 24
- 795  RTN
+ 724  LBL :GROUP:    (22)
+ 725  RCL 31
+ 726  STO 24
+ 727  7
+ 728  X<Y?
+ 729  IF    (08)
+        ; rows 8-9: 10, 11
+ 730    2
+ 731    STO+ 24
+ 732  ELSE    (08)
+ 733    RCL 32
+ 734    STO 24
+ 735    RCL 30
+ 736    1
+ 737    X=Y?
+ 738    IF    (09)
+          ; H: 0
+ 739      0
+ 740      STO 24
+ 741    ELSE    (09)
+ 742      RCL 32
+ 743      2
+ 744      X<Y?
+ 745      IF    (10)
+            ; columns 3-12: 3; columns 13-18: 4-9
+ 746        3
+ 747        STO 24
+ 748        RCL 32
+ 749        12
+ 750        X<Y?
+ 751        IF    (11)
+ 752          RCL 32
+ 753          9
+ 754          -
+ 755          STO 24
+ 756        ENDIF    (11)
+ 757      ENDIF    (10)
+ 758    ENDIF    (09)
+ 759  ENDIF    (08)
+ 760  RTN
       ; LBL :GRPNAME: the names of the groups in R35, "/" between them (texts of 64 characters at most)
- 796  LBL :GRPNAME:    (50)
- 797  "Nonmetal/Alkali metals/Alkaline earth metals/"
- 798  STO 35
- 799  "Transition metals/Boron group/Carbon group/Pnictogens/"
- 800  x→α 35
- 801  "Chalcogens/Halogens/Noble gases/Lanthanides/Actinides"
- 802  x→α 35
- 803  RTN
+ 761  LBL :GRPNAME:    (23)
+ 762  "Nonmetal/Alkali metals/Alkaline earth metals/"
+ 763  STO 35
+ 764  "Transition metals/Boron group/Carbon group/Pnictogens/"
+ 765  x→α 35
+ 766  "Chalcogens/Halogens/Noble gases/Lanthanides/Actinides"
+ 767  x→α 35
+ 768  RTN
       ; ==== DATA: written by tools/build_elem47.py from python/elements.py, do not edit below ====
       ; the symbols: 65 elements per label
- 804  LBL 00
- 805  "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
- 806  RTN
- 807  LBL 01
- 808  "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
- 809  RTN
- 810  END
-      ; ==== ELD1: the records of Z 1-60 (4 per label): LBL 0 + (Z-1) div 4, then (Z-1) mod 4 records, "|" after each one; R43 the label ====
- 811  LBL "ELD1"
- 812  XEQ IND 43
- 813  RTN
- 814  LBL 00
- 815  "Hydrogen/1.0080/G/20.3/1s1|Helium/4.0026/G/4.2/1s2|Lithium/6.94/S/1615/[He] 2s1|Beryllium/9.0122/S/2744/[He] 2s2|"
- 816  RTN
- 817  LBL 01
- 818  "Boron/10.81/S/4273/[He] 2s2 2p1|Carbon/12.011/S/4098/[He] 2s2 2p2|Nitrogen/14.007/G/77.4/[He] 2s2 2p3|Oxygen/15.999/G/90.2/[He] 2s2 2p4|"
- 819  RTN
- 820  LBL 02
- 821  "Fluorine/18.998/G/85.0/[He] 2s2 2p5|Neon/20.180/G/27.1/[He] 2s2 2p6|Sodium/22.990/S/1156/[Ne] 3s1|Magnesium/24.305/S/1363/[Ne] 3s2|"
- 822  RTN
- 823  LBL 03
- 824  "Aluminium/26.982/S/2792/[Ne] 3s2 3p1|Silicon/28.085/S/3538/[Ne] 3s2 3p2|Phosphorus/30.974/S/554/[Ne] 3s2 3p3|Sulfur/32.06/S/718/[Ne] 3s2 3p4|"
- 825  RTN
- 826  LBL 04
- 827  "Chlorine/35.45/G/239/[Ne] 3s2 3p5|Argon/39.95/G/87.3/[Ne] 3s2 3p6|Potassium/39.098/S/1032/[Ar] 4s1|Calcium/40.078/S/1757/[Ar] 4s2|"
- 828  RTN
- 829  LBL 05
- 830  "Scandium/44.956/S/3109/[Ar] 3d1 4s2|Titanium/47.867/S/3560/[Ar] 3d2 4s2|Vanadium/50.942/S/3680/[Ar] 3d3 4s2|Chromium/51.996/S/2944/[Ar] 3d5 4s1|"
- 831  RTN
- 832  LBL 06
- 833  "Manganese/54.938/S/2334/[Ar] 3d5 4s2|Iron/55.845/S/3134/[Ar] 3d6 4s2|Cobalt/58.933/S/3200/[Ar] 3d7 4s2|Nickel/58.693/S/3186/[Ar] 3d8 4s2|"
- 834  RTN
- 835  LBL 07
- 836  "Copper/63.546/S/2835/[Ar] 3d10 4s1|Zinc/65.38/S/1180/[Ar] 3d10 4s2|Gallium/69.723/S/2477/[Ar] 3d10 4s2 4p1|Germanium/72.630/S/3106/[Ar] 3d10 4s2 4p2|"
- 837  RTN
- 838  LBL 08
- 839  "Arsenic/74.922/S/887/[Ar] 3d10 4s2 4p3|Selenium/78.971/S/958/[Ar] 3d10 4s2 4p4|Bromine/79.904/L/332/[Ar] 3d10 4s2 4p5|Krypton/83.798/G/120/[Ar] 3d10 4s2 4p6|"
- 840  RTN
- 841  LBL 09
- 842  "Rubidium/85.468/S/961/[Kr] 5s1|Strontium/87.62/S/1655/[Kr] 5s2|Yttrium/88.906/S/3618/[Kr] 4d1 5s2|Zirconium/91.222/S/4682/[Kr] 4d2 5s2|"
- 843  RTN
- 844  LBL 10
- 845  "Niobium/92.906/S/5017/[Kr] 4d4 5s1|Molybdenum/95.95/S/4912/[Kr] 4d5 5s1|Technetium/-/S/4538/[Kr] 4d5 5s2|Ruthenium/101.07/S/4423/[Kr] 4d7 5s1|"
- 846  RTN
- 847  LBL 11
- 848  "Rhodium/102.91/S/3968/[Kr] 4d8 5s1|Palladium/106.42/S/3236/[Kr] 4d10|Silver/107.87/S/2435/[Kr] 4d10 5s1|Cadmium/112.41/S/1040/[Kr] 4d10 5s2|"
- 849  RTN
- 850  LBL 12
- 851  "Indium/114.82/S/2345/[Kr] 4d10 5s2 5p1|Tin/118.71/S/2875/[Kr] 4d10 5s2 5p2|Antimony/121.76/S/1860/[Kr] 4d10 5s2 5p3|Tellurium/127.60/S/1261/[Kr] 4d10 5s2 5p4|"
- 852  RTN
- 853  LBL 13
- 854  "Iodine/126.90/S/458/[Kr] 4d10 5s2 5p5|Xenon/131.29/G/165/[Kr] 4d10 5s2 5p6|Caesium/132.91/S/944/[Xe] 6s1|Barium/137.33/S/2170/[Xe] 6s2|"
- 855  RTN
- 856  LBL 14
- 857  "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2|Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2|Praseodymium/140.91/S/3793/[Xe] 4f3 6s2|Neodymium/144.24/S/3347/[Xe] 4f4 6s2|"
- 858  RTN
- 859  END
-      ; ==== ELD2: the records of Z 61-118 (4 per label): LBL 0 + (Z-1) div 4, then (Z-1) mod 4 records, "|" after each one; R43 the label ====
- 860  LBL "ELD2"
- 861  XEQ IND 43
+ 769  LBL 00
+ 770  "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
+ 771  RTN
+ 772  LBL 01
+ 773  "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
+ 774  RTN
+ 775  END
+      ; ==== ELD1: the records of Z 1-60, one per label: LBL Z - 0; R43 the label ====
+ 776  LBL "ELD1"
+ 777  XEQ IND 43
+ 778  RTN
+ 779  LBL 01
+ 780  "Hydrogen/1.0080/G/20.3/1s1"
+ 781  RTN
+ 782  LBL 02
+ 783  "Helium/4.0026/G/4.2/1s2"
+ 784  RTN
+ 785  LBL 03
+ 786  "Lithium/6.94/S/1615/[He] 2s1"
+ 787  RTN
+ 788  LBL 04
+ 789  "Beryllium/9.0122/S/2744/[He] 2s2"
+ 790  RTN
+ 791  LBL 05
+ 792  "Boron/10.81/S/4273/[He] 2s2 2p1"
+ 793  RTN
+ 794  LBL 06
+ 795  "Carbon/12.011/S/4098/[He] 2s2 2p2"
+ 796  RTN
+ 797  LBL 07
+ 798  "Nitrogen/14.007/G/77.4/[He] 2s2 2p3"
+ 799  RTN
+ 800  LBL 08
+ 801  "Oxygen/15.999/G/90.2/[He] 2s2 2p4"
+ 802  RTN
+ 803  LBL 09
+ 804  "Fluorine/18.998/G/85.0/[He] 2s2 2p5"
+ 805  RTN
+ 806  LBL 10
+ 807  "Neon/20.180/G/27.1/[He] 2s2 2p6"
+ 808  RTN
+ 809  LBL 11
+ 810  "Sodium/22.990/S/1156/[Ne] 3s1"
+ 811  RTN
+ 812  LBL 12
+ 813  "Magnesium/24.305/S/1363/[Ne] 3s2"
+ 814  RTN
+ 815  LBL 13
+ 816  "Aluminium/26.982/S/2792/[Ne] 3s2 3p1"
+ 817  RTN
+ 818  LBL 14
+ 819  "Silicon/28.085/S/3538/[Ne] 3s2 3p2"
+ 820  RTN
+ 821  LBL 15
+ 822  "Phosphorus/30.974/S/554/[Ne] 3s2 3p3"
+ 823  RTN
+ 824  LBL 16
+ 825  "Sulfur/32.06/S/718/[Ne] 3s2 3p4"
+ 826  RTN
+ 827  LBL 17
+ 828  "Chlorine/35.45/G/239/[Ne] 3s2 3p5"
+ 829  RTN
+ 830  LBL 18
+ 831  "Argon/39.95/G/87.3/[Ne] 3s2 3p6"
+ 832  RTN
+ 833  LBL 19
+ 834  "Potassium/39.098/S/1032/[Ar] 4s1"
+ 835  RTN
+ 836  LBL 20
+ 837  "Calcium/40.078/S/1757/[Ar] 4s2"
+ 838  RTN
+ 839  LBL 21
+ 840  "Scandium/44.956/S/3109/[Ar] 3d1 4s2"
+ 841  RTN
+ 842  LBL 22
+ 843  "Titanium/47.867/S/3560/[Ar] 3d2 4s2"
+ 844  RTN
+ 845  LBL 23
+ 846  "Vanadium/50.942/S/3680/[Ar] 3d3 4s2"
+ 847  RTN
+ 848  LBL 24
+ 849  "Chromium/51.996/S/2944/[Ar] 3d5 4s1"
+ 850  RTN
+ 851  LBL 25
+ 852  "Manganese/54.938/S/2334/[Ar] 3d5 4s2"
+ 853  RTN
+ 854  LBL 26
+ 855  "Iron/55.845/S/3134/[Ar] 3d6 4s2"
+ 856  RTN
+ 857  LBL 27
+ 858  "Cobalt/58.933/S/3200/[Ar] 3d7 4s2"
+ 859  RTN
+ 860  LBL 28
+ 861  "Nickel/58.693/S/3186/[Ar] 3d8 4s2"
  862  RTN
- 863  LBL 15
- 864  "Promethium/-/S/3273/[Xe] 4f5 6s2|Samarium/150.36/S/2067/[Xe] 4f6 6s2|Europium/151.96/S/1802/[Xe] 4f7 6s2|Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2|"
+ 863  LBL 29
+ 864  "Copper/63.546/S/2835/[Ar] 3d10 4s1"
  865  RTN
- 866  LBL 16
- 867  "Terbium/158.93/S/3503/[Xe] 4f9 6s2|Dysprosium/162.50/S/2840/[Xe] 4f10 6s2|Holmium/164.93/S/2973/[Xe] 4f11 6s2|Erbium/167.26/S/3141/[Xe] 4f12 6s2|"
+ 866  LBL 30
+ 867  "Zinc/65.38/S/1180/[Ar] 3d10 4s2"
  868  RTN
- 869  LBL 17
- 870  "Thulium/168.93/S/2223/[Xe] 4f13 6s2|Ytterbium/173.05/S/1469/[Xe] 4f14 6s2|Lutetium/174.97/S/3675/[Xe] 4f14 5d1 6s2|Hafnium/178.49/S/4876/[Xe] 4f14 5d2 6s2|"
+ 869  LBL 31
+ 870  "Gallium/69.723/S/2477/[Ar] 3d10 4s2 4p1"
  871  RTN
- 872  LBL 18
- 873  "Tantalum/180.95/S/5731/[Xe] 4f14 5d3 6s2|Tungsten/183.84/S/5828/[Xe] 4f14 5d4 6s2|Rhenium/186.21/S/5869/[Xe] 4f14 5d5 6s2|Osmium/190.23/S/5285/[Xe] 4f14 5d6 6s2|"
+ 872  LBL 32
+ 873  "Germanium/72.630/S/3106/[Ar] 3d10 4s2 4p2"
  874  RTN
- 875  LBL 19
- 876  "Iridium/192.22/S/4701/[Xe] 4f14 5d7 6s2|Platinum/195.08/S/4098/[Xe] 4f14 5d9 6s1|Gold/196.97/S/3129/[Xe] 4f14 5d10 6s1|Mercury/200.59/L/630/[Xe] 4f14 5d10 6s2|"
+ 875  LBL 33
+ 876  "Arsenic/74.922/S/887/[Ar] 3d10 4s2 4p3"
  877  RTN
- 878  LBL 20
- 879  "Thallium/204.38/S/1746/[Xe] 4f14 5d10 6s2 6p1|Lead/207.2/S/2022/[Xe] 4f14 5d10 6s2 6p2|Bismuth/208.98/S/1837/[Xe] 4f14 5d10 6s2 6p3|Polonium/-/S/1235/[Xe] 4f14 5d10 6s2 6p4|"
+ 878  LBL 34
+ 879  "Selenium/78.971/S/958/[Ar] 3d10 4s2 4p4"
  880  RTN
- 881  LBL 21
- 882  "Astatine/-/S/-/[Xe] 4f14 5d10 6s2 6p5|Radon/-/G/211/[Xe] 4f14 5d10 6s2 6p6|Francium/-/S/-/[Rn] 7s1|Radium/-/S/1413/[Rn] 7s2|"
+ 881  LBL 35
+ 882  "Bromine/79.904/L/332/[Ar] 3d10 4s2 4p5"
  883  RTN
- 884  LBL 22
- 885  "Actinium/-/S/3471/[Rn] 6d1 7s2|Thorium/232.04/S/5061/[Rn] 6d2 7s2|Protactinium/231.04/S/-/[Rn] 5f2 6d1 7s2|Uranium/238.03/S/4404/[Rn] 5f3 6d1 7s2|"
+ 884  LBL 36
+ 885  "Krypton/83.798/G/120/[Ar] 3d10 4s2 4p6"
  886  RTN
- 887  LBL 23
- 888  "Neptunium/-/S/4175/[Rn] 5f4 6d1 7s2|Plutonium/-/S/3501/[Rn] 5f6 7s2|Americium/-/S/2284/[Rn] 5f7 7s2|Curium/-/S/3400/[Rn] 5f7 6d1 7s2|"
+ 887  LBL 37
+ 888  "Rubidium/85.468/S/961/[Kr] 5s1"
  889  RTN
- 890  LBL 24
- 891  "Berkelium/-/S/-/[Rn] 5f9 7s2|Californium/-/S/-/[Rn] 5f10 7s2|Einsteinium/-/S/-/[Rn] 5f11 7s2|Fermium/-/S/-/[Rn] 5f12 7s2|"
+ 890  LBL 38
+ 891  "Strontium/87.62/S/1655/[Kr] 5s2"
  892  RTN
- 893  LBL 25
- 894  "Mendelevium/-/S/-/[Rn] 5f13 7s2|Nobelium/-/S/-/[Rn] 5f14 7s2|Lawrencium/-/S/-/[Rn] 5f14 6d1 7s2|Rutherfordium/-/S/-/[Rn] 5f14 6d2 7s2|"
+ 893  LBL 39
+ 894  "Yttrium/88.906/S/3618/[Kr] 4d1 5s2"
  895  RTN
- 896  LBL 26
- 897  "Dubnium/-/S/-/[Rn] 5f14 6d3 7s2|Seaborgium/-/S/-/[Rn] 5f14 6d4 7s2|Bohrium/-/S/-/[Rn] 5f14 6d5 7s2|Hassium/-/S/-/[Rn] 5f14 6d6 7s2|"
+ 896  LBL 40
+ 897  "Zirconium/91.222/S/4682/[Kr] 4d2 5s2"
  898  RTN
- 899  LBL 27
- 900  "Meitnerium/-/S/-/[Rn] 5f14 6d7 7s2|Darmstadtium/-/-/-/[Rn] 5f14 6d8 7s2|Roentgenium/-/-/-/[Rn] 5f14 6d9 7s2|Copernicium/-/-/-/[Rn] 5f14 6d10 7s2|"
+ 899  LBL 41
+ 900  "Niobium/92.906/S/5017/[Kr] 4d4 5s1"
  901  RTN
- 902  LBL 28
- 903  "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1|Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7p2|Moscovium/-/-/-/[Rn] 5f14 6d10 7s2 7p3|Livermorium/-/-/-/[Rn] 5f14 6d10 7s2 7p4|"
+ 902  LBL 42
+ 903  "Molybdenum/95.95/S/4912/[Kr] 4d5 5s1"
  904  RTN
- 905  LBL 29
- 906  "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5|Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6|"
+ 905  LBL 43
+ 906  "Technetium/-/S/4538/[Kr] 4d5 5s2"
  907  RTN
- 908  END
+ 908  LBL 44
+ 909  "Ruthenium/101.07/S/4423/[Kr] 4d7 5s1"
+ 910  RTN
+ 911  LBL 45
+ 912  "Rhodium/102.91/S/3968/[Kr] 4d8 5s1"
+ 913  RTN
+ 914  LBL 46
+ 915  "Palladium/106.42/S/3236/[Kr] 4d10"
+ 916  RTN
+ 917  LBL 47
+ 918  "Silver/107.87/S/2435/[Kr] 4d10 5s1"
+ 919  RTN
+ 920  LBL 48
+ 921  "Cadmium/112.41/S/1040/[Kr] 4d10 5s2"
+ 922  RTN
+ 923  LBL 49
+ 924  "Indium/114.82/S/2345/[Kr] 4d10 5s2 5p1"
+ 925  RTN
+ 926  LBL 50
+ 927  "Tin/118.71/S/2875/[Kr] 4d10 5s2 5p2"
+ 928  RTN
+ 929  LBL 51
+ 930  "Antimony/121.76/S/1860/[Kr] 4d10 5s2 5p3"
+ 931  RTN
+ 932  LBL 52
+ 933  "Tellurium/127.60/S/1261/[Kr] 4d10 5s2 5p4"
+ 934  RTN
+ 935  LBL 53
+ 936  "Iodine/126.90/S/458/[Kr] 4d10 5s2 5p5"
+ 937  RTN
+ 938  LBL 54
+ 939  "Xenon/131.29/G/165/[Kr] 4d10 5s2 5p6"
+ 940  RTN
+ 941  LBL 55
+ 942  "Caesium/132.91/S/944/[Xe] 6s1"
+ 943  RTN
+ 944  LBL 56
+ 945  "Barium/137.33/S/2170/[Xe] 6s2"
+ 946  RTN
+ 947  LBL 57
+ 948  "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2"
+ 949  RTN
+ 950  LBL 58
+ 951  "Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2"
+ 952  RTN
+ 953  LBL 59
+ 954  "Praseodymium/140.91/S/3793/[Xe] 4f3 6s2"
+ 955  RTN
+ 956  LBL 60
+ 957  "Neodymium/144.24/S/3347/[Xe] 4f4 6s2"
+ 958  RTN
+ 959  END
+      ; ==== ELD2: the records of Z 61-118, one per label: LBL Z - 60; R43 the label ====
+ 960  LBL "ELD2"
+ 961  XEQ IND 43
+ 962  RTN
+ 963  LBL 01
+ 964  "Promethium/-/S/3273/[Xe] 4f5 6s2"
+ 965  RTN
+ 966  LBL 02
+ 967  "Samarium/150.36/S/2067/[Xe] 4f6 6s2"
+ 968  RTN
+ 969  LBL 03
+ 970  "Europium/151.96/S/1802/[Xe] 4f7 6s2"
+ 971  RTN
+ 972  LBL 04
+ 973  "Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2"
+ 974  RTN
+ 975  LBL 05
+ 976  "Terbium/158.93/S/3503/[Xe] 4f9 6s2"
+ 977  RTN
+ 978  LBL 06
+ 979  "Dysprosium/162.50/S/2840/[Xe] 4f10 6s2"
+ 980  RTN
+ 981  LBL 07
+ 982  "Holmium/164.93/S/2973/[Xe] 4f11 6s2"
+ 983  RTN
+ 984  LBL 08
+ 985  "Erbium/167.26/S/3141/[Xe] 4f12 6s2"
+ 986  RTN
+ 987  LBL 09
+ 988  "Thulium/168.93/S/2223/[Xe] 4f13 6s2"
+ 989  RTN
+ 990  LBL 10
+ 991  "Ytterbium/173.05/S/1469/[Xe] 4f14 6s2"
+ 992  RTN
+ 993  LBL 11
+ 994  "Lutetium/174.97/S/3675/[Xe] 4f14 5d1 6s2"
+ 995  RTN
+ 996  LBL 12
+ 997  "Hafnium/178.49/S/4876/[Xe] 4f14 5d2 6s2"
+ 998  RTN
+ 999  LBL 13
+1000  "Tantalum/180.95/S/5731/[Xe] 4f14 5d3 6s2"
+1001  RTN
+1002  LBL 14
+1003  "Tungsten/183.84/S/5828/[Xe] 4f14 5d4 6s2"
+1004  RTN
+1005  LBL 15
+1006  "Rhenium/186.21/S/5869/[Xe] 4f14 5d5 6s2"
+1007  RTN
+1008  LBL 16
+1009  "Osmium/190.23/S/5285/[Xe] 4f14 5d6 6s2"
+1010  RTN
+1011  LBL 17
+1012  "Iridium/192.22/S/4701/[Xe] 4f14 5d7 6s2"
+1013  RTN
+1014  LBL 18
+1015  "Platinum/195.08/S/4098/[Xe] 4f14 5d9 6s1"
+1016  RTN
+1017  LBL 19
+1018  "Gold/196.97/S/3129/[Xe] 4f14 5d10 6s1"
+1019  RTN
+1020  LBL 20
+1021  "Mercury/200.59/L/630/[Xe] 4f14 5d10 6s2"
+1022  RTN
+1023  LBL 21
+1024  "Thallium/204.38/S/1746/[Xe] 4f14 5d10 6s2 6p1"
+1025  RTN
+1026  LBL 22
+1027  "Lead/207.2/S/2022/[Xe] 4f14 5d10 6s2 6p2"
+1028  RTN
+1029  LBL 23
+1030  "Bismuth/208.98/S/1837/[Xe] 4f14 5d10 6s2 6p3"
+1031  RTN
+1032  LBL 24
+1033  "Polonium/-/S/1235/[Xe] 4f14 5d10 6s2 6p4"
+1034  RTN
+1035  LBL 25
+1036  "Astatine/-/S/-/[Xe] 4f14 5d10 6s2 6p5"
+1037  RTN
+1038  LBL 26
+1039  "Radon/-/G/211/[Xe] 4f14 5d10 6s2 6p6"
+1040  RTN
+1041  LBL 27
+1042  "Francium/-/S/-/[Rn] 7s1"
+1043  RTN
+1044  LBL 28
+1045  "Radium/-/S/1413/[Rn] 7s2"
+1046  RTN
+1047  LBL 29
+1048  "Actinium/-/S/3471/[Rn] 6d1 7s2"
+1049  RTN
+1050  LBL 30
+1051  "Thorium/232.04/S/5061/[Rn] 6d2 7s2"
+1052  RTN
+1053  LBL 31
+1054  "Protactinium/231.04/S/-/[Rn] 5f2 6d1 7s2"
+1055  RTN
+1056  LBL 32
+1057  "Uranium/238.03/S/4404/[Rn] 5f3 6d1 7s2"
+1058  RTN
+1059  LBL 33
+1060  "Neptunium/-/S/4175/[Rn] 5f4 6d1 7s2"
+1061  RTN
+1062  LBL 34
+1063  "Plutonium/-/S/3501/[Rn] 5f6 7s2"
+1064  RTN
+1065  LBL 35
+1066  "Americium/-/S/2284/[Rn] 5f7 7s2"
+1067  RTN
+1068  LBL 36
+1069  "Curium/-/S/3400/[Rn] 5f7 6d1 7s2"
+1070  RTN
+1071  LBL 37
+1072  "Berkelium/-/S/-/[Rn] 5f9 7s2"
+1073  RTN
+1074  LBL 38
+1075  "Californium/-/S/-/[Rn] 5f10 7s2"
+1076  RTN
+1077  LBL 39
+1078  "Einsteinium/-/S/-/[Rn] 5f11 7s2"
+1079  RTN
+1080  LBL 40
+1081  "Fermium/-/S/-/[Rn] 5f12 7s2"
+1082  RTN
+1083  LBL 41
+1084  "Mendelevium/-/S/-/[Rn] 5f13 7s2"
+1085  RTN
+1086  LBL 42
+1087  "Nobelium/-/S/-/[Rn] 5f14 7s2"
+1088  RTN
+1089  LBL 43
+1090  "Lawrencium/-/S/-/[Rn] 5f14 6d1 7s2"
+1091  RTN
+1092  LBL 44
+1093  "Rutherfordium/-/S/-/[Rn] 5f14 6d2 7s2"
+1094  RTN
+1095  LBL 45
+1096  "Dubnium/-/S/-/[Rn] 5f14 6d3 7s2"
+1097  RTN
+1098  LBL 46
+1099  "Seaborgium/-/S/-/[Rn] 5f14 6d4 7s2"
+1100  RTN
+1101  LBL 47
+1102  "Bohrium/-/S/-/[Rn] 5f14 6d5 7s2"
+1103  RTN
+1104  LBL 48
+1105  "Hassium/-/S/-/[Rn] 5f14 6d6 7s2"
+1106  RTN
+1107  LBL 49
+1108  "Meitnerium/-/S/-/[Rn] 5f14 6d7 7s2"
+1109  RTN
+1110  LBL 50
+1111  "Darmstadtium/-/-/-/[Rn] 5f14 6d8 7s2"
+1112  RTN
+1113  LBL 51
+1114  "Roentgenium/-/-/-/[Rn] 5f14 6d9 7s2"
+1115  RTN
+1116  LBL 52
+1117  "Copernicium/-/-/-/[Rn] 5f14 6d10 7s2"
+1118  RTN
+1119  LBL 53
+1120  "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1"
+1121  RTN
+1122  LBL 54
+1123  "Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7p2"
+1124  RTN
+1125  LBL 55
+1126  "Moscovium/-/-/-/[Rn] 5f14 6d10 7s2 7p3"
+1127  RTN
+1128  LBL 56
+1129  "Livermorium/-/-/-/[Rn] 5f14 6d10 7s2 7p4"
+1130  RTN
+1131  LBL 57
+1132  "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5"
+1133  RTN
+1134  LBL 58
+1135  "Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6"
+1136  RTN
+1137  END

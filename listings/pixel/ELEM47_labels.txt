@@ -18,9 +18,11 @@ ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), 
 :FIELDK:   17  field R24 (from 0) of the text "a/b/c" in R35, left in R35
 :STEP:     18  move the cursor by R41 rows, R42 columns, skipping empty cells
 :HLINE:    19  298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
-:BOXCLR:   20  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
-:STATES:   21  the names of the states, in the order of R51 "SLG-"
-:GROUP:    22  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
-:GRPNAME:  23  the names of the groups in R35, "/" between them (texts of 64 characters at most)
+:GRID:     20  the horizontal lines of the table, before the cells: PIXEL with Y < 0 (X 0) draws row |Y|
+:ROWS:     21  rows 63, 88, 113, 138, 163 (PIXEL), then cleared again: columns 0, 398, 399 (AGRAPH 21 in
+:BOXCLR:   22  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
+:STATES:   23  the names of the states, in the order of R51 "SLG-"
+:GROUP:    24  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
+:GRPNAME:  25  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 
 Numeric data labels (XEQ IND): 00-01 the symbols; the records 01-60 in ELD1, 01-58 in ELD2.

@@ -292,7 +292,83 @@
 - Tried and dropped: the record programs named "A" and "B" (they worked in T47 and f42run; the names
   ELD1 / ELD2 kept).
 
+## Oct 10, 2026 - Branch struct (C47 only): the C47 STRUCT commands, no GTO
+- Victor: the control flow with the structured programming commands of the C47 (firmware app note AN0007,
+  docs/appnotes/sources/AN0007_STRUCT in the firmware sources: the Structured Programming Guide and the
+  Specification), so no labels and jumps for decisions and loops. C47 only: Free42 has no STRUCT, so
+  tools/build_free42.py stops on this branch and build/free42/ stays as built on main.
+- The commands (items 2920-2939, structured.c, in every C47 build): IF / ELSE / ENDIF (a test just before IF:
+  true runs the body, false jumps to ELSE or ENDIF), DO / WHILE / ENDDO (the test before WHILE, anywhere in
+  the body; ENDDO goes back to the step after DO), REPEAT / UNTIL (true at UNTIL ends). Each takes a partner
+  number (IF, DO and REPEAT in three series, 1-255 per program) that VALID writes; rejig writes IF 01 (the
+  STRUCT patch of rejig 0.31.0). KEY? is a test for them (fnKey: true when no key was pressed), and so are DSE
+  and the comparisons. FOR / NEXT are not used: FOR takes the start, end and step off the stack, where
+  AGRAPH keeps its row and column.
+- programs_rem/ELEM47.txt: the structures indented two spaces per level, written without numbers.
+  tools/build_elem47.py strips the indentation, checks the structures as VALID does (a closer of the right
+  kind, nothing open at END or across RTN / LBL, a DO with its WHILE, a test before IF / WHILE / UNTIL, no
+  test before ELSE / ENDIF / DO / ENDDO / REPEAT / UNTIL, which the firmware never skips) and gives the
+  numbers in VALID's order. They must be in the file: the C47 checks only the last program of a file as it
+  loads, and ELEM47 comes before ELD1, ELD2. listings/ELEM47_doc.txt keeps the indentation, the number after
+  each step in brackets.
+- The program: the main part first, XEQ :INIT: then the key loop: DO / (DO / PAUSE 50 / KEY? 33 / WHILE /
+  ENDDO, the key wait) / RCL 33 82 X≠Y? WHILE / the direction (one IF per key 8 2 4 6, R41 R42) / a move
+  when R41 ≠ R42 / 5: IF R36 :CLOSE: ELSE :DETAIL: / ENDDO, then the end. :RECORD: IF for ELD1 / ELD2 and
+  DO / DSE 24 / WHILE for the records skipped; :STEP: REPEAT / UNTIL with its RTNs; :FIELDK:, :HLINE: and
+  the cells of :SEGMENT: DO / WHILE loops; :GROUP:, :CELLPOS:, the group number and " K" IF. :CLSEG: and
+  its GTO into :SEGMENT: are gone: :CLSYM: sets the symbols of the first Z, then the usual XEQ :SEGMENT:.
+  The symbol pieces: :SYMPCE: once before the cells and at Z 66 (66 X=Y? after STOSEQ, which keeps the Z),
+  no R49 counter. A test before one step (X<0? RTN, X≠0? XEQ :DETREC:) stays.
+- ELEM47 810 -> 794 steps, 51 -> 24 local labels (22 routines, 2 data labels), no GTO.
+- c47sim.py (Almanac 47) has no STRUCT: python/elem47sim.py lowers the numbered structures to labels and
+  GTO before running (lower(): an inverted comparison + GTO, test GTO GTO LBL for KEY? and DSE), the same
+  jumps as structured.c. The step counts are close, not the firmware's (here ENDIF and the labels are
+  steps). To do in Almanac 47: STRUCT in c47sim itself, then copied here.
+- tests/test_opt.py: every screen the same as the optimize build, pixel for pixel; tests/test_elem47.py all
+  ok (the file check now includes the numbers, and ELEM47 has no GTO). Simulator steps: a move 245 -> about
+  270 (the four IF of the direction run for every key), the table 7 833 (the same), the detail box 1 071.
+- tests/test_fw.py: the key wait DO / PAUSE / KEY? / WHILE / ENDDO is replaced as PAUSE / KEY? / GTO was.
+  Not run yet (no T47 or patched rejig in the cloud session): to run on Victor's machine, with
+  tools/bench_fw.py for the speed in the firmware.
+- Then (Victor: faster on the C47; more optimizations), profiled in the simulator (steps per routine):
+  - The direction from the key code by arithmetic, no IF per key: R41 = k div 10 - 6, R42 = k mod 10 - 3,
+    a move when |R41| + |R42| = 1 (only 53 73 62 64 give it; 63 gives 0 0). A move 270 -> 264 steps.
+  - The symbol column of a cell: R56 = R39 - 48 (set with R54 once per segment, + 22 per cell), so
+    α→x 34 RCL+ 56 in place of α→x 34 48 - RCL 39 +: 2 steps less per cell. The table 7 833 -> 7 639,
+    closing the box 4 034 -> 3 933.
+  - :HLINE: 2 + 8 x 37 AGRAPH (8 rounds of the loop, not 21 of 14), +23 program steps: the box 1 068 -> 1 016.
+  - Screens the same (test_opt, test_elem47). ELEM47 797 steps. No block glyph in the standardFont, so the
+    lines and the bar stay AGRAPH.
+- Then (Victor): one element record per data label, not 4: LBL Z in ELD1 (Z 1-60, LBL 01-60), LBL Z - 60 in
+  ELD2 (Z 61-118, LBL 01-58). :RECORD: only picks ELD1 or ELD2 (60 X<Y? IF STO- 43 XEQ "ELD2" ELSE XEQ "ELD1"):
+  no div, no mod, no skip loop; the records lose the "|" (the configuration is what :FIELD: leaves in R44).
+  Each record may now grow to 196 characters (the longest is 45): room for more fields without changing
+  the layout. ELEM47 775 steps; ELD1 184, ELD2 178 steps (98 before), about 460 bytes more. Simulator: a move
+  264 -> 235 steps (main: 245), the box 1 016 -> 991, the table 7 624. Screens the same (test_opt, test_elem47).
+
+## Oct 10, 2026 - Branch struct-pixel (development): the horizontal lines of the table by PIXEL
+- From branch struct (PR #6). Victor: draw the table's lines with the firmware's own line command.
+  screen.c: PIXEL (X column, Y row) sets one pixel; X < 0 draws column |X| over the whole screen height,
+  Y < 0 row |Y| over the whole width, black, one step, GRMOD ignored. POINT the same 3 pixels wide.
+  CLLCDxy clears from column x to the right, from row y up. No line of a given length.
+- The 21 inner AGRAPH of a cell only drew its top and bottom pixels: pieces of the 11 horizontal rows of the
+  table (238 ... 63, then 54, 29, 4 for rows 8-9). Now each cell is its left edge (one AGRAPH 20) and
+  :GRID: (before the cells) draws the 11 rows by PIXEL, then clears what has no cell under or over it:
+  columns 0, 398, 399 by AGRAPH in GRMOD 2 (R21 = rows 0, 25, 50 of a word: three rows at once), the rest by
+  ATEXT of spaces in GRMOD 1 (7 x 20 pixels each): x 0-44 and 376-399 of rows 4-54, x 24-374 of row 238,
+  x 46-264 of rows 188-213, column 3 of rows 63 and 88. :ROWS: is the part of rows 63-163, also called by
+  :CLOSE: for the rows under the box. Vertical lines stay AGRAPH: a full-height column would cross the gap
+  above row 8 and the title, and an edge is already one step per cell.
+- c47sim's CLLCDxy clears whole rows (it ignores x): not used here. To fix in Almanac 47.
+- ELEM47 775 -> 865 steps. Simulator: the table 7 624 -> 5 254 (-31 %), closing the box 3 910 -> 2 737 (-30 %),
+  a move and the box the same. Every screen the same: ELEM47_PROG=build/pixel/ELEM47.txt tests/test_opt.py,
+  and the whole table with the box opened and closed at each cell (571 screens) the same as the release.
+  tools/build_pixel.py -> build/pixel/, listings/pixel/. In the firmware: ELEM47_PROG=build/pixel/ELEM47.txt
+  python3 tests/test_fw.py, python3 tools/bench_fw.py build/pixel/ELEM47.txt.
+
 ## Next
+- Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
+  on the C47 itself.
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).
 - Free42: time the table on a DM42; build/free42/ELEM47.txt goes in by Paste in Free42 (export a .raw there).

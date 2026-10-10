@@ -5,7 +5,7 @@ running it, minus those of a run of an empty program (T47's start). Deterministi
   moves  46 cursor moves (the whole of row 1 to 18 and back, 6 down, 6 up)
   boxes  the detail box opened and closed 6 times (rows 1-7)
   inbox  the moves of 'moves' with the detail box open (5 first, 5 at the end)
-The key waits are replaced by the next key from the text TKS (as tests/test_fw.py, without PAUSE and SNAP).
+The key waits (PAUSE / KEY? / GTO, or DO / PAUSE / KEY? / WHILE / ENDDO) are replaced by the next key from the text TKS (as tests/test_fw.py, without PAUSE and SNAP).
 Needs T47 (tests/test_fw.py, DEVELOPMENT_NOTES) and perf.
   python3 tools/bench_fw.py [build/ELEM47.txt]"""
 import os, re, subprocess, sys, tempfile, shutil
@@ -21,6 +21,11 @@ def copy(src, dst):
     while i < len(L):
         if re.fullmatch(r'PAUSE \d+', L[i]) and L[i + 1].startswith('KEY? ') and L[i + 2].startswith('GTO '):
             out += ['α→x "TKS"', '→REAL', 'STO ' + L[i + 1][5:], 'DROP']; i += 3; continue
+        # branch struct: DO n / PAUSE / KEY? r / WHILE n / ENDDO n
+        m = re.fullmatch(r'DO (\d+)', L[i])
+        if m and i + 4 < len(L) and re.fullmatch(r'PAUSE \d+', L[i + 1]) and L[i + 2].startswith('KEY? ') \
+                and L[i + 3:i + 5] == ['WHILE ' + m.group(1), 'ENDDO ' + m.group(1)]:
+            out += ['α→x "TKS"', '→REAL', 'STO ' + L[i + 2][5:], 'DROP']; i += 5; continue
         out.append(L[i]); i += 1
     open(dst, 'w', encoding='utf-8').write('\n'.join(out) + '\n')
 
