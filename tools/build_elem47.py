@@ -15,10 +15,9 @@ Three programs, three global labels:
           numbers (IF, DO and REPEAT in three series, from 01, in the order the openers appear), as rejig
           writes them (IF 01). The build/ELEM47.txt file holds three programs and the C47 checks only the
           last one as it loads, so the numbers must be in the file.
-  ELD1    the element records of Z 1-60: LBL 00-14; ELD2 those of Z 61-118: LBL 15-29. 4 elements per
-  ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
-          "|" after each record).
-          XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
+  ELD1    the element records, one per label: Z 1-60 in ELD1 (LBL 01-60), Z 61-118 in ELD2 (LBL 01-58, Z - 60),
+  ELD2    each one "name/mass/state letter/boiling point/configuration" (the fields joined by "/"; up to
+          196 characters, room for more fields). XEQ "ELD1" (or "ELD2") with R43 the label: XEQ IND 43 there.
 The DATA part at the end of programs_rem/ELEM47.txt (from the end of ELEM47) is written from
 python/elements.py.
 
@@ -38,8 +37,7 @@ NAME = 'ELEM47'
 MARK = 'REM ==== DATA'
 SEG_MARK = 'REM ==== SEGMENTS'
 SYM0, SYMS = 0, 65   # the symbol pieces: LBL 00, 01; 65 elements (195 characters) each
-REC0, PER = 0, 4     # the element records: LBL 00-29, 4 elements each (176 characters at most)
-SPLIT = 60           # ELD1: Z 1-60 (LBL 00-14), ELD2: Z 61-118 (LBL 15-29)
+SPLIT = 60           # the element records, one per label: ELD1 Z 1-60 (LBL 01-60), ELD2 Z 61-118 (LBL 01-58)
 DATA = ('ELD1', 'ELD2')    # the names of the two record programs (global labels)
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
@@ -169,12 +167,10 @@ def data():
         out += ['LBL %02d' % (SYM0 + k), '"%s"' % sym[3 * SYMS * k:3 * SYMS * (k + 1)], 'RTN']
     out.append('END')
     for name, z0, z1 in ((DATA[0], 1, SPLIT), (DATA[1], SPLIT + 1, len(ELEMENTS))):
-        out += ['REM ==== %s: the records of Z %d-%d (%d per label): LBL %d + (Z-1) div %d, then (Z-1) mod %d records'
-                ', "|" after each one; R43 the label ====' % (name, z0, z1, PER, REC0, PER, PER),
-                'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
-        for k in range((z0 - 1) // PER, (z1 + PER - 1) // PER):
-            recs = [record(z) for z in range(PER * k + 1, min(PER * k + PER, len(ELEMENTS)) + 1)]
-            out += ['LBL %02d' % (REC0 + k), '"%s"' % ''.join(r + '|' for r in recs), 'RTN']
+        out += ['REM ==== %s: the records of Z %d-%d, one per label: LBL Z - %d; R43 the label ===='
+                % (name, z0, z1, z0 - 1), 'LBL "%s"' % name, 'XEQ IND 43', 'RTN']
+        for z in range(z0, z1 + 1):
+            out += ['LBL %02d' % (z - z0 + 1), '"%s"' % record(z), 'RTN']
         out.append('END')
     long = [s for s in out if s.startswith('"') and len(s) - 2 > MAXSTR]
     if long:
@@ -221,8 +217,8 @@ def labels_text(lines, num):
             out.append(':%s:%s %s  %s' % (m.group(2), ' ' * (8 - len(m.group(2))),
                                           '%02d' % num[m.group(2)], note[:90]))
     out += ['', 'Numeric data labels (XEQ IND): %02d-%02d the symbols; the records %02d-%02d in %s, '
-            '%02d-%02d in %s.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, REC0, REC0 + SPLIT // PER - 1, DATA[0],
-                                REC0 + SPLIT // PER, REC0 + (len(ELEMENTS) - 1) // PER, DATA[1])]
+            '01-%02d in %s.' % (SYM0, SYM0 + (len(ELEMENTS) - 1) // SYMS, 1, SPLIT, DATA[0],
+                                len(ELEMENTS) - SPLIT, DATA[1])]
     return '\n'.join(out) + '\n'
 
 
@@ -242,11 +238,10 @@ def build():
 
     def has(*seq):
         return ' / ' + ' / '.join(seq) + ' / ' in rec
-    if not (has('STO 24', str(PER), '÷') and has('RCL 24', str(PER), 'MOD')
-            and has(str(REC0 + SPLIT // PER - 1), 'X<Y?', 'IF', 'XEQ "%s"' % DATA[1], 'ELSE', 'XEQ "%s"' % DATA[0], 'ENDIF')) \
-            or REC0 or SYM0 or SPLIT % PER:
-        raise SystemExit('LBL :RECORD: must divide by PER = %d, split at LBL %d and call %s, %s (REC0 = SYM0 = 0: '
-                         'no + before XEQ IND)' % ((PER, REC0 + SPLIT // PER - 1) + DATA))
+    if not has('RCL 30', 'STO 43', str(SPLIT), 'X<Y?', 'IF', 'STO- 43', 'XEQ "%s"' % DATA[1], 'ELSE', 'XEQ "%s"' % DATA[0],
+               'ENDIF') or SYM0:
+        raise SystemExit('LBL :RECORD: must split at Z %d (ELD2: label Z - %d) and call %s, %s (SYM0 = 0: no + before '
+                         'XEQ IND)' % ((SPLIT, SPLIT) + DATA))
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
     steps = source_steps(lines)

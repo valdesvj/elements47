@@ -2,9 +2,9 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47           797   the code (build/ELEM47.txt); branch struct: C47 only, STRUCT commands
-          ELD1              49   the records of Z 1-60 (LBL 00-14)
-          ELD2              49   the records of Z 61-118 (LBL 15-29)
+ELEM47    ELEM47           775   the code (build/ELEM47.txt); branch struct: C47 only, STRUCT commands
+          ELD1             184   the records of Z 1-60, one per label (LBL 01-60)
+          ELD2             178   the records of Z 61-118, one per label (LBL 01-58 = Z - 60)
 ELEM47    ELEM47          1016   Free42: build/free42/ELEM47.txt, as built on main (branch struct: the
                                  Free42 build stops, Free42 has no STRUCT)
           ELD1, ELD2      49 + 49  the records, as on the C47
@@ -28,7 +28,7 @@ LOCAL LABELS OF ELEM47
                           :CLOSE:; then 0: the end: PT deleted, CLREGS, CLSTK
   :CURSOR: :CURSXOR:      the cursor (XOR, unrolled); :CURSXOR: again at the last position (off)
   :PANEL:                 name, Z, mass (GRMOD 1 text, spaces after it)
-  :RECORD:                the record of Z (4 per data label, "|" after each), its first fields
+  :RECORD:                the record of Z (one per data label), its first fields
   :CLOSE: :CLSYM:         the box off: the cells under it again, 5 segments (rows 3-7, columns 3-16);
                           :CLSYM: the symbols from the first Z of a segment
   :DETAIL: :DETREC:       the detail box (:DETREC: from the record already read: a move with the box open)
@@ -48,9 +48,9 @@ LOCAL LABELS OF ELEM47
 
   Data labels, numeric (XEQ IND):
   00-01   the symbols, 65 elements each (2 characters, then a digit = the column in the cell)
-  00-29   the records, 4 elements each: "name/mass/state letter/boiling point/configuration|";
-          00-14 in ELD1, 15-29 in ELD2 (:RECORD: puts the label in R43, XEQ "ELD1" or "ELD2",
-          which does XEQ IND 43)
+  01-60   the records in ELD1 (Z 1-60), 01-58 in ELD2 (Z - 60), one per label:
+          "name/mass/state letter/boiling point/configuration" (:RECORD: puts the label in R43,
+          XEQ "ELD1" or "ELD2", which does XEQ IND 43)
 
 Folders:
   programs_rem/  the commented source: edit here (the DATA part is written by the build tool)

@@ -339,6 +339,12 @@
   - :HLINE: 2 + 8 x 37 AGRAPH (8 rounds of the loop, not 21 of 14), +23 program steps: the box 1 068 -> 1 016.
   - Screens the same (test_opt, test_elem47). ELEM47 797 steps. No block glyph in the standardFont, so the
     lines and the bar stay AGRAPH.
+- Then (Victor): one element record per data label, not 4: LBL Z in ELD1 (Z 1-60, LBL 01-60), LBL Z - 60 in
+  ELD2 (Z 61-118, LBL 01-58). :RECORD: only picks ELD1 or ELD2 (60 X<Y? IF STO- 43 XEQ "ELD2" ELSE XEQ "ELD1"):
+  no div, no mod, no skip loop; the records lose the "|" (the configuration is what :FIELD: leaves in R44).
+  Each record may now grow to 196 characters (the longest is 45): room for more fields without changing
+  the layout. ELEM47 775 steps; ELD1 184, ELD2 178 steps (98 before), about 460 bytes more. Simulator: a move
+  264 -> 235 steps (main: 245), the box 1 016 -> 991, the table 7 624. Screens the same (test_opt, test_elem47).
 
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
