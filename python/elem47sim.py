@@ -11,7 +11,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import c47sim
 
-PROG = os.path.join(ROOT, 'build', 'ELEM47.txt')
+PROG = os.environ.get('ELEM47_PROG') or os.path.join(ROOT, 'build', 'ELEM47.txt')   # ELEM47_PROG: a variant (build/loops)
 W, H = 400, 240
 LCD_BG, LCD_ON = (199, 205, 186), (34, 38, 30)
 

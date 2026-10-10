@@ -222,8 +222,9 @@ def labels_text(lines, num):
     return '\n'.join(out) + '\n'
 
 
-def build():
-    src = os.path.join(ROOT, 'programs_rem', NAME + '.txt')
+def build(sub=''):
+    """sub: a folder of programs_rem (a variant, e.g. loops): written only to build/sub and listings/sub."""
+    src = os.path.join(ROOT, 'programs_rem', sub, NAME + '.txt')
     lines = [ln.rstrip() for ln in open(src, encoding='utf-8')]
     k = next(i for i, ln in enumerate(lines) if ln.startswith(MARK))
     lines = lines[:k + 1] + data()
@@ -266,12 +267,14 @@ def build():
             listing.append('%4d  %s' % (n + 1, ind + steps[n] + ('' if numeric[n] == steps[n] else '    (%s)' % numeric[n].split(' ', 1)[1])))
             n += 1
     plain = '\n'.join(numeric) + '\n'
-    for d in ('programs', 'build'):
+    for d in (('programs', 'build') if not sub else (os.path.join('build', sub),)):
+        os.makedirs(os.path.join(ROOT, d), exist_ok=True)
         with open(os.path.join(ROOT, d, NAME + '.txt'), 'w', encoding='utf-8') as fh:
             fh.write(plain)
-    with open(os.path.join(ROOT, 'listings', NAME + '_doc.txt'), 'w', encoding='utf-8') as fh:
+    os.makedirs(os.path.join(ROOT, 'listings', sub), exist_ok=True)
+    with open(os.path.join(ROOT, 'listings', sub, NAME + '_doc.txt'), 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(listing) + '\n')
-    with open(os.path.join(ROOT, 'listings', NAME + '_labels.txt'), 'w', encoding='utf-8') as fh:
+    with open(os.path.join(ROOT, 'listings', sub, NAME + '_labels.txt'), 'w', encoding='utf-8') as fh:
         fh.write(labels_text(lines, num))
     return steps, num
 

@@ -346,6 +346,26 @@
   the layout. ELEM47 775 steps; ELD1 184, ELD2 178 steps (98 before), about 460 bytes more. Simulator: a move
   264 -> 235 steps (main: 245), the box 1 016 -> 991, the table 7 624. Screens the same (test_opt, test_elem47).
 
+## Oct 10, 2026 - Branch struct-pixel (development): the horizontal lines of the table by PIXEL
+- From branch struct (PR #6). Victor: draw the table's lines with the firmware's own line command.
+  screen.c: PIXEL (X column, Y row) sets one pixel; X < 0 draws column |X| over the whole screen height,
+  Y < 0 row |Y| over the whole width, black, one step, GRMOD ignored. POINT the same 3 pixels wide.
+  CLLCDxy clears from column x to the right, from row y up. No line of a given length.
+- The 21 inner AGRAPH of a cell only drew its top and bottom pixels: pieces of the 11 horizontal rows of the
+  table (238 ... 63, then 54, 29, 4 for rows 8-9). Now each cell is its left edge (one AGRAPH 20) and
+  :GRID: (before the cells) draws the 11 rows by PIXEL, then clears what has no cell under or over it:
+  columns 0, 398, 399 by AGRAPH in GRMOD 2 (R21 = rows 0, 25, 50 of a word: three rows at once), the rest by
+  ATEXT of spaces in GRMOD 1 (7 x 20 pixels each): x 0-44 and 376-399 of rows 4-54, x 24-374 of row 238,
+  x 46-264 of rows 188-213, column 3 of rows 63 and 88. :ROWS: is the part of rows 63-163, also called by
+  :CLOSE: for the rows under the box. Vertical lines stay AGRAPH: a full-height column would cross the gap
+  above row 8 and the title, and an edge is already one step per cell.
+- c47sim's CLLCDxy clears whole rows (it ignores x): not used here. To fix in Almanac 47.
+- ELEM47 775 -> 865 steps. Simulator: the table 7 624 -> 5 254 (-31 %), closing the box 3 910 -> 2 737 (-30 %),
+  a move and the box the same. Every screen the same: ELEM47_PROG=build/pixel/ELEM47.txt tests/test_opt.py,
+  and the whole table with the box opened and closed at each cell (571 screens) the same as the release.
+  tools/build_pixel.py -> build/pixel/, listings/pixel/. In the firmware: ELEM47_PROG=build/pixel/ELEM47.txt
+  python3 tests/test_fw.py, python3 tools/bench_fw.py build/pixel/ELEM47.txt.
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.

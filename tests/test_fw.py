@@ -111,7 +111,7 @@ def main():
     check(ltest() == '196', 'LTEST: a 196-character text in a program, αLENG 196')
     moves = lambda ks: [k for k in ks if k != E.INFO]
     rows = [[E.INFO, E.INFO, E.RIGHT if r % 2 == 0 else E.LEFT] * 18 + [E.INFO, E.INFO, E.DOWN] for r in range(10)]
-    prog = os.path.join(ROOT, 'build', 'ELEM47.txt')
+    prog = E.PROG                       # ELEM47_PROG=build/loops/ELEM47.txt: the variant of branch struct-loops
     boxes = back = same = total = 0
     for r0 in range(0, 2 if quick else 10, 2):
         lead = moves(sum(rows[:r0], []))
