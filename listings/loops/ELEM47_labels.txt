@@ -1,0 +1,26 @@
+ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), what it does
+
+:CURSOR:   02  the cursor, the inside of the cell inverted (XOR, a loop of 21 AGRAPH, R22); twice = off
+:CURSXOR:  03  the cursor drawn again where it was (R39, R40, R53 of the last one): off
+:PANEL:    04  the panel: name, Z, mass. GRMOD 1: each character clears its box first, and the
+:RECORD:   05  the record of Z = R30, "name/mass/state/boiling point/configuration", in R44;
+:CLOSE:    06  the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
+:CLSYM:    07  R25 = X, the first Z of a segment drawn again, and its symbols: piece (Z-1) div 65 (R50 th
+:DETAIL:   08  the detail box (symbol, mass, state, boiling point, group, configuration),
+:DETREC:   09  from here after LBL :PANEL: (a move with the box open): the record is read
+:CELLS:    10  every cell, the matrix PT filled on the way. The segments in the code (no XEQ to the
+:INIT:     11  the start: the matrix PT, the patterns, the cursor on H, the table
+:TITLE:    12  the title (row 1, columns 13-17) and the keys, drawn once
+:SEGMENT:  13  a segment. Z = count, Y = row, X = first column; R25 = its first Z, R34 its symbols. The
+:SYMPCE:   14  the next piece of symbols (labels 00-01, R50 the label), 65 elements
+:CELLPOS:  15  the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
+:FIELD:    16  the next field of R44 in R35 (the last field: all that is left)
+:FIELDK:   17  field R24 (from 0) of the text "a/b/c" in R35, left in R35
+:STEP:     18  move the cursor by R41 rows, R42 columns, skipping empty cells
+:HLINE:    19  298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar),
+:BOXCLR:   20  the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
+:STATES:   21  the names of the states, in the order of R51 "SLG-"
+:GROUP:    22  the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
+:GRPNAME:  23  the names of the groups in R35, "/" between them (texts of 64 characters at most)
+
+Numeric data labels (XEQ IND): 00-01 the symbols; the records 01-60 in ELD1, 01-58 in ELD2.

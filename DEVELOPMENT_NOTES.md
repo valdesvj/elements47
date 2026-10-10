@@ -346,6 +346,20 @@
   the layout. ELEM47 775 steps; ELD1 184, ELD2 178 steps (98 before), about 460 bytes more. Simulator: a move
   264 -> 235 steps (main: 245), the box 1 016 -> 991, the table 7 624. Screens the same (test_opt, test_elem47).
 
+## Oct 10, 2026 - Branch struct-loops (development): the unrolled AGRAPH as STRUCT loops
+- From branch struct (PR #6, one record per label). Victor: try the unrolled code as structured loops, in a
+  folder of its own. programs_rem/loops/ELEM47.txt -> tools/build_loops.py -> build/loops/ELEM47.txt and
+  listings/loops/ (build_elem47.build(sub)); the release files are not touched. Same global labels
+  (ELEM47, ELD1, ELD2): load one of the two on the calculator.
+- Rolled: the cursor (21 AGRAPH 23), the cell box (21 AGRAPH 21 after the edge), :HLINE: (298 AGRAPH 20):
+  each one AGRAPH in DO / DSE 22 / WHILE / ENDDO (R22 the count; the three never run inside each other).
+- ELEM47 775 -> 711 steps (about 3 520 -> 3 380 bytes). Simulator steps (struct -> struct-loops): the table
+  7 624 -> 13 098 (+72 %), a move 235 -> 327 (+39 %), the box 991 -> 2 151 (+117 %), closing it 3 910 ->
+  6 670 (+71 %). Every screen the same (ELEM47_PROG=build/loops/ELEM47.txt python3 tests/test_opt.py).
+- In the firmware each round of the loop is about 3 steps (DSE, WHILE, ENDDO) for one AGRAPH, so it should be
+  slower there too: ELEM47_PROG=build/loops/ELEM47.txt python3 tests/test_fw.py, and
+  python3 tools/bench_fw.py build/loops/ELEM47.txt to measure.
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.
