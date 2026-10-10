@@ -305,7 +305,10 @@ def chars_used(steps):
 
 def build():
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')]
-    steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
+    steps = B.source_steps(lines)
+    if any(s.split(' ')[0] in B.STRUCT for s in steps):
+        raise SystemExit('free42: programs_rem/ELEM47.txt uses the C47 STRUCT commands (branch struct, C47 only): '
+                         'Free42 has none; build/free42/ stays as built on main')
     main, num = B.resolve(main_program(steps))
     big, tiny = chars_used(steps)
     T = textprog('E47T', 21, big) + box_routine() + ['END']

@@ -2,10 +2,11 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47           810   the code (build/ELEM47.txt)
+ELEM47    ELEM47           794   the code (build/ELEM47.txt); branch struct: C47 only, STRUCT commands
           ELD1              49   the records of Z 1-60 (LBL 00-14)
           ELD2              49   the records of Z 61-118 (LBL 15-29)
-ELEM47    ELEM47          1016   Free42: build/free42/ELEM47.txt (tools/build_free42.py)
+ELEM47    ELEM47          1016   Free42: build/free42/ELEM47.txt, as built on main (branch struct: the
+                                 Free42 build stops, Free42 has no STRUCT)
           ELD1, ELD2      49 + 49  the records, as on the C47
           E47T (E47B)     1884   the GRFNT 21 font, one local label per character; E47B the boxes
           E47S             329   the GRFNT 10 font (tinyFont)
@@ -15,29 +16,35 @@ LOCAL LABELS OF ELEM47
   00-99 (the calculator files have numeric local labels only). listings/ELEM47_labels.txt lists name,
   number and job.
 
+  Control flow (branch struct): the C47 STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT /
+  UNTIL; the firmware's app note AN0007), indented in programs_rem; the build checks them and numbers them
+  (IF 01 ...). No GTO: the labels are the routines and the data.
+
   In this order (the firmware finds the step after an XEQ again by counting the steps from the start of
-  the program, at every RTN: the routines of a move and of the detail box first, those that call nothing last):
-  :MOVE:                  8 2 4 6: cursor off (:CURSXOR:), :STEP:, cursor on, panel
+  the program, at every RTN: the key loop first, then the routines of a move and of the detail box, those
+  that call nothing last):
+  (main part)             :INIT:, then the key loop (DO / WHILE until 0): the key wait (DO / PAUSE 50 /
+                          KEY? 33 / WHILE / ENDDO), the direction (8 2 4 6), a move, 5 the detail box or
+                          :CLOSE:; then 0: the end: PT deleted, CLREGS, CLSTK
   :CURSOR: :CURSXOR:      the cursor (XOR, unrolled); :CURSXOR: again at the last position (off)
   :PANEL:                 name, Z, mass (GRMOD 1 text, spaces after it)
-  :RECORD: :RECSKIP: :RECGOT:   the record of Z (4 per data label, "|" after each), its first fields
-  :INFO: :INFOKEY:        5: the detail box, wait, :CLOSE:
-  :CLOSE: :CLSEG:         the box off: the cells under it again, 5 segments (rows 3-7, columns 3-16)
-  :DETAIL: :GRPNAM:       the detail box
-  :INIT: :TABLE: :KEYS:   the start, the table, then the key wait (PAUSE 50 / KEY? 33)
-  :UP: :DOWN: :LEFT: :RIGHT:   the direction, then :MOVE:
-  :QUIT:                  0: the end: PT deleted, CLREGS, CLSTK
+  :RECORD:                the record of Z (4 per data label, "|" after each), its first fields
+  :CLOSE: :CLSYM:         the box off: the cells under it again, 5 segments (rows 3-7, columns 3-16);
+                          :CLSYM: the symbols from the first Z of a segment
+  :DETAIL: :DETREC:       the detail box (:DETREC: from the record already read: a move with the box open)
+  :CELLS:                 every cell, by segments (the segment list is in the code)
+  :INIT:                  the start: PT, the patterns, the cursor on H, the table
   :TITLE:                 title and the key legend (two ATEXT with CR)
-  :CELLS: :SEGMENT: :SEGPOS: :SEGLOOP: :SYMBOL:   every cell, by segments: box (22 unrolled AGRAPH, the
-                          right edge of the last one after the segment), number, symbol; PT by STOSEQ
-  :SYMPCE:                the next piece of symbols
-  :CELLPOS: :CPROWS:      the position of a cell (rows 8-9 lower), the rows of its number and symbol
+  :SEGMENT:               a segment: box (22 unrolled AGRAPH, the right edge of the last one after the
+                          segment), number, symbol; PT by STOSEQ
+  :SYMPCE:                the next piece of symbols (before Z 1 and at Z 66)
+  :CELLPOS:               the position of a cell (rows 8-9 lower), the rows of its number and symbol
   :FIELD:                 the next field of the record
-  :FIELDK: :FCUT:         field k of the text "a/b/c"
-  :STEP: :STEPLP:         move the cursor, skip empty cells
-  :HLINE: :HLLOOP:        298 columns of a pattern (the bottom line, the header bar), unrolled by 14
-  :BOXCLR: :KELVIN: :STATES:   the detail box: its area cleared, " K", the state names
-  :GROUP: :GRP0: :GRPD: :GRPP: :GRPF: :GRPNAME:   the group name
+  :FIELDK:                field k of the text "a/b/c"
+  :STEP:                  move the cursor, skip empty cells (REPEAT / UNTIL)
+  :HLINE:                 298 columns of a pattern (the bottom line, the header bar), unrolled by 14
+  :BOXCLR: :STATES:       the detail box: its area cleared; the state names
+  :GROUP: :GRPNAME:       the group name
 
   Data labels, numeric (XEQ IND):
   00-01   the symbols, 65 elements each (2 characters, then a digit = the column in the cell)
@@ -53,7 +60,8 @@ Folders:
                  ELEM47_labels.txt: the named labels and their numbers
   python/        c47sim.py (the C47 simulator of Almanac 47), elements.py (the data),
                  elem47sim.py (runs ELEM47: pictures, step counts)
-  tools/         build_elem47.py; build_free42.py (Free42); build_dev.py (programs_rem/dev -> build/dev);
+  tools/         build_elem47.py (also the STRUCT check and numbers); build_free42.py (Free42, not on
+                 branch struct); build_dev.py (programs_rem/dev -> build/dev);
                  bench_fw.py (the speed in the C47 firmware: T47 instructions, perf)
   tests/         test_elem47.py, test_opt.py (screens against the optimize build, tests/ref/), test_fw.py (the C47
                  firmware, T47), test_f42.py (Free42, f42run), test_dev.py (the dev programs);

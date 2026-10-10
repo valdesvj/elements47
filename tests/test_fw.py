@@ -5,7 +5,7 @@
   - the whole table, every row both ways: at each cell 5 (the detail box), then a key (the table again);
     every screen the same as python/c47sim.py, pixel for pixel, and the table back after each box
   - the end: R00-R99 and the stack cleared, no error
-The key waits (PAUSE n / KEY? r / GTO) are replaced in a test copy by PAUSE 1 (the firmware puts the drawing
+The key waits (PAUSE n / KEY? r / GTO, or DO / PAUSE n / KEY? r / WHILE / ENDDO) are replaced in a test copy by PAUSE 1 (the firmware puts the drawing
 on the screen at a PAUSE), SNAP (a .bmp) and the next key from the text in the variable TKS (α→x takes its
 first character). rejig writes the .p47 files (in a temporary folder, never committed).
 
@@ -39,6 +39,13 @@ def testcopy(src, dst):
         if re.fullmatch(r'PAUSE \d+', L[i]) and L[i + 1].startswith('KEY? ') and L[i + 2].startswith('GTO '):
             out += ['PAUSE 1', 'SNAP', 'α→x "TKS"', '→REAL', 'STO ' + L[i + 1][5:], 'DROP']
             i += 3
+            continue
+        # branch struct: DO n / PAUSE / KEY? r / WHILE n / ENDDO n (the other DO numbers stay as they are)
+        m = re.fullmatch(r'DO (\d+)', L[i])
+        if m and i + 4 < len(L) and re.fullmatch(r'PAUSE \d+', L[i + 1]) and L[i + 2].startswith('KEY? ') \
+                and L[i + 3:i + 5] == ['WHILE ' + m.group(1), 'ENDDO ' + m.group(1)]:
+            out += ['PAUSE 1', 'SNAP', 'α→x "TKS"', '→REAL', 'STO ' + L[i + 2][5:], 'DROP']
+            i += 5
             continue
         out.append(L[i]); i += 1
     open(dst, 'w', encoding='utf-8').write('\n'.join(out) + '\n')

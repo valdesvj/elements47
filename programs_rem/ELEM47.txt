@@ -10,20 +10,105 @@ REM At the end (key 0) the registers and the stack are cleared (CLREGS, CLSTK), 
 REM Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
 REM Z row column, R33 key, R34-R51 text and work (R36 = 1: the detail box open), R52-R53 the rows of the
 REM number and the symbol of a cell, R54 the column of the number, R55 text (the box).
+REM Branch struct, C47 only: the control flow in the C47 STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO,
+REM REPEAT / UNTIL: the firmware's app note AN0007), indented two spaces per level here; tools/build_elem47.py
+REM checks them and gives the partner numbers (IF 01 ...). No GTO: the labels are the routines (XEQ) and the
+REM data (XEQ IND). A test before a single step (X<0? RTN, X≠0? XEQ) stays as it is.
 LBL "ELEM47"
-REM the routines of a move first: each RTN goes back by counting the steps from the start of the program
-GTO :INIT:
-REM move: cursor off (XOR), new cell, cursor on, panel
-LBL :MOVE:
-XEQ :CURSXOR:
-XEQ :STEP:
-XEQ :CURSOR:
-XEQ :PANEL:
-REM the detail box open (R36): its new element, from the record the panel has just read
-RCL 36
-X≠0?
-XEQ :DETREC:
-GTO :KEYS:
+REM the main part first: the key loop calls the routines of a move and of the box, and each RTN goes back by
+REM counting the steps from the start of the program
+XEQ :INIT:
+REM ---- keys: 8 up, 2 down, 4 left, 6 right, 5 the detail box, 0 the end; other keys ignored ----
+DO
+  REM wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Almanac 47
+  DO
+    PAUSE 50
+    KEY? 33
+  WHILE
+  ENDDO
+  RCL 33
+  82
+  X≠Y?
+WHILE
+  REM the direction of a move: R41 rows, R42 columns (8 2 4 6), both 0 for the other keys
+  0
+  STO 41
+  STO 42
+  RCL 33
+  53
+  X=Y?
+  IF
+    -1
+    STO 41
+    DROP
+  ENDIF
+  DROP
+  73
+  X=Y?
+  IF
+    1
+    STO 41
+    DROP
+  ENDIF
+  DROP
+  62
+  X=Y?
+  IF
+    -1
+    STO 42
+    DROP
+  ENDIF
+  DROP
+  64
+  X=Y?
+  IF
+    1
+    STO 42
+    DROP
+  ENDIF
+  REM a move (R41 or R42 not 0): cursor off (XOR), the new cell, cursor on, the panel; the detail box open
+  REM (R36): its new element, from the record the panel has just read
+  RCL 41
+  RCL 42
+  X≠Y?
+  IF
+    XEQ :CURSXOR:
+    XEQ :STEP:
+    XEQ :CURSOR:
+    XEQ :PANEL:
+    RCL 36
+    X≠0?
+    XEQ :DETREC:
+  ENDIF
+  REM 5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws only what
+  REM the box covered). The arrows with the box open: the cursor, the panel and the box of the new element
+  RCL 33
+  63
+  X=Y?
+  IF
+    RCL 36
+    X≠0?
+    IF
+      0
+      STO 36
+      XEQ :CLOSE:
+    ELSE
+      1
+      STO 36
+      XEQ :DETAIL:
+    ENDIF
+  ENDIF
+ENDDO
+REM ---- 0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared ----
+0
+GRMOD
+20
+GRFNT
+DELITM "PT"
+CLLCD
+CLREGS
+CLSTK
+RTN
 REM ---- LBL :CURSOR: the cursor, the inside of the cell inverted (XOR, unrolled); twice = off ----
 LBL :CURSOR:
 RCL 31
@@ -117,50 +202,35 @@ IP
 STO 43
 14
 X<Y?
-GTO :RECD2:
-XEQ "ELD1"
-GTO :RECIN:
-LBL :RECD2:
-XEQ "ELD2"
-LBL :RECIN:
+IF
+  XEQ "ELD2"
+ELSE
+  XEQ "ELD1"
+ENDIF
 STO 44
+REM (Z-1) mod 4 records skipped: R24 = (Z-1) mod 4 + 1, DSE first (0 records: no skip)
 RCL 24
 4
 MOD
-STO 24
-X=0?
-GTO :RECGOT:
-LBL :RECSKIP:
-"|"
-αPOS 44
 1
 +
-αSL 44
-DSE 24
-GTO :RECSKIP:
-LBL :RECGOT:
+STO 24
+DO
+  DSE 24
+WHILE
+  "|"
+  αPOS 44
+  1
+  +
+  αSL 44
+ENDDO
 XEQ :FIELD:
 RCL 35
 STO 37
 XEQ :FIELD:
 RTN
-REM 5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws only what the box
-REM covered). The arrows with the box open: the cursor, the panel and the box of the new element (LBL :MOVE:)
-LBL :INFO:
-RCL 36
-X≠0?
-GTO :BCLOSE:
-1
-STO 36
-XEQ :DETAIL:
-GTO :KEYS:
-LBL :BCLOSE:
-0
-STO 36
-XEQ :CLOSE:
-GTO :KEYS:
 REM ---- LBL :CLOSE: the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
-REM under it drawn again (rows 3-7, columns 3-16: 5 segments, LBL :CLSEG:), then the keys, the cursor and the
+REM under it drawn again (rows 3-7, columns 3-16: 5 segments, LBL :CLSYM: and LBL :SEGMENT:), then the keys, the cursor and the
 REM panel (the box covers part of the key legend and of the panel). The same screen as drawing the whole table ----
 LBL :CLOSE:
 XEQ :CURSXOR:
@@ -170,47 +240,45 @@ GRMOD
 REM the cell patterns again (the detail box left its own in R20)
 11111111111111111111111111#2
 STO 20
-REM the segments under the box: first Z, count, row, first column
+REM the segments under the box: the first Z (LBL :CLSYM:), then count, row, first column (LBL :SEGMENT:)
 13
+XEQ :CLSYM:
 4
 3
 13
-XEQ :CLSEG:
+XEQ :SEGMENT:
 21
+XEQ :CLSYM:
 14
 4
 3
-XEQ :CLSEG:
+XEQ :SEGMENT:
 39
+XEQ :CLSYM:
 14
 5
 3
-XEQ :CLSEG:
+XEQ :SEGMENT:
 72
+XEQ :CLSYM:
 13
 6
 4
-XEQ :CLSEG:
+XEQ :SEGMENT:
 104
+XEQ :CLSYM:
 13
 7
 4
-XEQ :CLSEG:
+XEQ :SEGMENT:
 XEQ :TITLE:
 XEQ :CURSOR:
 XEQ :PANEL:
 RTN
-REM LBL :CLSEG: a segment of the table again: T = first Z, Z = count, Y = row, X = first column. The symbols
-REM from piece (Z-1) div 65 (R50 the label, R34 the text from Z on, R49 = 66 - (Z-1) mod 65 for LBL :SEGLOOP:),
-REM then LBL :SEGMENT: from the position on. (Z-1) mod 65 is never 0 here (Z 1 and 66 are not under the box):
-REM αSL always has something to skip
-LBL :CLSEG:
-STO 27
-R↓
-STO 26
-R↓
-STO 28
-R↓
+REM LBL :CLSYM: R25 = X, the first Z of a segment drawn again, and its symbols: piece (Z-1) div 65 (R50 the
+REM label), R34 the text from Z on. (Z-1) mod 65 is never 0 here (Z 1 and 66 are not under the box): αSL
+REM always has something to skip
+LBL :CLSYM:
 STO 25
 1
 -
@@ -224,15 +292,10 @@ STO 34
 RCL 24
 65
 MOD
-STO 24
 3
 ×
 αSL 34
-66
-RCL 24
--
-STO 49
-GTO :SEGPOS:
+RTN
 REM ---- LBL :DETAIL: the detail box (symbol, mass, state, boiling point, group, configuration),
 REM x 50-349, rows 60-179, over the table ----
 LBL :DETAIL:
@@ -283,7 +346,10 @@ x→α 48
 "-"
 αPOS 46
 X<0?
-XEQ :KELVIN:
+IF
+  " K"
+  x→α 48
+ENDIF
 REM the left values in R38: symbol, state (the letter in R45 -> a word of LBL :STATES:), group, config
 RCL 29
 STO 38
@@ -301,13 +367,13 @@ x→α 38
 REM group: the number (columns 1-18; none for rows 8-9), then the name of the group
 RCL 31
 7
-X<Y?
-GTO :GRPNAM:
-RCL 32
-αIP 38
-"  "
-x→α 38
-LBL :GRPNAM:
+X≥Y?
+IF
+  RCL 32
+  αIP 38
+  "  "
+  x→α 38
+ENDIF
 XEQ :GROUP:
 XEQ :GRPNAME:
 XEQ :FIELDK:
@@ -405,9 +471,9 @@ STO 20
 STO 21
 1
 STO 25
-STO 49
 -1
 STO 50
+XEQ :SYMPCE:
 REM ==== SEGMENTS: written by tools/build_elem47.py from python/elements.py (count, row, first column, in
 REM the order of Z), do not edit up to the RTN ====
 1
@@ -467,7 +533,7 @@ XEQ :SEGMENT:
 4
 XEQ :SEGMENT:
 RTN
-REM ---- the start: the matrix PT, the patterns, the cursor on H ----
+REM ---- LBL :INIT: the start: the matrix PT, the patterns, the cursor on H, the table ----
 LBL :INIT:
 WSIZE 64
 9
@@ -486,79 +552,12 @@ STO 36
 STO 30
 STO 31
 STO 32
-REM ---- the table ----
-LBL :TABLE:
+REM the table
 CLLCD
 XEQ :CELLS:
 XEQ :TITLE:
 XEQ :CURSOR:
 XEQ :PANEL:
-REM ---- keys: 8 up, 2 down, 4 left, 6 right, 5 detail, 0 end; other keys ignored ----
-LBL :KEYS:
-PAUSE 50
-KEY? 33
-GTO :KEYS:
-RCL 33
-53
-X=Y?
-GTO :UP:
-DROP
-73
-X=Y?
-GTO :DOWN:
-DROP
-62
-X=Y?
-GTO :LEFT:
-DROP
-64
-X=Y?
-GTO :RIGHT:
-DROP
-63
-X=Y?
-GTO :INFO:
-DROP
-82
-X=Y?
-GTO :QUIT:
-GTO :KEYS:
-LBL :UP:
-1
-CHS
-STO 41
-0
-STO 42
-GTO :MOVE:
-LBL :DOWN:
-1
-STO 41
-0
-STO 42
-GTO :MOVE:
-LBL :LEFT:
-0
-STO 41
-1
-CHS
-STO 42
-GTO :MOVE:
-LBL :RIGHT:
-0
-STO 41
-1
-STO 42
-GTO :MOVE:
-REM ---- 0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared ----
-LBL :QUIT:
-0
-GRMOD
-20
-GRFNT
-DELITM "PT"
-CLLCD
-CLREGS
-CLSTK
 RTN
 REM ---- LBL :TITLE: the title (row 1, columns 13-17) and the keys, drawn once ----
 LBL :TITLE:
@@ -581,15 +580,14 @@ ATEXT Z
 194
 ATEXT Z
 RTN
-REM LBL :SEGMENT: a segment. Z = count, Y = row, X = first column; R25 = its first Z. The position once,
-REM then 22 columns to the right for each cell
+REM LBL :SEGMENT: a segment. Z = count, Y = row, X = first column; R25 = its first Z, R34 its symbols. The
+REM position once, then 22 columns to the right for each cell
 LBL :SEGMENT:
 STO 27
 R↓
 STO 26
 R↓
 STO 28
-LBL :SEGPOS:
 XEQ :CELLPOS:
 REM R54 the column of the number (4 to the left of the cell), 22 more for each cell
 RCL 39
@@ -600,74 +598,75 @@ REM PT: the first cell of the segment indexed once, then STOSEQ (STOEL, then J+)
 RCL 26
 RCL 27
 STOIJ
-LBL :SEGLOOP:
-RCL 25
-STOSEQ
-REM the symbol: the next 3 characters of the symbols (a new piece every 65 elements, R49 counts):
-REM the symbol, then a digit (the column of the symbol in the cell, so it is centred)
-DSE 49
-GTO :SYMBOL:
-XEQ :SYMPCE:
-LBL :SYMBOL:
-REM the box: 22 columns (edge, 21 inner; GRMOD 0), unrolled. Its right edge is the left edge of the next
-REM cell, or the last column of the segment (after the loop)
-RCL 40
-RCL 39
-AGRAPH 20
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-AGRAPH 21
-REM the number, tinyFont: a space first (no empty string), row R52, column R54
-10
-GRFNT
-" "
-STO 38
-RCL 25
-αIP 38
-RCL 38
-RCL 52
-RCL 54
-ATEXT Z
-REM the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
-21
-GRFNT
-2
-αLEFT 34
-2
-αSL 34
-DROP
-RCL 53
-α→𝑥 34
-48
--
-RCL 39
-+
-ATEXT Z
-1
-STO+ 25
-22
-STO+ 39
-STO+ 54
-DSE 28
-GTO :SEGLOOP:
+REM the cells, R28 of them
+DO
+  RCL 25
+  STOSEQ
+  REM the symbol: the next 3 characters of the symbols (a new piece at Z 66; STOSEQ keeps the Z in X):
+  REM the symbol, then a digit (the column of the symbol in the cell, so it is centred)
+  66
+  X=Y?
+  XEQ :SYMPCE:
+  REM the box: 22 columns (edge, 21 inner; GRMOD 0), unrolled. Its right edge is the left edge of the next
+  REM cell, or the last column of the segment (after the loop)
+  RCL 40
+  RCL 39
+  AGRAPH 20
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  AGRAPH 21
+  REM the number, tinyFont: a space first (no empty string), row R52, column R54
+  10
+  GRFNT
+  " "
+  STO 38
+  RCL 25
+  αIP 38
+  RCL 38
+  RCL 52
+  RCL 54
+  ATEXT Z
+  REM the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
+  21
+  GRFNT
+  2
+  αLEFT 34
+  2
+  αSL 34
+  DROP
+  RCL 53
+  α→𝑥 34
+  48
+  -
+  RCL 39
+  +
+  ATEXT Z
+  1
+  STO+ 25
+  22
+  STO+ 39
+  STO+ 54
+  DSE 28
+WHILE
+ENDDO
 REM the right edge of the last cell
 RCL 40
 RCL 39
@@ -679,8 +678,6 @@ LBL :SYMPCE:
 STO+ 50
 XEQ IND 50
 STO 34
-65
-STO 49
 RTN
 REM ---- LBL :CELLPOS: the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
 REM lanthanides and actinides: 9 rows lower, a gap under the periods); R53 = R40 + 1 (the symbol, the cursor),
@@ -700,11 +697,11 @@ RCL 26
 STO 40
 RCL 26
 7
-X≥Y?
-GTO :CPROWS:
-9
-STO- 40
-LBL :CPROWS:
+X<Y?
+IF
+  9
+  STO- 40
+ENDIF
 RCL 40
 1
 +
@@ -732,19 +729,19 @@ RCL 24
 RTN
 REM ---- LBL :FIELDK: field R24 (from 0) of the text "a/b/c" in R35, left in R35 ----
 LBL :FIELDK:
-RCL 24
-X=0?
-GTO :FCUT:
-"/"
-αPOS 35
-1
-+
-αSL 35
-1
-STO- 24
-GTO :FIELDK:
+DO
+  RCL 24
+  X≠0?
+WHILE
+  "/"
+  αPOS 35
+  1
+  +
+  αSL 35
+  1
+  STO- 24
+ENDDO
 REM cut at the next "/" (none after the last field)
-LBL :FCUT:
 "/"
 αPOS 35
 X<0?
@@ -759,29 +756,30 @@ RCL 31
 STO 26
 RCL 32
 STO 27
-LBL :STEPLP:
-RCL 41
-STO+ 26
-RCL 42
-STO+ 27
-RCL 26
-X=0?
-RTN
-9
-X<Y?
-RTN
-RCL 27
-X=0?
-RTN
-18
-X<Y?
-RTN
-RCL 26
-RCL 27
-STOIJ
-RCLEL
-X=0?
-GTO :STEPLP:
+REM on in the direction until a cell that is not empty (PT); outside the table: RTN, the cursor stays
+REPEAT
+  RCL 41
+  STO+ 26
+  RCL 42
+  STO+ 27
+  RCL 26
+  X=0?
+  RTN
+  9
+  X<Y?
+  RTN
+  RCL 27
+  X=0?
+  RTN
+  18
+  X<Y?
+  RTN
+  RCL 26
+  RCL 27
+  STOIJ
+  RCLEL
+  X≠0?
+UNTIL
 STO 30
 RCL 26
 STO 31
@@ -798,23 +796,24 @@ AGRAPH 20
 21
 STO 22
 R↓
-LBL :HLLOOP:
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-DSE 22
-GTO :HLLOOP:
+DO
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  DSE 22
+WHILE
+ENDDO
 RTN
 REM ---- LBL :BOXCLR: the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
 REM x 20 rows each): 42 spaces from x 50 and one more column of spaces at x 343. Leaves GRMOD 1, GRFNT 21 ----
@@ -839,11 +838,6 @@ ATEXT Z
 343
 ATEXT Z
 RTN
-REM " K" after a boiling point
-LBL :KELVIN:
-" K"
-x→α 48
-RTN
 REM the names of the states, in the order of R51 "SLG-"
 LBL :STATES:
 "Solid/Liquid/Gas/-"
@@ -856,39 +850,40 @@ RCL 31
 STO 24
 7
 X<Y?
-GTO :GRPF:
-RCL 32
-STO 24
-RCL 30
-1
-X=Y?
-GTO :GRP0:
-RCL 32
-2
-X<Y?
-GTO :GRPD:
-RTN
-LBL :GRPD:
-3
-STO 24
-RCL 32
-12
-X<Y?
-GTO :GRPP:
-RTN
-LBL :GRPP:
-RCL 32
-9
--
-STO 24
-RTN
-LBL :GRP0:
-0
-STO 24
-RTN
-LBL :GRPF:
-2
-STO+ 24
+IF
+  REM rows 8-9: 10, 11
+  2
+  STO+ 24
+ELSE
+  RCL 32
+  STO 24
+  RCL 30
+  1
+  X=Y?
+  IF
+    REM H: 0
+    0
+    STO 24
+  ELSE
+    RCL 32
+    2
+    X<Y?
+    IF
+      REM columns 3-12: 3; columns 13-18: 4-9
+      3
+      STO 24
+      RCL 32
+      12
+      X<Y?
+      IF
+        RCL 32
+        9
+        -
+        STO 24
+      ENDIF
+    ENDIF
+  ENDIF
+ENDIF
 RTN
 REM LBL :GRPNAME: the names of the groups in R35, "/" between them (texts of 64 characters at most)
 LBL :GRPNAME:

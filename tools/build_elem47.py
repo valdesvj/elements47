@@ -9,6 +9,12 @@ Three programs, three global labels:
           The segments of the table (count, row, first column) are written into LBL :CELLS:, after the
           line SEG_MARK. Its data labels stay numeric (reached with XEQ IND): LBL 00-01 the symbols (65 elements each: the symbol in 2 characters, then a digit, the column of
           the symbol in its cell).
+          Branch struct (C47 only): the code is written with the C47 STRUCT commands (app note AN0007 of the
+          firmware: IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL), indented in the source (two spaces
+          per level), without numbers: the build checks the structures as VALID does and gives the partner
+          numbers (IF, DO and REPEAT in three series, from 01, in the order the openers appear), as rejig
+          writes them (IF 01). The build/ELEM47.txt file holds three programs and the C47 checks only the
+          last one as it loads, so the numbers must be in the file.
   ELD1    the element records of Z 1-60: LBL 00-14; ELD2 those of Z 61-118: LBL 15-29. 4 elements per
   ELD2    label, each one "name/mass/state letter/boiling point/configuration|" (the fields joined by "/",
           "|" after each record).
@@ -38,6 +44,71 @@ DATA = ('ELD1', 'ELD2')    # the names of the two record programs (global labels
 MAXSTR = 196         # the longest text the C47 keeps in one string (MAX_NUMBER_OF_GLYPHS_IN_STRING of the
                      # firmware); 69 checked on the C47 so far: tests/calc/LTEST.txt checks 196
 NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
+# the C47 STRUCT commands (AN0007): the openers, the closers, and the series of the partner numbers
+OPENERS = {'IF': 'ENDIF', 'DO': 'ENDDO', 'REPEAT': 'UNTIL'}
+STRUCT = ('IF', 'ELSE', 'ENDIF', 'DO', 'WHILE', 'ENDDO', 'REPEAT', 'UNTIL')
+NOT_USED = ('FOR', 'NEXT', 'FORₓ', 'NEXTₓ', 'FOR𝑦ˣ', 'FORᵀᴼᴾ')       # FOR takes its three values off the stack
+
+
+def is_test(step):
+    """A step that leaves a test answer (the firmware's structTest list: the comparisons, the flag and type
+    tests ending with ?, the counters, KEY?)."""
+    op = step.split(' ')[0]
+    return op.endswith('?') or op in ('DSE', 'ISG', 'DSZ', 'ISZ', 'DSL', 'ISE')
+
+
+def structures(steps):
+    """The steps with the partner numbers of the STRUCT commands, as VALID numbers them (manage.c /
+    structured.c structWalkProgram): per program, IF, DO and REPEAT in three series from 1, in the order
+    the openers appear; ELSE, WHILE, ENDDO, ENDIF, UNTIL take the number of their opener. Stops on what
+    VALID refuses (a closer without its opener or of another kind, a structure left open at END or across
+    a routine (RTN then LBL), a DO without WHILE, an IF / WHILE / UNTIL without a test just before it) and
+    on a test before ELSE, ENDIF, DO, ENDDO, REPEAT or UNTIL: the firmware never skips those (structured.c
+    structNoLegacySkip)."""
+    out, open_, n = [], [], {}
+
+    def fail(i, msg):
+        raise SystemExit('STRUCT, step %d (%s): %s' % (i + 1, steps[i], msg))
+    for i, s in enumerate(steps):
+        op = s.split(' ')[0]
+        prev = steps[i - 1] if i else ''
+        if op in NOT_USED:
+            fail(i, 'FOR / NEXT not used here (they take the start, end and step off the stack)')
+        if op in STRUCT and s != op:
+            fail(i, 'written without a number: the build numbers the structures')
+        if op in ('IF', 'WHILE', 'UNTIL') and not is_test(prev):
+            fail(i, 'no test just before it')
+        if op in ('ELSE', 'ENDIF', 'DO', 'ENDDO', 'REPEAT', 'UNTIL') and is_test(prev) and not op == 'UNTIL':
+            fail(i, 'a test before it: the firmware never skips a structure step')
+        if s == 'END' or (s.startswith('LBL ') and prev == 'RTN'):
+            if open_:
+                fail(i, 'structure %s %02d still open' % tuple(open_[-1][:2]))
+            if s == 'END':
+                n = {}
+        if op in OPENERS:
+            n[op] = n.get(op, 0) + 1
+            open_.append([op, n[op], False])
+            out.append('%s %02d' % (op, n[op]))
+            continue
+        if op in STRUCT:
+            want = {'ELSE': 'IF', 'ENDIF': 'IF', 'WHILE': 'DO', 'ENDDO': 'DO', 'UNTIL': 'REPEAT'}[op]
+            if not open_ or open_[-1][0] != want:
+                fail(i, 'no %s open here' % want)
+            top = open_[-1]
+            if op in ('ELSE', 'WHILE'):
+                if top[2]:
+                    fail(i, 'a second %s' % op)
+                top[2] = True
+            if op == 'ENDDO' and not top[2]:
+                fail(i, 'a DO without WHILE')
+            if op in ('ENDIF', 'ENDDO', 'UNTIL'):
+                open_.pop()
+            out.append('%s %02d' % (op, top[1]))
+            continue
+        out.append(s)
+    if open_:
+        raise SystemExit('STRUCT: %s %02d still open at the end' % tuple(open_[-1][:2]))
+    return out
 
 
 def offset(sym):
@@ -166,15 +237,21 @@ def build():
     b = lines.index('RTN', a)
     lines[a:b] = segments()
     r = lines.index('LBL :RECORD:')
-    if lines[r + 4:r + 6] != ['STO 24', str(PER)] or lines[r + 19:r + 20] != [str(PER)] \
-            or lines[r + 9:r + 10] != [str(REC0 + SPLIT // PER - 1)] or REC0 or SYM0 or SPLIT % PER \
-            or lines[r + 12:r + 16] != ['XEQ "%s"' % DATA[0], 'GTO :RECIN:', 'LBL :RECD2:', 'XEQ "%s"' % DATA[1]]:
+    rec = source_steps(lines[r:])
+    rec = ' / ' + ' / '.join(rec[:rec.index('RTN')]) + ' / '
+
+    def has(*seq):
+        return ' / ' + ' / '.join(seq) + ' / ' in rec
+    if not (has('STO 24', str(PER), '÷') and has('RCL 24', str(PER), 'MOD')
+            and has(str(REC0 + SPLIT // PER - 1), 'X<Y?', 'IF', 'XEQ "%s"' % DATA[1], 'ELSE', 'XEQ "%s"' % DATA[0], 'ENDIF')) \
+            or REC0 or SYM0 or SPLIT % PER:
         raise SystemExit('LBL :RECORD: must divide by PER = %d, split at LBL %d and call %s, %s (REC0 = SYM0 = 0: '
                          'no + before XEQ IND)' % ((PER, REC0 + SPLIT // PER - 1) + DATA))
     with open(src, 'w', encoding='utf-8') as fh:
         fh.write('\n'.join(lines) + '\n')
-    steps = [ln for ln in lines if ln.strip() and not ln.startswith('REM')]
+    steps = source_steps(lines)
     numeric, num = resolve(steps)
+    numeric = structures(numeric)
     if [s for s in steps if s.startswith('LBL "')] != ['LBL "ELEM47"'] + ['LBL "%s"' % d for d in DATA] \
             or steps.count('END') != 3:
         raise SystemExit('three programs: ELEM47, %s, %s' % DATA)
@@ -187,10 +264,11 @@ def build():
     for ln in lines:
         if not ln.strip():
             continue
-        if ln.startswith('REM'):
-            listing.append('      ; ' + ln[3:].strip())
+        ind = ln[:len(ln) - len(ln.lstrip())]
+        if ln.lstrip().startswith('REM'):
+            listing.append('      ' + ind + '; ' + ln.lstrip()[3:].strip())
         else:
-            listing.append('%4d  %s' % (n + 1, steps[n] + ('' if numeric[n] == ln else '    (%s)' % numeric[n].split(' ', 1)[1])))
+            listing.append('%4d  %s' % (n + 1, ind + steps[n] + ('' if numeric[n] == steps[n] else '    (%s)' % numeric[n].split(' ', 1)[1])))
             n += 1
     plain = '\n'.join(numeric) + '\n'
     for d in ('programs', 'build'):
@@ -216,7 +294,18 @@ def programs(steps):
 def label_numbers():
     """name -> number of the named labels of ELEM47 in build/ELEM47.txt (for the tests)."""
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', NAME + '.txt'), encoding='utf-8')]
-    return resolve([ln for ln in lines if ln.strip() and not ln.startswith('REM')])[1]
+    return resolve(source_steps(lines))[1]
+
+
+def source_steps(lines):
+    """The steps of the source lines: no REM, no empty lines, the indentation off."""
+    return [ln.strip() for ln in lines if ln.strip() and not ln.lstrip().startswith('REM')]
+
+
+def plain_steps(lines):
+    """The steps of build/ELEM47.txt from the source lines: local numbers for the named labels, partner
+    numbers for the structures (for the tests)."""
+    return structures(resolve(source_steps(lines))[0])
 
 
 if __name__ == '__main__':

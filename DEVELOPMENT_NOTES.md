@@ -292,7 +292,48 @@
 - Tried and dropped: the record programs named "A" and "B" (they worked in T47 and f42run; the names
   ELD1 / ELD2 kept).
 
+## Oct 10, 2026 - Branch struct (C47 only): the C47 STRUCT commands, no GTO
+- Victor: the control flow with the structured programming commands of the C47 (firmware app note AN0007,
+  docs/appnotes/sources/AN0007_STRUCT in the firmware sources: the Structured Programming Guide and the
+  Specification), so no labels and jumps for decisions and loops. C47 only: Free42 has no STRUCT, so
+  tools/build_free42.py stops on this branch and build/free42/ stays as built on main.
+- The commands (items 2920-2939, structured.c, in every C47 build): IF / ELSE / ENDIF (a test just before IF:
+  true runs the body, false jumps to ELSE or ENDIF), DO / WHILE / ENDDO (the test before WHILE, anywhere in
+  the body; ENDDO goes back to the step after DO), REPEAT / UNTIL (true at UNTIL ends). Each takes a partner
+  number (IF, DO and REPEAT in three series, 1-255 per program) that VALID writes; rejig writes IF 01 (the
+  STRUCT patch of rejig 0.31.0). KEY? is a test for them (fnKey: true when no key was pressed), and so are DSE
+  and the comparisons. FOR / NEXT are not used: FOR takes the start, end and step off the stack, where
+  AGRAPH keeps its row and column.
+- programs_rem/ELEM47.txt: the structures indented two spaces per level, written without numbers.
+  tools/build_elem47.py strips the indentation, checks the structures as VALID does (a closer of the right
+  kind, nothing open at END or across RTN / LBL, a DO with its WHILE, a test before IF / WHILE / UNTIL, no
+  test before ELSE / ENDIF / DO / ENDDO / REPEAT / UNTIL, which the firmware never skips) and gives the
+  numbers in VALID's order. They must be in the file: the C47 checks only the last program of a file as it
+  loads, and ELEM47 comes before ELD1, ELD2. listings/ELEM47_doc.txt keeps the indentation, the number after
+  each step in brackets.
+- The program: the main part first, XEQ :INIT: then the key loop: DO / (DO / PAUSE 50 / KEY? 33 / WHILE /
+  ENDDO, the key wait) / RCL 33 82 X≠Y? WHILE / the direction (one IF per key 8 2 4 6, R41 R42) / a move
+  when R41 ≠ R42 / 5: IF R36 :CLOSE: ELSE :DETAIL: / ENDDO, then the end. :RECORD: IF for ELD1 / ELD2 and
+  DO / DSE 24 / WHILE for the records skipped; :STEP: REPEAT / UNTIL with its RTNs; :FIELDK:, :HLINE: and
+  the cells of :SEGMENT: DO / WHILE loops; :GROUP:, :CELLPOS:, the group number and " K" IF. :CLSEG: and
+  its GTO into :SEGMENT: are gone: :CLSYM: sets the symbols of the first Z, then the usual XEQ :SEGMENT:.
+  The symbol pieces: :SYMPCE: once before the cells and at Z 66 (66 X=Y? after STOSEQ, which keeps the Z),
+  no R49 counter. A test before one step (X<0? RTN, X≠0? XEQ :DETREC:) stays.
+- ELEM47 810 -> 794 steps, 51 -> 24 local labels (22 routines, 2 data labels), no GTO.
+- c47sim.py (Almanac 47) has no STRUCT: python/elem47sim.py lowers the numbered structures to labels and
+  GTO before running (lower(): an inverted comparison + GTO, test GTO GTO LBL for KEY? and DSE), the same
+  jumps as structured.c. The step counts are close, not the firmware's (here ENDIF and the labels are
+  steps). To do in Almanac 47: STRUCT in c47sim itself, then copied here.
+- tests/test_opt.py: every screen the same as the optimize build, pixel for pixel; tests/test_elem47.py all
+  ok (the file check now includes the numbers, and ELEM47 has no GTO). Simulator steps: a move 245 -> about
+  270 (the four IF of the direction run for every key), the table 7 833 (the same), the detail box 1 071.
+- tests/test_fw.py: the key wait DO / PAUSE / KEY? / WHILE / ENDDO is replaced as PAUSE / KEY? / GTO was.
+  Not run yet (no T47 or patched rejig in the cloud session): to run on Victor's machine, with
+  tools/bench_fw.py for the speed in the firmware.
+
 ## Next
+- Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
+  on the C47 itself.
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).
 - Free42: time the table on a DM42; build/free42/ELEM47.txt goes in by Paste in Free42 (export a .raw there).
