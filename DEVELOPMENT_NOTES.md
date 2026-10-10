@@ -330,6 +330,15 @@
 - tests/test_fw.py: the key wait DO / PAUSE / KEY? / WHILE / ENDDO is replaced as PAUSE / KEY? / GTO was.
   Not run yet (no T47 or patched rejig in the cloud session): to run on Victor's machine, with
   tools/bench_fw.py for the speed in the firmware.
+- Then (Victor: faster on the C47; more optimizations), profiled in the simulator (steps per routine):
+  - The direction from the key code by arithmetic, no IF per key: R41 = k div 10 - 6, R42 = k mod 10 - 3,
+    a move when |R41| + |R42| = 1 (only 53 73 62 64 give it; 63 gives 0 0). A move 270 -> 264 steps.
+  - The symbol column of a cell: R56 = R39 - 48 (set with R54 once per segment, + 22 per cell), so
+    α→x 34 RCL+ 56 in place of α→x 34 48 - RCL 39 +: 2 steps less per cell. The table 7 833 -> 7 639,
+    closing the box 4 034 -> 3 933.
+  - :HLINE: 2 + 8 x 37 AGRAPH (8 rounds of the loop, not 21 of 14), +23 program steps: the box 1 068 -> 1 016.
+  - Screens the same (test_opt, test_elem47). ELEM47 797 steps. No block glyph in the standardFont, so the
+    lines and the bar stay AGRAPH.
 
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"

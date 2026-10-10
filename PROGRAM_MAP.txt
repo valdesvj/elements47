@@ -2,7 +2,7 @@ ELEMENTS 47 - PROGRAM MAP
 
 FILE      GLOBAL LABELS   STEPS
 --------------------------------
-ELEM47    ELEM47           794   the code (build/ELEM47.txt); branch struct: C47 only, STRUCT commands
+ELEM47    ELEM47           797   the code (build/ELEM47.txt); branch struct: C47 only, STRUCT commands
           ELD1              49   the records of Z 1-60 (LBL 00-14)
           ELD2              49   the records of Z 61-118 (LBL 15-29)
 ELEM47    ELEM47          1016   Free42: build/free42/ELEM47.txt, as built on main (branch struct: the
@@ -42,7 +42,7 @@ LOCAL LABELS OF ELEM47
   :FIELD:                 the next field of the record
   :FIELDK:                field k of the text "a/b/c"
   :STEP:                  move the cursor, skip empty cells (REPEAT / UNTIL)
-  :HLINE:                 298 columns of a pattern (the bottom line, the header bar), unrolled by 14
+  :HLINE:                 298 columns of a pattern (the bottom line, the header bar), unrolled by 37
   :BOXCLR: :STATES:       the detail box: its area cleared; the state names
   :GROUP: :GRPNAME:       the group name
 

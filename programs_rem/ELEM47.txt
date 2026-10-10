@@ -9,7 +9,8 @@ REM Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
 REM At the end (key 0) the registers and the stack are cleared (CLREGS, CLSTK), as Almanac 47 v2.2.0.
 REM Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
 REM Z row column, R33 key, R34-R51 text and work (R36 = 1: the detail box open), R52-R53 the rows of the
-REM number and the symbol of a cell, R54 the column of the number, R55 text (the box).
+REM number and the symbol of a cell, R54 the column of the number, R55 text (the box), R56 the column of the
+REM cell - 48 (the symbol: + the code of its digit).
 REM Branch struct, C47 only: the control flow in the C47 STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO,
 REM REPEAT / UNTIL: the firmware's app note AN0007), indented two spaces per level here; tools/build_elem47.py
 REM checks them and gives the partner numbers (IF 01 ...). No GTO: the labels are the routines (XEQ) and the
@@ -30,47 +31,29 @@ DO
   82
   X≠Y?
 WHILE
-  REM the direction of a move: R41 rows, R42 columns (8 2 4 6), both 0 for the other keys
-  0
-  STO 41
-  STO 42
+  REM the direction of a move from the key code k: R41 = k div 10 - 6 rows, R42 = k mod 10 - 3 columns
+  REM (8: 53 -> -1 0, 2: 73 -> 1 0, 4: 62 -> 0 -1, 6: 64 -> 0 1); |R41| + |R42| = 1 for these four keys only
   RCL 33
-  53
-  X=Y?
-  IF
-    -1
-    STO 41
-    DROP
-  ENDIF
-  DROP
-  73
-  X=Y?
-  IF
-    1
-    STO 41
-    DROP
-  ENDIF
-  DROP
-  62
-  X=Y?
-  IF
-    -1
-    STO 42
-    DROP
-  ENDIF
-  DROP
-  64
-  X=Y?
-  IF
-    1
-    STO 42
-    DROP
-  ENDIF
-  REM a move (R41 or R42 not 0): cursor off (XOR), the new cell, cursor on, the panel; the detail box open
-  REM (R36): its new element, from the record the panel has just read
+  10
+  ÷
+  IP
+  6
+  -
+  STO 41
+  RCL 33
+  10
+  MOD
+  3
+  -
+  STO 42
+  REM a move: cursor off (XOR), the new cell, cursor on, the panel; the detail box open (R36): its new
+  REM element, from the record the panel has just read
+  ABS
   RCL 41
-  RCL 42
-  X≠Y?
+  ABS
+  +
+  1
+  X=Y?
   IF
     XEQ :CURSXOR:
     XEQ :STEP:
@@ -589,11 +572,15 @@ STO 26
 R↓
 STO 28
 XEQ :CELLPOS:
-REM R54 the column of the number (4 to the left of the cell), 22 more for each cell
+REM R54 the column of the number (4 to the left of the cell), R56 = R39 - 48 (the column of the symbol is R56
+REM + the code of its digit), 22 more for each cell
 RCL 39
 4
 -
 STO 54
+44
+-
+STO 56
 REM PT: the first cell of the segment indexed once, then STOSEQ (STOEL, then J+) for each cell
 RCL 26
 RCL 27
@@ -654,16 +641,14 @@ DO
   DROP
   RCL 53
   α→𝑥 34
-  48
-  -
-  RCL 39
-  +
+  RCL+ 56
   ATEXT Z
   1
   STO+ 25
   22
   STO+ 39
   STO+ 54
+  STO+ 56
   DSE 28
 WHILE
 ENDDO
@@ -787,16 +772,37 @@ RCL 27
 STO 32
 RTN
 REM LBL :HLINE: 298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
-REM 4, then 21 times 14 (unrolled: 340 steps instead of 894 for one AGRAPH per loop). R22 the count
+REM 2, then 8 times 37 (unrolled: 8 rounds of the loop, not 21 of 14). R22 the count
 LBL :HLINE:
 AGRAPH 20
 AGRAPH 20
-AGRAPH 20
-AGRAPH 20
-21
+8
 STO 22
 R↓
 DO
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
+  AGRAPH 20
   AGRAPH 20
   AGRAPH 20
   AGRAPH 20
