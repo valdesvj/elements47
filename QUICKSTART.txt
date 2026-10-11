@@ -19,6 +19,11 @@ Uses R20-R56 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE RE
 STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
 The manual with the screens: MANUAL.html (MANUAL.md on GitHub).
 
-Free42 (DM42 / DM42n stock firmware)
-v1.1.0 is for the C47 / R47 only (Free42 has no STRUCT commands). Use release v1.0.0
-(Free42_DM42/ELEM47.raw in its zip): the same table and keys, without going around the edges.
+Which calculators
+- R47, DM42n with the C47 firmware 00.109.05.00a0.ALPHA or later: yes. Older firmware
+  (00.109.04.00b0 and earlier): no (no STRUCT, ATEXT, GRFNT).
+- Original DM42 (not n) with the C47 firmware: NOT SUPPORTED. Its smaller firmware packages leave out
+  STRUCT (package 4) or allow only 10 IF per program (packages 1-3; ELEM47 has 11), and ATEXT / GRFNT
+  have been switched out and in again between builds. Not tried on a real original DM42.
+- DM42 / DM42n stock firmware (Free42): use release v1.0.0 (Free42_DM42/ELEM47.raw in its zip): the
+  same table and keys, without going around the edges.

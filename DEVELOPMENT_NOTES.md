@@ -400,6 +400,27 @@
   84.5, 335.9, 504.5, 895.1. 'moves' and 'inbox' are not comparable with the numbers before: their 17 rights on
   row 1 now go around H / He (16 real moves of 16 skipped cells each) where the cursor stayed.
 
+## Oct 11, 2026 - the original DM42: STRUCT, ATEXT and GRFNT in and out of its firmware
+- Two firmware builds (c43): src/c47-dmcp (DMCP 3, -DOLD_HW, C47.pgm + qspi) for the original DM42, src/c47-dmcp5
+  (DMCP 5, -DNEW_HW, C47.pg5 / R47.pg5) for the DM32 board: the DM42n and the R47. The original DM42 build has
+  TWO_FILE_PGM (src/c47/defines.h) and four packages (res/PACKAGES.md) that leave features out to fit its flash.
+- 00.109.04.00b0 and earlier: no ATEXT, GRFNT or STRUCT on any calculator.
+- 00.109.05.00a0.ALPHA (5 Oct 2026; its tag is not in master's history): original DM42 packages 1-3 have STRUCT,
+  ATEXT and GRFNT; package 4 has no STRUCT. On OLD_HW STRUCT holds at most 10 IF, 10 DO and 10 REPEAT numbers per
+  program and 10 nesting levels (src/c47/programming/structured.h:148-151; the R47 / DM42n / simulator 255 and 63).
+  ELEM47 has 11 IF (5 DO, 1 REPEAT): its 11th IF is past the limit, so it does not load on an original DM42.
+- master b160a7b (8 Oct 2026), defines.h:291-294: ATEXT, GRFNT and STRUCT out of every original DM42 package (ATEXT
+  and GRFNT become itemToBeCoded, items.c:1864-1877; STRUCT shows "not available here", structured.c:114).
+  Reported from the Almanac 47 session: master of 10 Oct has them back, as in the release. They can go out again
+  whenever the DM42 is short of flash.
+- Nobody has run ELEM47 (or Almanac 47's NAVLITTLE, measured on a DM42n) on a real original DM42; there is no
+  simulator of it. README, QUICKSTART and the manual say: original DM42 with the C47 firmware not supported.
+- Tried and dropped (Victor's decision): a DM42 build of the PIXEL program with the structures written as LBL /
+  GTO (elem47sim.lower(), the new labels numbered from the free local ones: ELEM47 867 -> 873 steps, 26 labels
+  more). It passed test_opt and test_fw (955 of 955 screens) but would be slower (a GTO searches its label) and
+  still needs ATEXT and GRFNT, which the DM42 builds do not keep for sure. Getting ELEM47 to 10 IF would be the
+  other way to fit the DM42 STRUCT limit.
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.

@@ -90,12 +90,20 @@ matrix PT (the table's map) deleted.
 Standard atomic weights: IUPAC / CIAAW 2024 (abridged, as on the IUPAC periodic table). State, boiling point,
 electron configuration: the PubChem periodic table. See `NOTICE`.
 
-## Free42 / DM42
+## Which calculators
 
-ELEM47 v%s is for the C47 / R47 only (Free42 has no structured programming). On a DM42 / DM42n with the
-stock firmware, or in Free42, use the release v1.0.0 (`Free42_DM42/ELEM47.raw`): the same table and keys,
-without going around the edges.
-''' % (VERSION, VERSION)
+ELEM47 needs three commands of the C47 firmware: the structured programming commands (IF, DO, REPEAT),
+ATEXT and GRFNT.
+
+- **R47 and DM42n** with the C47 firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later: yes.
+- **Older C47 firmware** (00.109.04.00b0 and earlier): no, it has none of the three.
+- **Original DM42 (not n) with the C47 firmware: not supported.** Its firmware is cut down to fit its flash. In
+  00.109.05.00a0.ALPHA, packages 1-3 have the structured commands but only 10 IF, 10 DO and 10 REPEAT per
+  program (ELEM47 has 11 IF), and package 4 has none. Later builds have switched them, ATEXT and GRFNT out and in
+  again, so this can change with each release. Nobody has tried ELEM47 on an original DM42 yet.
+- **DM42 / DM42n with the stock firmware, or Free42:** use the release v1.0.0 (`Free42_DM42/ELEM47.raw`):
+  the same table and keys, without going around the edges.
+''' % VERSION
 
 
 def screens():
