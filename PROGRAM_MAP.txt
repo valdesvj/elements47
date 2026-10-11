@@ -25,7 +25,10 @@ LOCAL LABELS OF ELEM47
   that call nothing last):
   (main part)             :INIT:, then the key loop (DO / WHILE until 0): the key wait (DO / PAUSE 50 /
                           KEY? 33 / WHILE / ENDDO), the direction (8 2 4 6), a move, 5 the detail box or
-                          :CLOSE:; then 0: the end: PT deleted, CLREGS, CLSTK
+                          :CLOSE:; then 0 (or F1-F3, :FKEY:): the end: R20-R56 cleared, PT deleted,
+                          the user's stack back (LocR 10 at the start: R.00-R.08 the stack and LASTx),
+                          the value of F1-F3 pushed (local flag F.00)
+  :FKEY:                  F1 F2 F3 with the box open: the end, the value in R49 (every key: kept early)
   :CURSOR: :CURSXOR:      the cursor (XOR, unrolled); :CURSXOR: again at the last position (off)
   :PANEL:                 name, Z, mass (GRMOD 1 text, spaces after it)
   :RECORD:                the record of Z (one per data label), its first fields
@@ -45,6 +48,7 @@ LOCAL LABELS OF ELEM47
   :HLINE:                 298 columns of a pattern (the bottom line, the header bar), unrolled by 37
   :BOXCLR: :STATES:       the detail box: its area cleared; the state names
   :GROUP: :GRPNAME:       the group name
+  :BOILTX: :TONUM: :DIGIT: the number of the mass or boiling point text (F2, F3; once, at the end)
 
   Data labels, numeric (XEQ IND):
   00-01   the symbols, 65 elements each (2 characters, then a digit = the column in the cell)

@@ -11,24 +11,26 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import build_elem47 as B
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 SUB = 'pixel'          # the variant of programs_rem/ and build/ submitted (the table's lines by PIXEL)
 # what a run produced; after tests/test_fw.py passes in T47, say so here
-TESTED = ('run on a C47 by the author; in the C47 firmware (T47, sources of 8 Oct 2026): the whole table\n'
-          '@          both ways with the detail box opened and closed at every cell, 955 screens, pixel for pixel\n'
-          '@          the same as the simulator and as the previous version')
+TESTED = ('in the C47 firmware (T47, sources of 8 Oct 2026): the whole table both ways with the detail box\n'
+          '@          opened and closed at every cell, every screen pixel for pixel the same as the simulator; the\n'
+          '@          stack kept and F1 F2 F3 on 4 and 8 levels (SSIZE4, SSIZE8); v1.1.0 run on a C47 by the author')
 HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @ Author:  Victor Valdes
 @ Version: %s
 @ Source:  https://github.com/valdesvj/elements47
 @ Tested:  %s
 @ Input:   none (XEQ 'ELEM47')
-@ Output:  the periodic table on the screen; key 0 ends: R00-R99 and the stack cleared
+@ Output:  the periodic table on the screen; key 0 ends with the stack as it was; in the detail box
+@          F1 F2 F3 end with Z, the standard atomic weight or the boiling point (K) pushed on the stack
 @
 @ The 118 elements in an 18 x 9 grid (periods 1-7, then the lanthanides and the actinides), the symbol
 @ and Z in each cell, the selected element (name, Z, standard atomic weight) in the empty part of periods 1-3.
 @ Keys: 8 4 6 2 move the cursor (empty cells skipped; at an edge around to the other side), 5 the detail
-@ box (symbol, mass, state, boiling point, group, electron configuration; 8 4 6 2 move in it, 5 closes it),
+@ box (symbol, mass, state, boiling point, group, electron configuration; 8 4 6 2 move in it, 5 closes it,
+@ F1 F2 F3 end the program with Z, the mass or the boiling point in X: a value shown as "-" is not pushed),
 @ 0 the end.
 @
 @ Three programs: ELEM47 (the code) and ELD1, ELD2 (the element records, Z 1-60 and 61-118).
@@ -47,8 +49,12 @@ HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @ Speed: the drawing is unrolled where it runs most: 21 AGRAPH for the cursor, 37 per round of the loop
 @ for the box lines (a loop costs about 3 steps per AGRAPH); the routines of the key loop come first in the
 @ program (each RTN counts the steps from the top).
-@ ELEM47 uses R20-R56 and the matrix PT (deleted at the end), and clears R00-R99 and the stack when it ends
-@ (CLREGS, CLSTK): store anything you need elsewhere first.
+@ The user's stack is kept: at the start LocR 10 and X..T (A..D on 8 levels) and LASTx in R.00-R.08, one
+@ STO and one R↓ each, 8 times (on 4 levels R↓ goes round twice: no test of the stack size); at the end 8 RCL
+@ (and STO L) give them back, then the value of F1-F3 (R.09, local flag F.00) is pushed: the top level goes,
+@ as for any number keyed in. The local registers are released at the end (RTN).
+@ ELEM47 uses R20-R56 and the matrix PT, and clears R20-R56 (R-CLR) and deletes PT at the end; the other
+@ registers are the user's.
 @ Data: standard atomic weights CIAAW 2024 (abridged, as the IUPAC periodic table; "-" where there is none),
 @ state, boiling point and configuration from the PubChem periodic table.
 @

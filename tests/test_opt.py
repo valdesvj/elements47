@@ -68,11 +68,14 @@ def box_keys(keys):
 
 def hint_off(shots):
     """The detail box screens without the key hint (\"ANY KEY: BACK\" before, \"5: BACK\" now): x 262-348 of the
-    header bar, C47 rows 158-178. A box screen: its top line (C47 row 179) set from x 51 to 348."""
+    header bar, C47 rows 158-178; nor the box under the header bar (keep-stack: the texts 4 rows up, the line
+    and the keys F1-F3, the box down to row 56): x 50-349, C47 rows 56-157 (test_elem47 and test_fw check it).
+    A box screen: its top line (C47 row 179) set from x 51 to 348."""
     out = []
     for f in shots:
         if all((x, 239 - 179) in f for x in range(51, 349)):
-            f = {(x, r) for x, r in f if not (262 <= x <= 348 and 239 - 178 <= r <= 239 - 158)}
+            f = {(x, r) for x, r in f if not (262 <= x <= 348 and 239 - 178 <= r <= 239 - 158)
+                 and not (50 <= x <= 349 and 239 - 157 <= r <= 239 - 56)}
         out.append(f)
     return out
 
@@ -94,11 +97,12 @@ def main():
         check(cb.keys == [] and getattr(cb, 'grfnt', 20) == 20 and getattr(cb, 'grmod', 0) == 0 and 'PT' not in cb.mats,
               '%-11s the end: GRFNT 20, GRMOD 0, PT deleted' % name)
         tot[name] = (ca.steps, cb.steps)
-    # the end (key 0): R00-R99 and the stack cleared (CLREGS, CLSTK), whatever was there before
+    # the end (key 0): R20-R56 cleared (R-CLR), the other registers and the stack as they were (keep-stack)
     mine = {str(i): D(1000 + i) for i in range(100)}
     b, cb = E.frames([R, Dn, I, I, END], E.PROG, regs=dict(mine))
-    left = [k for k in mine if cb.reg.get(k, D(0)) != 0]
-    check(not left and all(v == 0 for v in cb.s), 'the end: R00-R99 and the stack cleared %s' % (sorted(left, key=int)[:8] or ''))
+    bad = [k for k in mine if cb.reg.get(k, D(0)) != (0 if 20 <= int(k) <= 56 else mine[k])]
+    check(not bad and all(v == 0 for v in cb.s), 'the end: R20-R56 cleared, the other registers and the stack kept %s'
+          % (sorted(bad, key=int)[:8] or ''))
     # every element: the panel and the detail box through the program itself (cursor placed on it)
     a, ca = run(ref, [I])
     b, cb = run(E.PROG, [I])
@@ -110,10 +114,11 @@ def main():
             c.s = [D(0)] * 4; c.pix = []
             c.reg.update({g['Z']: D(z), g['ROW']: D(r), g['COL']: D(col)})
             c.run(lab[0]); c.run(lab[1])
-            outs.append(frozenset((y, x) for y, x in c.pix if not (262 <= x <= 348 and 158 <= y <= 178)))   # no hint
+            outs.append(frozenset((y, x) for y, x in c.pix if not (262 <= x <= 348 and 158 <= y <= 178)    # no hint
+                                  and not (50 <= x <= 349 and 56 <= y <= 157)))                           # nor the box
         if outs[0] != outs[1]:
             wrong.append(ELEMENTS[z - 1][0])
-    check(not wrong, 'panel and detail box of the 118 elements the same as %s %s' % (REF, wrong[:5] or ''))
+    check(not wrong, 'panel and detail box (header) of the 118 elements the same as %s %s' % (REF, wrong[:5] or ''))
     print('\nsteps run (%s -> this branch):' % REF)
     for name, (x, y) in tot.items():
         print('  %-11s %7d -> %7d  (%+.1f %%)' % (name, x, y, 100.0 * (y - x) / x))

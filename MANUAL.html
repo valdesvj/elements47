@@ -12,10 +12,10 @@ figure { margin: 1rem 0 1.4rem; } figcaption { color: var(--muted); font-size: .
 code { background: var(--code); padding: 0 .25em; border-radius: 3px; }
 table { border-collapse: collapse; margin: .8rem 0; } th, td { border: 1px solid var(--line); padding: .3rem .7rem; text-align: left; }
 </style></head><body>
-<h1>Elements 47 v1.1.0: user's manual</h1>
+<h1>Elements 47 v1.2.0: user's manual</h1>
 <p>The periodic table of the 118 elements on the C47 / R47: the table on one screen, a cursor you move with the digit keys, and a detail box for each element.</p>
 <h2>Install</h2>
-<ul><li>You need a C47 or R47 with the firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later: it has the structured programming commands (IF, DO, REPEAT: app note AN0007), ATEXT, GRFNT and PIXEL.</li><li>From the release zip, copy <code>C47_R47/ELEM47.p47</code> to the calculator (USB disk) and load it as any other program. It holds three programs: <code>ELEM47</code> (the one you run), <code>ELD1</code> and <code>ELD2</code> (the element data).</li><li><b>Before you run it:</b> at the end ELEM47 clears the registers R00-R99 and the stack. Keep anything you need somewhere else first.</li></ul>
+<ul><li>You need a C47 or R47 with the firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later: it has the structured programming commands (IF, DO, REPEAT: app note AN0007), ATEXT, GRFNT and PIXEL.</li><li>From the release zip, copy <code>C47_R47/ELEM47.p47</code> to the calculator (USB disk) and load it as any other program. It holds three programs: <code>ELEM47</code> (the one you run), <code>ELD1</code> and <code>ELD2</code> (the element data).</li><li>ELEM47 keeps your stack (4 or 8 levels) and LASTx, and the registers outside R20-R56. It uses R20-R56 for its work and clears them at the end: keep nothing you need there.</li></ul>
 <h2>Start</h2>
 <p><code>XEQ "ELEM47"</code>. After a few seconds the table is on the screen, the cursor on H (hydrogen).</p>
 <figure><img src="docs/ELEM47_table.png" alt="The table at the start, the cursor on H"><figcaption>The table at the start, the cursor on H</figcaption></figure>
@@ -30,14 +30,15 @@ table { border-collapse: collapse; margin: .8rem 0; } th, td { border: 1px solid
 <p><b>5</b> opens the box of the element under the cursor: symbol, standard atomic weight, state at room temperature, boiling point, group with its name, and the electron configuration.</p>
 <figure><img src="docs/ELEM47_detail_fe.png" alt="The detail box of Fe"><figcaption>The detail box of Fe</figcaption></figure>
 <p>With the box open, <b>8 4 6 2</b> move the cursor as before and the box shows the new element at once (here <b>6</b>: from Fe to Co). <b>5</b> closes the box, <b>0</b> ends; other keys are ignored.</p>
+<p>The keys under the line at the bottom of the box: <b>F1</b>, <b>F2</b> or <b>F3</b> ends ELEM47 and puts a value of the element in X, on top of your stack: <b>F1</b> the atomic number, <b>F2</b> the standard atomic weight, <b>F3</b> the boiling point in kelvin. A value shown as "-" is not put: ELEM47 ends with your stack as it was.</p>
 <figure><img src="docs/ELEM47_detail_co.png" alt="The box of Fe, then 6: the box of Co"><figcaption>The box of Fe, then 6: the box of Co</figcaption></figure>
 <p>The longest configuration, Og (oganesson):</p>
 <figure><img src="docs/ELEM47_detail_og.png" alt="The detail box of Og"><figcaption>The detail box of Og</figcaption></figure>
 <p>"-" in a field: no value (the 34 elements without a standard atomic weight, or no data in PubChem).</p>
 <h2>End</h2>
-<p><b>0</b> ends ELEM47: the normal calculator screen comes back, with R00-R99 and the stack cleared and the matrix PT (the table's map) deleted.</p>
+<p><b>0</b> ends ELEM47: the normal calculator screen comes back with your stack and LASTx as they were, R20-R56 cleared and the matrix PT (the table's map) deleted. <b>F1 F2 F3</b> in the detail box end it the same way, with the value of the element pushed on the stack (the top level goes, as for any number you key in).</p>
 <h2>Keys</h2>
-<table><tr><th>Key</th><th>Table</th><th>Detail box open</th></tr><tr><td><b>8 4 6 2</b></td><td>move the cursor</td><td>move, the box of the new element</td></tr><tr><td><b>5</b></td><td>open the box</td><td>close the box</td></tr><tr><td><b>0</b></td><td>end</td><td>end</td></tr></table>
+<table><tr><th>Key</th><th>Table</th><th>Detail box open</th></tr><tr><td><b>8 4 6 2</b></td><td>move the cursor</td><td>move, the box of the new element</td></tr><tr><td><b>5</b></td><td>open the box</td><td>close the box</td></tr><tr><td><b>0</b></td><td>end</td><td>end</td></tr><tr><td><b>F1 F2 F3</b></td><td>-</td><td>end, Z / mass / boiling point to X</td></tr></table>
 <h2>Where the data come from</h2>
 <p>Standard atomic weights: IUPAC / CIAAW 2024 (abridged, as on the IUPAC periodic table). State, boiling point, electron configuration: the PubChem periodic table. See <code>NOTICE</code>.</p>
 <h2>Which calculators</h2>
