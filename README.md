@@ -6,7 +6,7 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47*
 
 ## Elements 47 v1.0.0
 
-`ELEM47` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped),
+`ELEM47` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped; at an edge it goes around to the other side),
 **5** opens the detail box (symbol, mass, state, boiling point, group number and name, electron
 configuration); with the box open **8 4 6 2** move to the next element and show its box, **5** closes
 it, **0** ends.
@@ -28,7 +28,7 @@ elements without a standard atomic weight. State, boiling point and configuratio
 Same screens on both, pixel for pixel. Tested in the C47 firmware itself (T47, built from the firmware
 sources, `tests/test_fw.py`), in the Python C47 simulator (`tests/test_elem47.py`, `tests/test_opt.py`) and in
 Free42 (`tests/test_f42.py`): the whole table both ways with the detail box opened and closed at every cell.
-Screens: `docs/ELEM47_*.png`. Start with `QUICKSTART.txt`; the layout of the repository is in `PROGRAM_MAP.txt`.
+Screens: `docs/ELEM47_*.png`. How to use it, with the screens: [MANUAL.md](MANUAL.md) (`MANUAL.html` in the release zip). Start with `QUICKSTART.txt`; the layout of the repository is in `PROGRAM_MAP.txt`.
 
 Work (C47 simulator steps): the table 7 900, a cursor move about 245, the detail box 1 040, closing it 4 070
 (only the cells under the box are drawn again). The routines of a move are at the start of `ELEM47`: the firmware
