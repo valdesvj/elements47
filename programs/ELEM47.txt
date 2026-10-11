@@ -253,15 +253,12 @@ x→α 48
 "-"
 αPOS 46
 X<0?
-IF 05
-" K"
-x→α 48
-ENDIF 05
+XEQ 21
 RCL 29
 STO 38
 "↵"
 x→α 38
-XEQ 21
+XEQ 22
 RCL 45
 αPOS 51
 STO 24
@@ -273,14 +270,14 @@ x→α 38
 RCL 31
 7
 X≥Y?
-IF 06
+IF 05
 RCL 32
 αIP 38
 "  "
 x→α 38
-ENDIF 06
-XEQ 22
+ENDIF 05
 XEQ 23
+XEQ 24
 XEQ 17
 RCL 35
 x→α 38
@@ -567,10 +564,10 @@ STO 40
 RCL 26
 7
 X<Y?
-IF 07
+IF 06
 9
 STO- 40
-ENDIF 07
+ENDIF 06
 RCL 40
 1
 +
@@ -720,47 +717,51 @@ ATEXT Z
 ATEXT Z
 RTN
 LBL 21
+" K"
+x→α 48
+RTN
+LBL 22
 "Solid/Liquid/Gas/-"
 STO 35
 RTN
-LBL 22
+LBL 23
 RCL 31
 STO 24
 7
 X<Y?
-IF 08
+IF 07
 2
 STO+ 24
-ELSE 08
+ELSE 07
 RCL 32
 STO 24
 RCL 30
 1
 X=Y?
-IF 09
+IF 08
 0
 STO 24
-ELSE 09
+ELSE 08
 RCL 32
 2
 X<Y?
-IF 10
+IF 09
 3
 STO 24
 RCL 32
 12
 X<Y?
-IF 11
+IF 10
 RCL 32
 9
 -
 STO 24
-ENDIF 11
 ENDIF 10
 ENDIF 09
 ENDIF 08
+ENDIF 07
 RTN
-LBL 23
+LBL 24
 "Nonmetal/Alkali metals/Alkaline earth metals/"
 STO 35
 "Transition metals/Boron group/Carbon group/Pnictogens/"

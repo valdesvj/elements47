@@ -45,6 +45,7 @@ NAMED_RE = re.compile(r'(LBL|GTO|XEQ) :([A-Za-z0-9]{1,7}):$')
 # the C47 STRUCT commands (AN0007): the openers, the closers, and the series of the partner numbers
 OPENERS = {'IF': 'ENDIF', 'DO': 'ENDDO', 'REPEAT': 'UNTIL'}
 STRUCT = ('IF', 'ELSE', 'ENDIF', 'DO', 'WHILE', 'ENDDO', 'REPEAT', 'UNTIL')
+DM42_MAX = 10           # STRUCT_MAX_NUMBER and STRUCT_MAX_NESTING of the original DM42 (R47, DM42n: 255, 63)
 NOT_USED = ('FOR', 'NEXT', 'FORₓ', 'NEXTₓ', 'FOR𝑦ˣ', 'FORᵀᴼᴾ')       # FOR takes its three values off the stack
 
 
@@ -85,6 +86,10 @@ def structures(steps):
                 n = {}
         if op in OPENERS:
             n[op] = n.get(op, 0) + 1
+            # the original DM42 (c43 structured.h, OLD_HW): 10 numbers of each kind per program, 10 levels
+            if n[op] > DM42_MAX or len(open_) >= DM42_MAX:
+                fail(i, 'past the original DM42 limit: %d %s a program, %d levels (structured.h, OLD_HW)'
+                     % (DM42_MAX, op, DM42_MAX))
             open_.append([op, n[op], False])
             out.append('%s %02d' % (op, n[op]))
             continue

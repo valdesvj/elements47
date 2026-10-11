@@ -417,6 +417,14 @@
   >= 10): the 11th IF. They can go out again whenever the DM42 is short of flash.
 - Nobody has run ELEM47 (or Almanac 47's NAVLITTLE, measured on a DM42n) on a real original DM42; there is no
   simulator of it. README, QUICKSTART and the manual say: original DM42 with the C47 firmware not supported.
+- Then ELEM47 brought to 10 IF, so that it fits the DM42 STRUCT limit (packages 1-3 of the release and of master
+  10 Oct): the " K" of the boiling point (LBL :DETREC:) is an XEQ :KELVIN: after X<0? instead of an IF (once per
+  box: nothing to measure). Release 777 -> 778 steps, PIXEL 867 -> 868, one label more. tools/build_elem47.py
+  structures() now stops past 10 openers of a kind or 10 levels (DM42_MAX). Tried first: :CELLPOS: 9 x IP(row / 8)
+  instead of its IF: the same screens but the table +8 % in the firmware (84.5 -> 91.3 M: ÷ is slow), dropped.
+  T47 (bench_fw, PIXEL) with :KELVIN:: table 84.9 M, boxes 504.4 M (before 84.5, 504.5). test_opt, test_fw
+  (955 of 955) pass on both builds. README, QUICKSTART, the manual, the .p47u: original DM42 packages 1-3 should
+  run, slower, not tried; package 4 no.
 - Tried and dropped (Victor's decision): a DM42 build of the PIXEL program with the structures written as LBL /
   GTO (elem47sim.lower(), the new labels numbered from the free local ones: ELEM47 867 -> 873 steps, 26 labels
   more). It passed test_opt and test_fw (955 of 955 screens) but would be slower (a GTO searches its label) and
