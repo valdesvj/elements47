@@ -1,10 +1,10 @@
-ELEMENTS 47 v1.0.0 - QUICKSTART
+ELEMENTS 47 v1.1.0 - QUICKSTART
 
 C47 / R47
-Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.2.0: 00.109.05.00a0.ALPHA,
-5 Oct 2026, or later).
+Needs a C47 / R47 firmware with ATEXT, GRFNT, PIXEL and the STRUCT commands (as Almanac 47 v2.2.0:
+00.109.05.00a0.ALPHA, 5 Oct 2026, or later).
 
-1. Load C47_R47/ELEM47.p47 (from the release zip, or convert build/ELEM47.txt with rejig). Three
+1. Load C47_R47/ELEM47.p47 (from the release zip, or convert build/pixel/ELEM47.txt with rejig). Three
    programs: ELEM47 (the one you run), ELD1 and ELD2 (the element data, called by ELEM47).
 2. XEQ "ELEM47". The table is drawn (a few seconds), the cursor on H.
 3. Keys:
@@ -15,15 +15,10 @@ Needs a C47 / R47 firmware with ATEXT and GRFNT (as Almanac 47 v2.2.0: 00.109.05
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R55 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
+Uses R20-R56 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
 STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
 The manual with the screens: MANUAL.html (MANUAL.md on GitHub).
 
-Free42 (DM42 / DM42n stock firmware, Free42 3.3)
-1. Load Free42_DM42/ELEM47.raw from the release zip (exported by the Free42 3.3 core), or Paste
-   build/free42/ELEM47.txt in Free42 (PRGM mode) and export your own .raw. Five programs: ELEM47,
-   ELD1, ELD2 (the data), E47T and E47S (the C47 fonts).
-2. XEQ "ELEM47": the same table and keys. Uses R20-R75 (SIZE 76 if smaller) and PT; at the end
-   CLRG and CLST. As on the C47 the screen changes all at once, when it is finished: ELEM47 sets
-   RefLCD to 0 while it draws and back to 7 at the end (0). If you stop it another way (EXIT, R/S)
-   and the screen does not update, 7 STO "RefLCD" brings back the normal refresh.
+Free42 (DM42 / DM42n stock firmware)
+v1.1.0 is for the C47 / R47 only (Free42 has no STRUCT commands). Use release v1.0.0
+(Free42_DM42/ELEM47.raw in its zip): the same table and keys, without going around the edges.

@@ -2,8 +2,9 @@
 @ Author:  Victor Valdes
 @ Version: 1.1.0
 @ Source:  https://github.com/valdesvj/elements47
-@ Tested:  run on a C47 by the author; the whole table with the detail box opened and closed at every
-@          cell (571 screens): the same screens pixel for pixel as the previous version (simulator)
+@ Tested:  run on a C47 by the author; in the C47 firmware (T47, sources of 8 Oct 2026): the whole table
+@          both ways with the detail box opened and closed at every cell, 955 screens, pixel for pixel
+@          the same as the simulator and as the previous version
 @ Input:   none (XEQ 'ELEM47')
 @ Output:  the periodic table on the screen; key 0 ends: R00-R99 and the stack cleared
 @

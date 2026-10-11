@@ -14,8 +14,9 @@ import build_elem47 as B
 VERSION = '1.1.0'
 SUB = 'pixel'          # the variant of programs_rem/ and build/ submitted (the table's lines by PIXEL)
 # what a run produced; after tests/test_fw.py passes in T47, say so here
-TESTED = ('run on a C47 by the author; the whole table with the detail box opened and closed at every\n'
-          '@          cell (571 screens): the same screens pixel for pixel as the previous version (simulator)')
+TESTED = ('run on a C47 by the author; in the C47 firmware (T47, sources of 8 Oct 2026): the whole table\n'
+          '@          both ways with the detail box opened and closed at every cell, 955 screens, pixel for pixel\n'
+          '@          the same as the simulator and as the previous version')
 HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @ Author:  Victor Valdes
 @ Version: %s

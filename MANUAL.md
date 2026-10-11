@@ -5,8 +5,8 @@ digit keys, and a detail box for each element.
 
 ## Install
 
-- You need a C47 or R47 with a recent firmware that has the structured programming commands (IF, DO, REPEAT:
-  app note AN0007), ATEXT, GRFNT and PIXEL.
+- You need a C47 or R47 with the firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later: it has the
+  structured programming commands (IF, DO, REPEAT: app note AN0007), ATEXT, GRFNT and PIXEL.
 - From the release zip, copy `C47_R47/ELEM47.p47` to the calculator (USB disk) and load it as any other
   program. It holds three programs: `ELEM47` (the one you run), `ELD1` and `ELD2` (the element data).
 - **Before you run it:** at the end ELEM47 clears the registers R00-R99 and the stack. Keep anything you need
