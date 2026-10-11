@@ -33,7 +33,8 @@ HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @
 @ Three programs: ELEM47 (the code) and ELD1, ELD2 (the element records, Z 1-60 and 61-118).
 @ C47 / R47 only: written with the STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL,
-@ AN0007); a build without OPTION_STRUCTURED_PGM does not run it. Draws with AGRAPH and ATEXT (GRFNT 21
+@ AN0007); a build without OPTION_STRUCTURED_PGM does not run it. Original DM42: packages 1-3 only (its STRUCT
+@ limit, 10 IF a program: ELEM47 has 10), slower, not tried on one yet; package 4 has no STRUCT. Draws with AGRAPH and ATEXT (GRFNT 21
 @ and 10), restores GRMOD 0 and GRFNT 20 at the end.
 @ Style: no GTO in any of the three programs; every decision and loop is a STRUCT (the key loop and the key
 @ wait are DO / WHILE / ENDDO), and a test before one step remains only where it guards a single XEQ or

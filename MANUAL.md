@@ -78,8 +78,17 @@ matrix PT (the table's map) deleted.
 Standard atomic weights: IUPAC / CIAAW 2024 (abridged, as on the IUPAC periodic table). State, boiling point,
 electron configuration: the PubChem periodic table. See `NOTICE`.
 
-## Free42 / DM42
+## Which calculators
 
-ELEM47 v1.1.0 is for the C47 / R47 only (Free42 has no structured programming). On a DM42 / DM42n with the
-stock firmware, or in Free42, use the release v1.0.0 (`Free42_DM42/ELEM47.raw`): the same table and keys,
-without going around the edges.
+ELEM47 needs three commands of the C47 firmware: the structured programming commands (IF, DO, REPEAT),
+ATEXT and GRFNT.
+
+- **R47 and DM42n** with the C47 firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later: yes.
+- **Original DM42 (not n)** with the C47 firmware 00.109.05.00a0.ALPHA or later, **packages 1, 2 or 3**: it
+  should run, but slower than on the DM42n or R47 (older hardware). Its firmware is cut down to fit its flash:
+  the structured commands allow only 10 IF, 10 DO and 10 REPEAT per program there, and ELEM47 keeps within that.
+  **Package 4** has no structured commands: no. The DM42 packages change between builds to save space, so check
+  again after a firmware update. Nobody has tried ELEM47 on an original DM42 yet.
+- **Older C47 firmware** (00.109.04.00b0 and earlier): no, it has none of the three.
+- **DM42 / DM42n with the stock firmware, or Free42:** use the release v1.0.0 (`Free42_DM42/ELEM47.raw`):
+  the same table and keys, without going around the edges.

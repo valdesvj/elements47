@@ -305,11 +305,9 @@ RCL 46
 x→α 48
 "-"
 αPOS 46
+REM no "-": " K" (LBL :KELVIN:, an XEQ, not an IF: the original DM42 holds 10 IF a program)
 X<0?
-IF
-  " K"
-  x→α 48
-ENDIF
+XEQ :KELVIN:
 REM the left values in R38: symbol, state (the letter in R45 -> a word of LBL :STATES:), group, config
 RCL 29
 STO 38
@@ -825,6 +823,11 @@ ATEXT Z
 160
 343
 ATEXT Z
+RTN
+REM LBL :KELVIN: " K" after the boiling point (LBL :DETREC:)
+LBL :KELVIN:
+" K"
+x→α 48
 RTN
 REM the names of the states, in the order of R51 "SLG-"
 LBL :STATES:

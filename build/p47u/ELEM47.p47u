@@ -16,7 +16,8 @@
 @
 @ Three programs: ELEM47 (the code) and ELD1, ELD2 (the element records, Z 1-60 and 61-118).
 @ C47 / R47 only: written with the STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL,
-@ AN0007); a build without OPTION_STRUCTURED_PGM does not run it. Draws with AGRAPH and ATEXT (GRFNT 21
+@ AN0007); a build without OPTION_STRUCTURED_PGM does not run it. Original DM42: packages 1-3 only (its STRUCT
+@ limit, 10 IF a program: ELEM47 has 10), slower, not tried on one yet; package 4 has no STRUCT. Draws with AGRAPH and ATEXT (GRFNT 21
 @ and 10), restores GRMOD 0 and GRFNT 20 at the end.
 @ Style: no GTO in any of the three programs; every decision and loop is a STRUCT (the key loop and the key
 @ wait are DO / WHILE / ENDDO), and a test before one step remains only where it guards a single XEQ or
@@ -325,17 +326,15 @@ RCL 46
 x→α 48
 "-"
 αPOS 46
+@ no "-": " K" (LBL :KELVIN:, an XEQ, not an IF: the original DM42 holds 10 IF a program)
 X<0?
-IF 05
-  " K"
-  x→α 48
-ENDIF 05
+XEQ 23
 @ the left values in R38: symbol, state (the letter in R45 -> a word of LBL :STATES:), group, config
 RCL 29
 STO 38
 "↵"
 x→α 38
-XEQ 23
+XEQ 24
 RCL 45
 αPOS 51
 STO 24
@@ -348,14 +347,14 @@ x→α 38
 RCL 31
 7
 X≥Y?
-IF 06
+IF 05
   RCL 32
   αIP 38
   "  "
   x→α 38
-ENDIF 06
-XEQ 24
+ENDIF 05
 XEQ 25
+XEQ 26
 XEQ 17
 RCL 35
 x→α 38
@@ -661,10 +660,10 @@ STO 40
 RCL 26
 7
 X<Y?
-IF 07
+IF 06
   9
   STO- 40
-ENDIF 07
+ENDIF 06
 RCL 40
 1
 +
@@ -949,55 +948,60 @@ ATEXT Z
 343
 ATEXT Z
 RTN
-@ the names of the states, in the order of R51 "SLG-"
+@ LBL :KELVIN: " K" after the boiling point (LBL :DETREC:)
 LBL 23
+" K"
+x→α 48
+RTN
+@ the names of the states, in the order of R51 "SLG-"
+LBL 24
 "Solid/Liquid/Gas/-"
 STO 35
 RTN
 @ LBL :GROUP: the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
 @ 4-9 columns 13-18, 10-11 rows 8-9
-LBL 24
+LBL 25
 RCL 31
 STO 24
 7
 X<Y?
-IF 08
+IF 07
   @ rows 8-9: 10, 11
   2
   STO+ 24
-ELSE 08
+ELSE 07
   RCL 32
   STO 24
   RCL 30
   1
   X=Y?
-  IF 09
+  IF 08
     @ H: 0
     0
     STO 24
-  ELSE 09
+  ELSE 08
     RCL 32
     2
     X<Y?
-    IF 10
+    IF 09
       @ columns 3-12: 3; columns 13-18: 4-9
       3
       STO 24
       RCL 32
       12
       X<Y?
-      IF 11
+      IF 10
         RCL 32
         9
         -
         STO 24
-      ENDIF 11
-    ENDIF 10
-  ENDIF 09
-ENDIF 08
+      ENDIF 10
+    ENDIF 09
+  ENDIF 08
+ENDIF 07
 RTN
 @ LBL :GRPNAME: the names of the groups in R35, "/" between them (texts of 64 characters at most)
-LBL 25
+LBL 26
 "Nonmetal/Alkali metals/Alkaline earth metals/"
 STO 35
 "Transition metals/Boron group/Carbon group/Pnictogens/"
