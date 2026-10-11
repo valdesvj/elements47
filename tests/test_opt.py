@@ -26,11 +26,22 @@ def check(ok, msg):
         fails.append(msg)
 
 
+# v1.1.0: the cursor goes around the edges (LBL :STEP:). A reference without it gets the same steps in place
+# of its "outside the table: RTN" tests, so that the screens still compare
+NO_WRAP = '\n'.join(['RCL 41', 'STO+ 26', 'RCL 42', 'STO+ 27', 'RCL 26', 'X=0?', 'RTN', '9', 'X<Y?', 'RTN', 'RCL 27',
+                     'X=0?', 'RTN', '18', 'X<Y?', 'RTN', 'RCL 26', 'RCL 27', 'STOIJ']) + '\n'
+WRAP = '\n'.join(['RCL 26', 'RCL 41', '+', '8', '+', '9', 'MOD', '1', '+', 'STO 26',
+                  'RCL 27', 'RCL 42', '+', '17', '+', '18', 'MOD', '1', '+', 'STO 27', 'STOIJ']) + '\n'
+
+
 def ref_file():
     if REF == 'optimize':                # the branch is gone: its build/ELEM47.txt is kept in tests/ref
-        return os.path.join(ROOT, 'tests', 'ref', 'ELEM47_optimize.txt')
-    txt = subprocess.run(['git', '-C', ROOT, 'show', '%s:build/ELEM47.txt' % REF], capture_output=True, text=True,
-                         check=True).stdout
+        txt = open(os.path.join(ROOT, 'tests', 'ref', 'ELEM47_optimize.txt'), encoding='utf-8').read()
+    else:
+        txt = subprocess.run(['git', '-C', ROOT, 'show', '%s:build/ELEM47.txt' % REF], capture_output=True,
+                             text=True, check=True).stdout
+    assert NO_WRAP in txt, "the reference: no step routine to give the wrap-around"
+    txt = txt.replace(NO_WRAP, WRAP)
     fn = os.path.join(tempfile.mkdtemp(prefix='elem47ref_'), 'ELEM47.txt')
     open(fn, 'w', encoding='utf-8').write(txt)
     return fn

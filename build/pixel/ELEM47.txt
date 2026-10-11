@@ -601,24 +601,26 @@ STO 26
 RCL 32
 STO 27
 REPEAT 01
+RCL 26
 RCL 41
-STO+ 26
-RCL 42
-STO+ 27
-RCL 26
-X=0?
-RTN
++
+8
++
 9
-X<Y?
-RTN
+MOD
+1
++
+STO 26
 RCL 27
-X=0?
-RTN
+RCL 42
++
+17
++
 18
-X<Y?
-RTN
-RCL 26
-RCL 27
+MOD
+1
++
+STO 27
 STOIJ
 RCLEL
 X≠0?
@@ -720,7 +722,7 @@ ATEXT Z
 ATEXT Z
 " ↵ ↵ "
 40
-393
+392
 ATEXT Z
 "                                                  "
 219

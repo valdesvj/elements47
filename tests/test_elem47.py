@@ -116,17 +116,21 @@ def main():
     R, L, U, Dn = E.RIGHT, E.LEFT, E.UP, E.DOWN
     for keys, z, what in [((R,), 2, 'H right: He (the gap of period 1 skipped)'),
                           ((Dn, Dn, Dn), 19, 'H down x3: K'),
-                          ((L,), 1, 'H left: stays (edge)'), ((U,), 1, 'H up: stays (edge)'),
+                          ((L,), 2, 'H left: around to He'), ((U,), 87, 'H up: around, rows 9 and 8 of column 1 skipped: Fr'),
+                          ((R, R), 1, 'He right: around to H'),
                           ((Dn,) * 5 + (R,), 56, 'Cs right: Ba'),
                           ((Dn,) * 5 + (R, R), 72, 'Ba right: Hf (the empty column 3 skipped)'),
                           ((Dn,) * 4 + (R, R, Dn), 57, 'Y down: La (periods 6, 7 of column 3 and the gap skipped)'),
                           ((Dn,) * 4 + (R, R, Dn, U), 39, 'La up: Y'),
-                          ((Dn,) * 4 + (R, R, Dn, Dn, Dn), 89, 'Ac down: stays (edge)'),
-                          ((R, Dn, Dn, Dn, Dn, Dn, Dn, Dn), 118, 'He down to the end of column 18: Og')]:
+                          ((Dn,) * 4 + (R, R, Dn, Dn), 89, 'La down: Ac'),
+                          ((Dn,) * 4 + (R, R, Dn, Dn, Dn), 21, 'Ac down: around, rows 1-3 of column 3 skipped: Sc'),
+                          ((Dn,) * 4 + (R, R, Dn, Dn, L), 103, 'Ac left: around, columns 18 and 17 of row 9: Lr'),
+                          ((R,) + (Dn,) * 6, 118, 'He down to the end of column 18: Og'),
+                          ((R,) + (Dn,) * 7, 2, 'Og down: around, rows 8 and 9 of column 18 skipped: He')]:
         got = cursor_after(keys)
         check(got == z, '%s (%d)' % (what, got))
 
-    shots, c = E.frames([E.DOWN] * 6 + [E.RIGHT] * 17 + [E.INFO])
+    shots, c = E.frames([E.DOWN] * 6 + [E.RIGHT] * 16 + [E.INFO])
     E.png(os.path.join(ROOT, 'docs', 'ELEM47_detail_og.png'), shots[-1])
     line = [x for x, r in shots[-1] if 146 <= r <= 165 and 51 <= x <= 348]     # the Config line (rows from the top)
     check(line and max(line) < 340, 'detail of Og: the longest configuration ends at x %d, inside the box (x 50-349)'
@@ -142,7 +146,7 @@ def main():
     check(inbox[2] == direct[2], 'box open on H, right: the box of He, as opened on He')
     check(inbox[3] == direct[1], 'then 5: the table with the cursor and the panel on He')
     edge, _ = E.frames([E.INFO, E.LEFT])
-    check(edge[2] == edge[1], 'box open on H, left (edge): the same box')
+    check(edge[2] == direct[2], 'box open on H, left (around the edge): the box of He')
     check(getattr(c, 'grfnt', 20) == 20 and getattr(c, 'grmod', 0) == 0 and 'PT' not in c.mats,
           '0: the end, GRFNT 20 and GRMOD 0 restored, PT deleted')
     check(not c.keys, 'the end: all keys used')

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elements 47 manual</title>
+<style>
+:root { --bg: #fff; --fg: #1d1d1b; --muted: #5c5c57; --line: #d6d6cf; --code: #f1f1ec; }
+@media (prefers-color-scheme: dark) { :root { --bg: #181816; --fg: #e8e8e2; --muted: #a5a59c; --line: #3a3a35; --code: #26261f; } }
+body { background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, sans-serif; margin: 0 auto;
+       max-width: 46rem; padding: 1.5rem 16px 3rem; }
+h1 { font-size: 1.7rem; line-height: 1.25; } h2 { margin-top: 2.2rem; border-bottom: 1px solid var(--line); }
+img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; }
+figure { margin: 1rem 0 1.4rem; } figcaption { color: var(--muted); font-size: .9rem; margin-top: .3rem; }
+code { background: var(--code); padding: 0 .25em; border-radius: 3px; }
+table { border-collapse: collapse; margin: .8rem 0; } th, td { border: 1px solid var(--line); padding: .3rem .7rem; text-align: left; }
+</style></head><body>
+<h1>Elements 47 v1.1.0: user's manual</h1>
+<p>The periodic table of the 118 elements on the C47 / R47: the table on one screen, a cursor you move with the digit keys, and a detail box for each element.</p>
+<h2>Install</h2>
+<ul><li>You need a C47 or R47 with the firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later: it has the structured programming commands (IF, DO, REPEAT: app note AN0007), ATEXT, GRFNT and PIXEL.</li><li>From the release zip, copy <code>C47_R47/ELEM47.p47</code> to the calculator (USB disk) and load it as any other program. It holds three programs: <code>ELEM47</code> (the one you run), <code>ELD1</code> and <code>ELD2</code> (the element data).</li><li><b>Before you run it:</b> at the end ELEM47 clears the registers R00-R99 and the stack. Keep anything you need somewhere else first.</li></ul>
+<h2>Start</h2>
+<p><code>XEQ "ELEM47"</code>. After a few seconds the table is on the screen, the cursor on H (hydrogen).</p>
+<figure><img src="docs/ELEM47_table.png" alt="The table at the start, the cursor on H"><figcaption>The table at the start, the cursor on H</figcaption></figure>
+<ul><li>Rows 1-7 are the periods, the two rows below them the lanthanides and the actinides.</li><li>Each cell shows the atomic number (small) and the symbol.</li><li>The empty part of periods 1-3 shows the title, the selected element (name, atomic number, standard atomic weight) and the keys: the digit keys on the left, what they do on the right.</li></ul>
+<h2>Move the cursor</h2>
+<table><tr><th>Key</th><th></th></tr><tr><td><b>8</b></td><td>up</td></tr><tr><td><b>2</b></td><td>down</td></tr><tr><td><b>4</b></td><td>left</td></tr><tr><td><b>6</b></td><td>right</td></tr></table>
+<p>The cursor jumps over empty cells, and the panel shows the new element. Three times <b>2</b> and seven times <b>6</b> from H:</p>
+<figure><img src="docs/ELEM47_fe.png" alt="The cursor on Fe (iron)"><figcaption>The cursor on Fe (iron)</figcaption></figure>
+<p>At an edge the cursor goes around to the other side: <b>8</b> on H goes to the bottom of column 1, Fr; <b>4</b> on H goes to He; <b>2</b> on Ac goes up to Sc.</p>
+<figure><img src="docs/ELEM47_wrap_fr.png" alt="H, then 8: around the top edge to Fr"><figcaption>H, then 8: around the top edge to Fr</figcaption></figure>
+<h2>The detail box</h2>
+<p><b>5</b> opens the box of the element under the cursor: symbol, standard atomic weight, state at room temperature, boiling point, group with its name, and the electron configuration.</p>
+<figure><img src="docs/ELEM47_detail_fe.png" alt="The detail box of Fe"><figcaption>The detail box of Fe</figcaption></figure>
+<p>With the box open, <b>8 4 6 2</b> move the cursor as before and the box shows the new element at once (here <b>6</b>: from Fe to Co). <b>5</b> closes the box, <b>0</b> ends; other keys are ignored.</p>
+<figure><img src="docs/ELEM47_detail_co.png" alt="The box of Fe, then 6: the box of Co"><figcaption>The box of Fe, then 6: the box of Co</figcaption></figure>
+<p>The longest configuration, Og (oganesson):</p>
+<figure><img src="docs/ELEM47_detail_og.png" alt="The detail box of Og"><figcaption>The detail box of Og</figcaption></figure>
+<p>"-" in a field: no value (the 34 elements without a standard atomic weight, or no data in PubChem).</p>
+<h2>End</h2>
+<p><b>0</b> ends ELEM47: the normal calculator screen comes back, with R00-R99 and the stack cleared and the matrix PT (the table's map) deleted.</p>
+<h2>Keys</h2>
+<table><tr><th>Key</th><th>Table</th><th>Detail box open</th></tr><tr><td><b>8 4 6 2</b></td><td>move the cursor</td><td>move, the box of the new element</td></tr><tr><td><b>5</b></td><td>open the box</td><td>close the box</td></tr><tr><td><b>0</b></td><td>end</td><td>end</td></tr></table>
+<h2>Where the data come from</h2>
+<p>Standard atomic weights: IUPAC / CIAAW 2024 (abridged, as on the IUPAC periodic table). State, boiling point, electron configuration: the PubChem periodic table. See <code>NOTICE</code>.</p>
+<h2>Free42 / DM42</h2>
+<p>ELEM47 v1.1.0 is for the C47 / R47 only (Free42 has no structured programming). On a DM42 / DM42n with the stock firmware, or in Free42, use the release v1.0.0 (<code>Free42_DM42/ELEM47.raw</code>): the same table and keys, without going around the edges.</p>
+</body></html>

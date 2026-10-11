@@ -62,11 +62,13 @@ Folders:
                  elem47sim.py (runs ELEM47: pictures, step counts)
   tools/         build_elem47.py (also the STRUCT check and numbers); build_free42.py (Free42, not on
                  branch struct); build_dev.py (programs_rem/dev -> build/dev);
-                 bench_fw.py (the speed in the C47 firmware: T47 instructions, perf)
+                 bench_fw.py (the speed in the C47 firmware: T47 instructions, perf);
+                 build_manual.py (MANUAL.md, MANUAL.html: the user's manual, two of its screens)
   tests/         test_elem47.py, test_opt.py (screens against the optimize build, tests/ref/), test_fw.py (the C47
                  firmware, T47), test_f42.py (Free42, f42run), test_dev.py (the dev programs);
                  calc/LTEST.txt (on the C47: the 196-character text)
   docs/          ELEM47_*.png (from the simulator)
+  MANUAL.md      the user's manual with the screens (MANUAL.html: the same, for the release zip)
 
 Keys: 8 = 53, 2 = 73, 4 = 62, 6 = 64, 5 = 63, 0 = 82 (KEY? codes, as Almanac 47's menu).
 Screen rows: row 0 = bottom (ATEXT and AGRAPH coordinates).

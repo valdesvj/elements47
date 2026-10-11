@@ -2,7 +2,7 @@
       ; The 118 elements in an 18 x 9 grid (rows 1-7 the periods, 8 lanthanides, 9 actinides),
       ; cells 23 x 26 pixels sharing their edges (pitch 22 x 25). The empty space of periods 1-3
       ; holds the title, the selected element (name, Z, mass) and the keys.
-      ; Keys: 8 4 6 2 move the cursor (gaps skipped), 5 the detail box (8 4 6 2 move in it, 5 closes it), 0 the end.
+      ; Keys: 8 4 6 2 move the cursor (gaps skipped, around the edges), 5 the detail box (8 4 6 2 move in it, 5 closes it), 0 the end.
       ; Screen 400 x 240, row 0 = bottom (as in Almanac 47). ATEXT in GRFNT 21, numbers in GRFNT 10.
       ; GRMOD and GRFNT take X (rejig writes "GRMOD r" as GRMOD and the number r: Almanac 47).
       ; Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
@@ -718,47 +718,50 @@
  619  STO 26
  620  RCL 32
  621  STO 27
-      ; on in the direction until a cell that is not empty (PT); outside the table: RTN, the cursor stays
+      ; on in the direction until a cell that is not empty (PT), around the edges: row (r + R41 + 8) mod 9 + 1,
+      ; column (c + R42 + 17) mod 18 + 1 (8, 17: never negative). Every row and column has an element, so a
+      ; full turn at most (back to the cell itself)
  622  REPEAT    (01)
- 623    RCL 41
- 624    STO+ 26
- 625    RCL 42
- 626    STO+ 27
- 627    RCL 26
- 628    X=0?
- 629    RTN
- 630    9
- 631    X<Y?
- 632    RTN
+ 623    RCL 26
+ 624    RCL 41
+ 625    +
+ 626    8
+ 627    +
+ 628    9
+ 629    MOD
+ 630    1
+ 631    +
+ 632    STO 26
+        ; the row stays in Y for STOIJ
  633    RCL 27
- 634    X=0?
- 635    RTN
- 636    18
- 637    X<Y?
- 638    RTN
- 639    RCL 26
- 640    RCL 27
- 641    STOIJ
- 642    RCLEL
- 643    X≠0?
- 644  UNTIL    (01)
- 645  STO 30
- 646  RCL 26
- 647  STO 31
- 648  RCL 27
- 649  STO 32
- 650  RTN
+ 634    RCL 42
+ 635    +
+ 636    17
+ 637    +
+ 638    18
+ 639    MOD
+ 640    1
+ 641    +
+ 642    STO 27
+ 643    STOIJ
+ 644    RCLEL
+ 645    X≠0?
+ 646  UNTIL    (01)
+ 647  STO 30
+ 648  RCL 26
+ 649  STO 31
+ 650  RCL 27
+ 651  STO 32
+ 652  RTN
       ; LBL :HLINE: 298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
       ; 2, then 8 times 37 (unrolled: 8 rounds of the loop, not 21 of 14). R22 the count
- 651  LBL :HLINE:    (19)
- 652  AGRAPH 20
- 653  AGRAPH 20
- 654  8
- 655  STO 22
- 656  R↓
- 657  DO    (05)
- 658    AGRAPH 20
- 659    AGRAPH 20
+ 653  LBL :HLINE:    (19)
+ 654  AGRAPH 20
+ 655  AGRAPH 20
+ 656  8
+ 657  STO 22
+ 658  R↓
+ 659  DO    (05)
  660    AGRAPH 20
  661    AGRAPH 20
  662    AGRAPH 20
@@ -794,459 +797,461 @@
  692    AGRAPH 20
  693    AGRAPH 20
  694    AGRAPH 20
- 695    DSE 22
- 696  WHILE    (05)
- 697  ENDDO    (05)
- 698  RTN
+ 695    AGRAPH 20
+ 696    AGRAPH 20
+ 697    DSE 22
+ 698  WHILE    (05)
+ 699  ENDDO    (05)
+ 700  RTN
       ; ---- LBL :BOXCLR: the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
       ; x 20 rows each): 42 spaces from x 50 and one more column of spaces at x 343. Leaves GRMOD 1, GRFNT 21 ----
- 699  LBL :BOXCLR:    (20)
- 700  1
- 701  GRMOD
- 702  21
- 703  GRFNT
- 704  "                                          ↵"
- 705  STO 55
- 706  x→α 55
- 707  x→α 55
+ 701  LBL :BOXCLR:    (20)
+ 702  1
+ 703  GRMOD
+ 704  21
+ 705  GRFNT
+ 706  "                                          ↵"
+ 707  STO 55
  708  x→α 55
  709  x→α 55
  710  x→α 55
- 711  RCL 55
- 712  160
- 713  50
- 714  ATEXT Z
- 715  " ↵ ↵ ↵ ↵ ↵ "
- 716  160
- 717  343
- 718  ATEXT Z
- 719  RTN
+ 711  x→α 55
+ 712  x→α 55
+ 713  RCL 55
+ 714  160
+ 715  50
+ 716  ATEXT Z
+ 717  " ↵ ↵ ↵ ↵ ↵ "
+ 718  160
+ 719  343
+ 720  ATEXT Z
+ 721  RTN
       ; the names of the states, in the order of R51 "SLG-"
- 720  LBL :STATES:    (21)
- 721  "Solid/Liquid/Gas/-"
- 722  STO 35
- 723  RTN
+ 722  LBL :STATES:    (21)
+ 723  "Solid/Liquid/Gas/-"
+ 724  STO 35
+ 725  RTN
       ; LBL :GROUP: the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
       ; 4-9 columns 13-18, 10-11 rows 8-9
- 724  LBL :GROUP:    (22)
- 725  RCL 31
- 726  STO 24
- 727  7
- 728  X<Y?
- 729  IF    (08)
+ 726  LBL :GROUP:    (22)
+ 727  RCL 31
+ 728  STO 24
+ 729  7
+ 730  X<Y?
+ 731  IF    (08)
         ; rows 8-9: 10, 11
- 730    2
- 731    STO+ 24
- 732  ELSE    (08)
- 733    RCL 32
- 734    STO 24
- 735    RCL 30
- 736    1
- 737    X=Y?
- 738    IF    (09)
+ 732    2
+ 733    STO+ 24
+ 734  ELSE    (08)
+ 735    RCL 32
+ 736    STO 24
+ 737    RCL 30
+ 738    1
+ 739    X=Y?
+ 740    IF    (09)
           ; H: 0
- 739      0
- 740      STO 24
- 741    ELSE    (09)
- 742      RCL 32
- 743      2
- 744      X<Y?
- 745      IF    (10)
+ 741      0
+ 742      STO 24
+ 743    ELSE    (09)
+ 744      RCL 32
+ 745      2
+ 746      X<Y?
+ 747      IF    (10)
             ; columns 3-12: 3; columns 13-18: 4-9
- 746        3
- 747        STO 24
- 748        RCL 32
- 749        12
- 750        X<Y?
- 751        IF    (11)
- 752          RCL 32
- 753          9
- 754          -
- 755          STO 24
- 756        ENDIF    (11)
- 757      ENDIF    (10)
- 758    ENDIF    (09)
- 759  ENDIF    (08)
- 760  RTN
+ 748        3
+ 749        STO 24
+ 750        RCL 32
+ 751        12
+ 752        X<Y?
+ 753        IF    (11)
+ 754          RCL 32
+ 755          9
+ 756          -
+ 757          STO 24
+ 758        ENDIF    (11)
+ 759      ENDIF    (10)
+ 760    ENDIF    (09)
+ 761  ENDIF    (08)
+ 762  RTN
       ; LBL :GRPNAME: the names of the groups in R35, "/" between them (texts of 64 characters at most)
- 761  LBL :GRPNAME:    (23)
- 762  "Nonmetal/Alkali metals/Alkaline earth metals/"
- 763  STO 35
- 764  "Transition metals/Boron group/Carbon group/Pnictogens/"
- 765  x→α 35
- 766  "Chalcogens/Halogens/Noble gases/Lanthanides/Actinides"
+ 763  LBL :GRPNAME:    (23)
+ 764  "Nonmetal/Alkali metals/Alkaline earth metals/"
+ 765  STO 35
+ 766  "Transition metals/Boron group/Carbon group/Pnictogens/"
  767  x→α 35
- 768  RTN
+ 768  "Chalcogens/Halogens/Noble gases/Lanthanides/Actinides"
+ 769  x→α 35
+ 770  RTN
       ; ==== DATA: written by tools/build_elem47.py from python/elements.py, do not edit below ====
       ; the symbols: 65 elements per label
- 769  LBL 00
- 770  "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
- 771  RTN
- 772  LBL 01
- 773  "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
- 774  RTN
- 775  END
+ 771  LBL 00
+ 772  "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
+ 773  RTN
+ 774  LBL 01
+ 775  "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
+ 776  RTN
+ 777  END
       ; ==== ELD1: the records of Z 1-60, one per label: LBL Z - 0; R43 the label ====
- 776  LBL "ELD1"
- 777  XEQ IND 43
- 778  RTN
- 779  LBL 01
- 780  "Hydrogen/1.0080/G/20.3/1s1"
- 781  RTN
- 782  LBL 02
- 783  "Helium/4.0026/G/4.2/1s2"
- 784  RTN
- 785  LBL 03
- 786  "Lithium/6.94/S/1615/[He] 2s1"
- 787  RTN
- 788  LBL 04
- 789  "Beryllium/9.0122/S/2744/[He] 2s2"
- 790  RTN
- 791  LBL 05
- 792  "Boron/10.81/S/4273/[He] 2s2 2p1"
- 793  RTN
- 794  LBL 06
- 795  "Carbon/12.011/S/4098/[He] 2s2 2p2"
- 796  RTN
- 797  LBL 07
- 798  "Nitrogen/14.007/G/77.4/[He] 2s2 2p3"
- 799  RTN
- 800  LBL 08
- 801  "Oxygen/15.999/G/90.2/[He] 2s2 2p4"
- 802  RTN
- 803  LBL 09
- 804  "Fluorine/18.998/G/85.0/[He] 2s2 2p5"
- 805  RTN
- 806  LBL 10
- 807  "Neon/20.180/G/27.1/[He] 2s2 2p6"
- 808  RTN
- 809  LBL 11
- 810  "Sodium/22.990/S/1156/[Ne] 3s1"
- 811  RTN
- 812  LBL 12
- 813  "Magnesium/24.305/S/1363/[Ne] 3s2"
- 814  RTN
- 815  LBL 13
- 816  "Aluminium/26.982/S/2792/[Ne] 3s2 3p1"
- 817  RTN
- 818  LBL 14
- 819  "Silicon/28.085/S/3538/[Ne] 3s2 3p2"
- 820  RTN
- 821  LBL 15
- 822  "Phosphorus/30.974/S/554/[Ne] 3s2 3p3"
- 823  RTN
- 824  LBL 16
- 825  "Sulfur/32.06/S/718/[Ne] 3s2 3p4"
- 826  RTN
- 827  LBL 17
- 828  "Chlorine/35.45/G/239/[Ne] 3s2 3p5"
- 829  RTN
- 830  LBL 18
- 831  "Argon/39.95/G/87.3/[Ne] 3s2 3p6"
- 832  RTN
- 833  LBL 19
- 834  "Potassium/39.098/S/1032/[Ar] 4s1"
- 835  RTN
- 836  LBL 20
- 837  "Calcium/40.078/S/1757/[Ar] 4s2"
- 838  RTN
- 839  LBL 21
- 840  "Scandium/44.956/S/3109/[Ar] 3d1 4s2"
- 841  RTN
- 842  LBL 22
- 843  "Titanium/47.867/S/3560/[Ar] 3d2 4s2"
- 844  RTN
- 845  LBL 23
- 846  "Vanadium/50.942/S/3680/[Ar] 3d3 4s2"
- 847  RTN
- 848  LBL 24
- 849  "Chromium/51.996/S/2944/[Ar] 3d5 4s1"
- 850  RTN
- 851  LBL 25
- 852  "Manganese/54.938/S/2334/[Ar] 3d5 4s2"
- 853  RTN
- 854  LBL 26
- 855  "Iron/55.845/S/3134/[Ar] 3d6 4s2"
- 856  RTN
- 857  LBL 27
- 858  "Cobalt/58.933/S/3200/[Ar] 3d7 4s2"
- 859  RTN
- 860  LBL 28
- 861  "Nickel/58.693/S/3186/[Ar] 3d8 4s2"
- 862  RTN
- 863  LBL 29
- 864  "Copper/63.546/S/2835/[Ar] 3d10 4s1"
- 865  RTN
- 866  LBL 30
- 867  "Zinc/65.38/S/1180/[Ar] 3d10 4s2"
- 868  RTN
- 869  LBL 31
- 870  "Gallium/69.723/S/2477/[Ar] 3d10 4s2 4p1"
- 871  RTN
- 872  LBL 32
- 873  "Germanium/72.630/S/3106/[Ar] 3d10 4s2 4p2"
- 874  RTN
- 875  LBL 33
- 876  "Arsenic/74.922/S/887/[Ar] 3d10 4s2 4p3"
- 877  RTN
- 878  LBL 34
- 879  "Selenium/78.971/S/958/[Ar] 3d10 4s2 4p4"
- 880  RTN
- 881  LBL 35
- 882  "Bromine/79.904/L/332/[Ar] 3d10 4s2 4p5"
- 883  RTN
- 884  LBL 36
- 885  "Krypton/83.798/G/120/[Ar] 3d10 4s2 4p6"
- 886  RTN
- 887  LBL 37
- 888  "Rubidium/85.468/S/961/[Kr] 5s1"
- 889  RTN
- 890  LBL 38
- 891  "Strontium/87.62/S/1655/[Kr] 5s2"
- 892  RTN
- 893  LBL 39
- 894  "Yttrium/88.906/S/3618/[Kr] 4d1 5s2"
- 895  RTN
- 896  LBL 40
- 897  "Zirconium/91.222/S/4682/[Kr] 4d2 5s2"
- 898  RTN
- 899  LBL 41
- 900  "Niobium/92.906/S/5017/[Kr] 4d4 5s1"
- 901  RTN
- 902  LBL 42
- 903  "Molybdenum/95.95/S/4912/[Kr] 4d5 5s1"
- 904  RTN
- 905  LBL 43
- 906  "Technetium/-/S/4538/[Kr] 4d5 5s2"
- 907  RTN
- 908  LBL 44
- 909  "Ruthenium/101.07/S/4423/[Kr] 4d7 5s1"
- 910  RTN
- 911  LBL 45
- 912  "Rhodium/102.91/S/3968/[Kr] 4d8 5s1"
- 913  RTN
- 914  LBL 46
- 915  "Palladium/106.42/S/3236/[Kr] 4d10"
- 916  RTN
- 917  LBL 47
- 918  "Silver/107.87/S/2435/[Kr] 4d10 5s1"
- 919  RTN
- 920  LBL 48
- 921  "Cadmium/112.41/S/1040/[Kr] 4d10 5s2"
- 922  RTN
- 923  LBL 49
- 924  "Indium/114.82/S/2345/[Kr] 4d10 5s2 5p1"
- 925  RTN
- 926  LBL 50
- 927  "Tin/118.71/S/2875/[Kr] 4d10 5s2 5p2"
- 928  RTN
- 929  LBL 51
- 930  "Antimony/121.76/S/1860/[Kr] 4d10 5s2 5p3"
- 931  RTN
- 932  LBL 52
- 933  "Tellurium/127.60/S/1261/[Kr] 4d10 5s2 5p4"
- 934  RTN
- 935  LBL 53
- 936  "Iodine/126.90/S/458/[Kr] 4d10 5s2 5p5"
- 937  RTN
- 938  LBL 54
- 939  "Xenon/131.29/G/165/[Kr] 4d10 5s2 5p6"
- 940  RTN
- 941  LBL 55
- 942  "Caesium/132.91/S/944/[Xe] 6s1"
- 943  RTN
- 944  LBL 56
- 945  "Barium/137.33/S/2170/[Xe] 6s2"
- 946  RTN
- 947  LBL 57
- 948  "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2"
- 949  RTN
- 950  LBL 58
- 951  "Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2"
- 952  RTN
- 953  LBL 59
- 954  "Praseodymium/140.91/S/3793/[Xe] 4f3 6s2"
- 955  RTN
- 956  LBL 60
- 957  "Neodymium/144.24/S/3347/[Xe] 4f4 6s2"
- 958  RTN
- 959  END
+ 778  LBL "ELD1"
+ 779  XEQ IND 43
+ 780  RTN
+ 781  LBL 01
+ 782  "Hydrogen/1.0080/G/20.3/1s1"
+ 783  RTN
+ 784  LBL 02
+ 785  "Helium/4.0026/G/4.2/1s2"
+ 786  RTN
+ 787  LBL 03
+ 788  "Lithium/6.94/S/1615/[He] 2s1"
+ 789  RTN
+ 790  LBL 04
+ 791  "Beryllium/9.0122/S/2744/[He] 2s2"
+ 792  RTN
+ 793  LBL 05
+ 794  "Boron/10.81/S/4273/[He] 2s2 2p1"
+ 795  RTN
+ 796  LBL 06
+ 797  "Carbon/12.011/S/4098/[He] 2s2 2p2"
+ 798  RTN
+ 799  LBL 07
+ 800  "Nitrogen/14.007/G/77.4/[He] 2s2 2p3"
+ 801  RTN
+ 802  LBL 08
+ 803  "Oxygen/15.999/G/90.2/[He] 2s2 2p4"
+ 804  RTN
+ 805  LBL 09
+ 806  "Fluorine/18.998/G/85.0/[He] 2s2 2p5"
+ 807  RTN
+ 808  LBL 10
+ 809  "Neon/20.180/G/27.1/[He] 2s2 2p6"
+ 810  RTN
+ 811  LBL 11
+ 812  "Sodium/22.990/S/1156/[Ne] 3s1"
+ 813  RTN
+ 814  LBL 12
+ 815  "Magnesium/24.305/S/1363/[Ne] 3s2"
+ 816  RTN
+ 817  LBL 13
+ 818  "Aluminium/26.982/S/2792/[Ne] 3s2 3p1"
+ 819  RTN
+ 820  LBL 14
+ 821  "Silicon/28.085/S/3538/[Ne] 3s2 3p2"
+ 822  RTN
+ 823  LBL 15
+ 824  "Phosphorus/30.974/S/554/[Ne] 3s2 3p3"
+ 825  RTN
+ 826  LBL 16
+ 827  "Sulfur/32.06/S/718/[Ne] 3s2 3p4"
+ 828  RTN
+ 829  LBL 17
+ 830  "Chlorine/35.45/G/239/[Ne] 3s2 3p5"
+ 831  RTN
+ 832  LBL 18
+ 833  "Argon/39.95/G/87.3/[Ne] 3s2 3p6"
+ 834  RTN
+ 835  LBL 19
+ 836  "Potassium/39.098/S/1032/[Ar] 4s1"
+ 837  RTN
+ 838  LBL 20
+ 839  "Calcium/40.078/S/1757/[Ar] 4s2"
+ 840  RTN
+ 841  LBL 21
+ 842  "Scandium/44.956/S/3109/[Ar] 3d1 4s2"
+ 843  RTN
+ 844  LBL 22
+ 845  "Titanium/47.867/S/3560/[Ar] 3d2 4s2"
+ 846  RTN
+ 847  LBL 23
+ 848  "Vanadium/50.942/S/3680/[Ar] 3d3 4s2"
+ 849  RTN
+ 850  LBL 24
+ 851  "Chromium/51.996/S/2944/[Ar] 3d5 4s1"
+ 852  RTN
+ 853  LBL 25
+ 854  "Manganese/54.938/S/2334/[Ar] 3d5 4s2"
+ 855  RTN
+ 856  LBL 26
+ 857  "Iron/55.845/S/3134/[Ar] 3d6 4s2"
+ 858  RTN
+ 859  LBL 27
+ 860  "Cobalt/58.933/S/3200/[Ar] 3d7 4s2"
+ 861  RTN
+ 862  LBL 28
+ 863  "Nickel/58.693/S/3186/[Ar] 3d8 4s2"
+ 864  RTN
+ 865  LBL 29
+ 866  "Copper/63.546/S/2835/[Ar] 3d10 4s1"
+ 867  RTN
+ 868  LBL 30
+ 869  "Zinc/65.38/S/1180/[Ar] 3d10 4s2"
+ 870  RTN
+ 871  LBL 31
+ 872  "Gallium/69.723/S/2477/[Ar] 3d10 4s2 4p1"
+ 873  RTN
+ 874  LBL 32
+ 875  "Germanium/72.630/S/3106/[Ar] 3d10 4s2 4p2"
+ 876  RTN
+ 877  LBL 33
+ 878  "Arsenic/74.922/S/887/[Ar] 3d10 4s2 4p3"
+ 879  RTN
+ 880  LBL 34
+ 881  "Selenium/78.971/S/958/[Ar] 3d10 4s2 4p4"
+ 882  RTN
+ 883  LBL 35
+ 884  "Bromine/79.904/L/332/[Ar] 3d10 4s2 4p5"
+ 885  RTN
+ 886  LBL 36
+ 887  "Krypton/83.798/G/120/[Ar] 3d10 4s2 4p6"
+ 888  RTN
+ 889  LBL 37
+ 890  "Rubidium/85.468/S/961/[Kr] 5s1"
+ 891  RTN
+ 892  LBL 38
+ 893  "Strontium/87.62/S/1655/[Kr] 5s2"
+ 894  RTN
+ 895  LBL 39
+ 896  "Yttrium/88.906/S/3618/[Kr] 4d1 5s2"
+ 897  RTN
+ 898  LBL 40
+ 899  "Zirconium/91.222/S/4682/[Kr] 4d2 5s2"
+ 900  RTN
+ 901  LBL 41
+ 902  "Niobium/92.906/S/5017/[Kr] 4d4 5s1"
+ 903  RTN
+ 904  LBL 42
+ 905  "Molybdenum/95.95/S/4912/[Kr] 4d5 5s1"
+ 906  RTN
+ 907  LBL 43
+ 908  "Technetium/-/S/4538/[Kr] 4d5 5s2"
+ 909  RTN
+ 910  LBL 44
+ 911  "Ruthenium/101.07/S/4423/[Kr] 4d7 5s1"
+ 912  RTN
+ 913  LBL 45
+ 914  "Rhodium/102.91/S/3968/[Kr] 4d8 5s1"
+ 915  RTN
+ 916  LBL 46
+ 917  "Palladium/106.42/S/3236/[Kr] 4d10"
+ 918  RTN
+ 919  LBL 47
+ 920  "Silver/107.87/S/2435/[Kr] 4d10 5s1"
+ 921  RTN
+ 922  LBL 48
+ 923  "Cadmium/112.41/S/1040/[Kr] 4d10 5s2"
+ 924  RTN
+ 925  LBL 49
+ 926  "Indium/114.82/S/2345/[Kr] 4d10 5s2 5p1"
+ 927  RTN
+ 928  LBL 50
+ 929  "Tin/118.71/S/2875/[Kr] 4d10 5s2 5p2"
+ 930  RTN
+ 931  LBL 51
+ 932  "Antimony/121.76/S/1860/[Kr] 4d10 5s2 5p3"
+ 933  RTN
+ 934  LBL 52
+ 935  "Tellurium/127.60/S/1261/[Kr] 4d10 5s2 5p4"
+ 936  RTN
+ 937  LBL 53
+ 938  "Iodine/126.90/S/458/[Kr] 4d10 5s2 5p5"
+ 939  RTN
+ 940  LBL 54
+ 941  "Xenon/131.29/G/165/[Kr] 4d10 5s2 5p6"
+ 942  RTN
+ 943  LBL 55
+ 944  "Caesium/132.91/S/944/[Xe] 6s1"
+ 945  RTN
+ 946  LBL 56
+ 947  "Barium/137.33/S/2170/[Xe] 6s2"
+ 948  RTN
+ 949  LBL 57
+ 950  "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2"
+ 951  RTN
+ 952  LBL 58
+ 953  "Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2"
+ 954  RTN
+ 955  LBL 59
+ 956  "Praseodymium/140.91/S/3793/[Xe] 4f3 6s2"
+ 957  RTN
+ 958  LBL 60
+ 959  "Neodymium/144.24/S/3347/[Xe] 4f4 6s2"
+ 960  RTN
+ 961  END
       ; ==== ELD2: the records of Z 61-118, one per label: LBL Z - 60; R43 the label ====
- 960  LBL "ELD2"
- 961  XEQ IND 43
- 962  RTN
- 963  LBL 01
- 964  "Promethium/-/S/3273/[Xe] 4f5 6s2"
- 965  RTN
- 966  LBL 02
- 967  "Samarium/150.36/S/2067/[Xe] 4f6 6s2"
- 968  RTN
- 969  LBL 03
- 970  "Europium/151.96/S/1802/[Xe] 4f7 6s2"
- 971  RTN
- 972  LBL 04
- 973  "Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2"
- 974  RTN
- 975  LBL 05
- 976  "Terbium/158.93/S/3503/[Xe] 4f9 6s2"
- 977  RTN
- 978  LBL 06
- 979  "Dysprosium/162.50/S/2840/[Xe] 4f10 6s2"
- 980  RTN
- 981  LBL 07
- 982  "Holmium/164.93/S/2973/[Xe] 4f11 6s2"
- 983  RTN
- 984  LBL 08
- 985  "Erbium/167.26/S/3141/[Xe] 4f12 6s2"
- 986  RTN
- 987  LBL 09
- 988  "Thulium/168.93/S/2223/[Xe] 4f13 6s2"
- 989  RTN
- 990  LBL 10
- 991  "Ytterbium/173.05/S/1469/[Xe] 4f14 6s2"
- 992  RTN
- 993  LBL 11
- 994  "Lutetium/174.97/S/3675/[Xe] 4f14 5d1 6s2"
- 995  RTN
- 996  LBL 12
- 997  "Hafnium/178.49/S/4876/[Xe] 4f14 5d2 6s2"
- 998  RTN
- 999  LBL 13
-1000  "Tantalum/180.95/S/5731/[Xe] 4f14 5d3 6s2"
-1001  RTN
-1002  LBL 14
-1003  "Tungsten/183.84/S/5828/[Xe] 4f14 5d4 6s2"
-1004  RTN
-1005  LBL 15
-1006  "Rhenium/186.21/S/5869/[Xe] 4f14 5d5 6s2"
-1007  RTN
-1008  LBL 16
-1009  "Osmium/190.23/S/5285/[Xe] 4f14 5d6 6s2"
-1010  RTN
-1011  LBL 17
-1012  "Iridium/192.22/S/4701/[Xe] 4f14 5d7 6s2"
-1013  RTN
-1014  LBL 18
-1015  "Platinum/195.08/S/4098/[Xe] 4f14 5d9 6s1"
-1016  RTN
-1017  LBL 19
-1018  "Gold/196.97/S/3129/[Xe] 4f14 5d10 6s1"
-1019  RTN
-1020  LBL 20
-1021  "Mercury/200.59/L/630/[Xe] 4f14 5d10 6s2"
-1022  RTN
-1023  LBL 21
-1024  "Thallium/204.38/S/1746/[Xe] 4f14 5d10 6s2 6p1"
-1025  RTN
-1026  LBL 22
-1027  "Lead/207.2/S/2022/[Xe] 4f14 5d10 6s2 6p2"
-1028  RTN
-1029  LBL 23
-1030  "Bismuth/208.98/S/1837/[Xe] 4f14 5d10 6s2 6p3"
-1031  RTN
-1032  LBL 24
-1033  "Polonium/-/S/1235/[Xe] 4f14 5d10 6s2 6p4"
-1034  RTN
-1035  LBL 25
-1036  "Astatine/-/S/-/[Xe] 4f14 5d10 6s2 6p5"
-1037  RTN
-1038  LBL 26
-1039  "Radon/-/G/211/[Xe] 4f14 5d10 6s2 6p6"
-1040  RTN
-1041  LBL 27
-1042  "Francium/-/S/-/[Rn] 7s1"
-1043  RTN
-1044  LBL 28
-1045  "Radium/-/S/1413/[Rn] 7s2"
-1046  RTN
-1047  LBL 29
-1048  "Actinium/-/S/3471/[Rn] 6d1 7s2"
-1049  RTN
-1050  LBL 30
-1051  "Thorium/232.04/S/5061/[Rn] 6d2 7s2"
-1052  RTN
-1053  LBL 31
-1054  "Protactinium/231.04/S/-/[Rn] 5f2 6d1 7s2"
-1055  RTN
-1056  LBL 32
-1057  "Uranium/238.03/S/4404/[Rn] 5f3 6d1 7s2"
-1058  RTN
-1059  LBL 33
-1060  "Neptunium/-/S/4175/[Rn] 5f4 6d1 7s2"
-1061  RTN
-1062  LBL 34
-1063  "Plutonium/-/S/3501/[Rn] 5f6 7s2"
-1064  RTN
-1065  LBL 35
-1066  "Americium/-/S/2284/[Rn] 5f7 7s2"
-1067  RTN
-1068  LBL 36
-1069  "Curium/-/S/3400/[Rn] 5f7 6d1 7s2"
-1070  RTN
-1071  LBL 37
-1072  "Berkelium/-/S/-/[Rn] 5f9 7s2"
-1073  RTN
-1074  LBL 38
-1075  "Californium/-/S/-/[Rn] 5f10 7s2"
-1076  RTN
-1077  LBL 39
-1078  "Einsteinium/-/S/-/[Rn] 5f11 7s2"
-1079  RTN
-1080  LBL 40
-1081  "Fermium/-/S/-/[Rn] 5f12 7s2"
-1082  RTN
-1083  LBL 41
-1084  "Mendelevium/-/S/-/[Rn] 5f13 7s2"
-1085  RTN
-1086  LBL 42
-1087  "Nobelium/-/S/-/[Rn] 5f14 7s2"
-1088  RTN
-1089  LBL 43
-1090  "Lawrencium/-/S/-/[Rn] 5f14 6d1 7s2"
-1091  RTN
-1092  LBL 44
-1093  "Rutherfordium/-/S/-/[Rn] 5f14 6d2 7s2"
-1094  RTN
-1095  LBL 45
-1096  "Dubnium/-/S/-/[Rn] 5f14 6d3 7s2"
-1097  RTN
-1098  LBL 46
-1099  "Seaborgium/-/S/-/[Rn] 5f14 6d4 7s2"
-1100  RTN
-1101  LBL 47
-1102  "Bohrium/-/S/-/[Rn] 5f14 6d5 7s2"
-1103  RTN
-1104  LBL 48
-1105  "Hassium/-/S/-/[Rn] 5f14 6d6 7s2"
-1106  RTN
-1107  LBL 49
-1108  "Meitnerium/-/S/-/[Rn] 5f14 6d7 7s2"
-1109  RTN
-1110  LBL 50
-1111  "Darmstadtium/-/-/-/[Rn] 5f14 6d8 7s2"
-1112  RTN
-1113  LBL 51
-1114  "Roentgenium/-/-/-/[Rn] 5f14 6d9 7s2"
-1115  RTN
-1116  LBL 52
-1117  "Copernicium/-/-/-/[Rn] 5f14 6d10 7s2"
-1118  RTN
-1119  LBL 53
-1120  "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1"
-1121  RTN
-1122  LBL 54
-1123  "Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7p2"
-1124  RTN
-1125  LBL 55
-1126  "Moscovium/-/-/-/[Rn] 5f14 6d10 7s2 7p3"
-1127  RTN
-1128  LBL 56
-1129  "Livermorium/-/-/-/[Rn] 5f14 6d10 7s2 7p4"
-1130  RTN
-1131  LBL 57
-1132  "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5"
-1133  RTN
-1134  LBL 58
-1135  "Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6"
-1136  RTN
-1137  END
+ 962  LBL "ELD2"
+ 963  XEQ IND 43
+ 964  RTN
+ 965  LBL 01
+ 966  "Promethium/-/S/3273/[Xe] 4f5 6s2"
+ 967  RTN
+ 968  LBL 02
+ 969  "Samarium/150.36/S/2067/[Xe] 4f6 6s2"
+ 970  RTN
+ 971  LBL 03
+ 972  "Europium/151.96/S/1802/[Xe] 4f7 6s2"
+ 973  RTN
+ 974  LBL 04
+ 975  "Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2"
+ 976  RTN
+ 977  LBL 05
+ 978  "Terbium/158.93/S/3503/[Xe] 4f9 6s2"
+ 979  RTN
+ 980  LBL 06
+ 981  "Dysprosium/162.50/S/2840/[Xe] 4f10 6s2"
+ 982  RTN
+ 983  LBL 07
+ 984  "Holmium/164.93/S/2973/[Xe] 4f11 6s2"
+ 985  RTN
+ 986  LBL 08
+ 987  "Erbium/167.26/S/3141/[Xe] 4f12 6s2"
+ 988  RTN
+ 989  LBL 09
+ 990  "Thulium/168.93/S/2223/[Xe] 4f13 6s2"
+ 991  RTN
+ 992  LBL 10
+ 993  "Ytterbium/173.05/S/1469/[Xe] 4f14 6s2"
+ 994  RTN
+ 995  LBL 11
+ 996  "Lutetium/174.97/S/3675/[Xe] 4f14 5d1 6s2"
+ 997  RTN
+ 998  LBL 12
+ 999  "Hafnium/178.49/S/4876/[Xe] 4f14 5d2 6s2"
+1000  RTN
+1001  LBL 13
+1002  "Tantalum/180.95/S/5731/[Xe] 4f14 5d3 6s2"
+1003  RTN
+1004  LBL 14
+1005  "Tungsten/183.84/S/5828/[Xe] 4f14 5d4 6s2"
+1006  RTN
+1007  LBL 15
+1008  "Rhenium/186.21/S/5869/[Xe] 4f14 5d5 6s2"
+1009  RTN
+1010  LBL 16
+1011  "Osmium/190.23/S/5285/[Xe] 4f14 5d6 6s2"
+1012  RTN
+1013  LBL 17
+1014  "Iridium/192.22/S/4701/[Xe] 4f14 5d7 6s2"
+1015  RTN
+1016  LBL 18
+1017  "Platinum/195.08/S/4098/[Xe] 4f14 5d9 6s1"
+1018  RTN
+1019  LBL 19
+1020  "Gold/196.97/S/3129/[Xe] 4f14 5d10 6s1"
+1021  RTN
+1022  LBL 20
+1023  "Mercury/200.59/L/630/[Xe] 4f14 5d10 6s2"
+1024  RTN
+1025  LBL 21
+1026  "Thallium/204.38/S/1746/[Xe] 4f14 5d10 6s2 6p1"
+1027  RTN
+1028  LBL 22
+1029  "Lead/207.2/S/2022/[Xe] 4f14 5d10 6s2 6p2"
+1030  RTN
+1031  LBL 23
+1032  "Bismuth/208.98/S/1837/[Xe] 4f14 5d10 6s2 6p3"
+1033  RTN
+1034  LBL 24
+1035  "Polonium/-/S/1235/[Xe] 4f14 5d10 6s2 6p4"
+1036  RTN
+1037  LBL 25
+1038  "Astatine/-/S/-/[Xe] 4f14 5d10 6s2 6p5"
+1039  RTN
+1040  LBL 26
+1041  "Radon/-/G/211/[Xe] 4f14 5d10 6s2 6p6"
+1042  RTN
+1043  LBL 27
+1044  "Francium/-/S/-/[Rn] 7s1"
+1045  RTN
+1046  LBL 28
+1047  "Radium/-/S/1413/[Rn] 7s2"
+1048  RTN
+1049  LBL 29
+1050  "Actinium/-/S/3471/[Rn] 6d1 7s2"
+1051  RTN
+1052  LBL 30
+1053  "Thorium/232.04/S/5061/[Rn] 6d2 7s2"
+1054  RTN
+1055  LBL 31
+1056  "Protactinium/231.04/S/-/[Rn] 5f2 6d1 7s2"
+1057  RTN
+1058  LBL 32
+1059  "Uranium/238.03/S/4404/[Rn] 5f3 6d1 7s2"
+1060  RTN
+1061  LBL 33
+1062  "Neptunium/-/S/4175/[Rn] 5f4 6d1 7s2"
+1063  RTN
+1064  LBL 34
+1065  "Plutonium/-/S/3501/[Rn] 5f6 7s2"
+1066  RTN
+1067  LBL 35
+1068  "Americium/-/S/2284/[Rn] 5f7 7s2"
+1069  RTN
+1070  LBL 36
+1071  "Curium/-/S/3400/[Rn] 5f7 6d1 7s2"
+1072  RTN
+1073  LBL 37
+1074  "Berkelium/-/S/-/[Rn] 5f9 7s2"
+1075  RTN
+1076  LBL 38
+1077  "Californium/-/S/-/[Rn] 5f10 7s2"
+1078  RTN
+1079  LBL 39
+1080  "Einsteinium/-/S/-/[Rn] 5f11 7s2"
+1081  RTN
+1082  LBL 40
+1083  "Fermium/-/S/-/[Rn] 5f12 7s2"
+1084  RTN
+1085  LBL 41
+1086  "Mendelevium/-/S/-/[Rn] 5f13 7s2"
+1087  RTN
+1088  LBL 42
+1089  "Nobelium/-/S/-/[Rn] 5f14 7s2"
+1090  RTN
+1091  LBL 43
+1092  "Lawrencium/-/S/-/[Rn] 5f14 6d1 7s2"
+1093  RTN
+1094  LBL 44
+1095  "Rutherfordium/-/S/-/[Rn] 5f14 6d2 7s2"
+1096  RTN
+1097  LBL 45
+1098  "Dubnium/-/S/-/[Rn] 5f14 6d3 7s2"
+1099  RTN
+1100  LBL 46
+1101  "Seaborgium/-/S/-/[Rn] 5f14 6d4 7s2"
+1102  RTN
+1103  LBL 47
+1104  "Bohrium/-/S/-/[Rn] 5f14 6d5 7s2"
+1105  RTN
+1106  LBL 48
+1107  "Hassium/-/S/-/[Rn] 5f14 6d6 7s2"
+1108  RTN
+1109  LBL 49
+1110  "Meitnerium/-/S/-/[Rn] 5f14 6d7 7s2"
+1111  RTN
+1112  LBL 50
+1113  "Darmstadtium/-/-/-/[Rn] 5f14 6d8 7s2"
+1114  RTN
+1115  LBL 51
+1116  "Roentgenium/-/-/-/[Rn] 5f14 6d9 7s2"
+1117  RTN
+1118  LBL 52
+1119  "Copernicium/-/-/-/[Rn] 5f14 6d10 7s2"
+1120  RTN
+1121  LBL 53
+1122  "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1"
+1123  RTN
+1124  LBL 54
+1125  "Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7p2"
+1126  RTN
+1127  LBL 55
+1128  "Moscovium/-/-/-/[Rn] 5f14 6d10 7s2 7p3"
+1129  RTN
+1130  LBL 56
+1131  "Livermorium/-/-/-/[Rn] 5f14 6d10 7s2 7p4"
+1132  RTN
+1133  LBL 57
+1134  "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5"
+1135  RTN
+1136  LBL 58
+1137  "Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6"
+1138  RTN
+1139  END
