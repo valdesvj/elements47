@@ -2,7 +2,7 @@ REM ELEM47 v1.1.0 - Elements 47: the periodic table on the C47 / R47
 REM The 118 elements in an 18 x 9 grid (rows 1-7 the periods, 8 lanthanides, 9 actinides),
 REM cells 23 x 26 pixels sharing their edges (pitch 22 x 25). The empty space of periods 1-3
 REM holds the title, the selected element (name, Z, mass) and the keys.
-REM Keys: 8 4 6 2 move the cursor (gaps skipped), 5 the detail box (8 4 6 2 move in it, 5 closes it), 0 the end.
+REM Keys: 8 4 6 2 move the cursor (gaps skipped, around the edges), 5 the detail box (8 4 6 2 move in it, 5 closes it), 0 the end.
 REM Screen 400 x 240, row 0 = bottom (as in Almanac 47). ATEXT in GRFNT 21, numbers in GRFNT 10.
 REM GRMOD and GRFNT take X (rejig writes "GRMOD r" as GRMOD and the number r: Almanac 47).
 REM Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
@@ -718,26 +718,31 @@ RCL 31
 STO 26
 RCL 32
 STO 27
-REM on in the direction until a cell that is not empty (PT); outside the table: RTN, the cursor stays
+REM on in the direction until a cell that is not empty (PT), around the edges: row (r + R41 + 8) mod 9 + 1,
+REM column (c + R42 + 17) mod 18 + 1 (8, 17: never negative). Every row and column has an element, so a
+REM full turn at most (back to the cell itself)
 REPEAT
+  RCL 26
   RCL 41
-  STO+ 26
-  RCL 42
-  STO+ 27
-  RCL 26
-  X=0?
-  RTN
+  +
+  8
+  +
   9
-  X<Y?
-  RTN
+  MOD
+  1
+  +
+  STO 26
+  REM the row stays in Y for STOIJ
   RCL 27
-  X=0?
-  RTN
+  RCL 42
+  +
+  17
+  +
   18
-  X<Y?
-  RTN
-  RCL 26
-  RCL 27
+  MOD
+  1
+  +
+  STO 27
   STOIJ
   RCLEL
   X≠0?

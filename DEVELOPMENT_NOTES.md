@@ -24,7 +24,7 @@
   x 1-397, rows 4-238 (row 0 = bottom).
 - Drawn in the order of Z by segments (python/elements.py SEGMENTS, written into LBL :CELLS:: count, row, first column); each
   cell fills the matrix PT (STOIJ / STOEL), so the cursor finds its neighbours with RCLEL (0 = empty, go on
-  in the same direction; outside the table: stay).
+  in the same direction; outside the table: around to the other side, v1.1.0).
 - Number: tinyFont, written as " " + αIP (a leading space instead of an empty string, 4 columns to the left).
   Symbol: GRFNT 21, centred: the symbol pieces (LBL 36-41, 20 elements of 3 characters) hold a digit, the
   column of the symbol in its cell (build_elem47.offset, from the glyph widths), then the 2 characters.
@@ -380,6 +380,25 @@
   programs_rem/pixel, build/pixel/ELEM47.txt), 1 227 steps with ELD1 and ELD2; the header adds the PIXEL
   lines, the style (no GTO, STRUCT only, a test before one XEQ / RTN in a few places, two second entry
   labels, no tail calls) and the unrolled drawing. Tested: run on a C47 by the author, and the simulator.
+
+## Oct 11, 2026 - the arrows go around the edges (a user's request)
+- A user asked for wrap-around: at an edge the cursor goes on from the other side, across and up / down. LBL
+  :STEP: (release and PIXEL variant) takes row (r + R41 + 8) mod 9 + 1 and column (c + R42 + 17) mod 18 + 1
+  (the 8 and 17 keep MOD's argument positive) instead of the four "outside the table: RTN" tests, then skips
+  the empty cells as before. Every row and column has an element, so the loop ends (at worst a full turn,
+  back to the same cell). Vertically the turn goes through rows 8 and 9: Ac down -> Sc, H up -> Fr, Og down ->
+  He; across: H left -> He, Ac left -> Lr. ELEM47 +2 steps (775 -> 777, PIXEL 865 -> 867); the steps of a
+  move are about the same.
+- tests/test_elem47.py: the edge moves now go around (and the Og picture is 16 rights from Fr, not 17).
+  tests/test_opt.py gives the reference build the same steps (NO_WRAP -> WRAP), so its screens still compare.
+- The PIXEL variant failed tests/test_fw.py (0 of 955 screens, main too): columns 398-399 stayed black on rows
+  4, 29, 54. :GRID: cleared them with a space by ATEXT at x 393 in GRFNT 21; the firmware (_doShowString: x > 380
+  and x + 8 > 400) puts that space on the next line, c47sim does not (it tests the width less the GRFNT 21 column:
+  to fix in Almanac 47's c47sim.py). Now at x 392: test_fw passes on both builds (955 of 955), and the table is
+  the same as the release's, pixel for pixel.
+- tools/bench_fw.py (T47, M instructions): release table 101.7, moves 341.3, boxes 574.9, inbox 910.9; PIXEL
+  84.5, 335.9, 504.5, 895.1. 'moves' and 'inbox' are not comparable with the numbers before: their 17 rights on
+  row 1 now go around H / He (16 real moves of 16 skipped cells each) where the cursor stayed.
 
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
