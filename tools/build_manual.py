@@ -9,7 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'python'))
 import elem47sim as E
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 TEXT = '''# Elements 47 v%s: user's manual
 
 The periodic table of the 118 elements on the C47 / R47: the table on one screen, a cursor you move with the
@@ -21,8 +21,8 @@ digit keys, and a detail box for each element.
   structured programming commands (IF, DO, REPEAT: app note AN0007), ATEXT, GRFNT and PIXEL.
 - From the release zip, copy `C47_R47/ELEM47.p47` to the calculator (USB disk) and load it as any other
   program. It holds three programs: `ELEM47` (the one you run), `ELD1` and `ELD2` (the element data).
-- **Before you run it:** at the end ELEM47 clears the registers R00-R99 and the stack. Keep anything you need
-  somewhere else first.
+- ELEM47 keeps your stack (4 or 8 levels) and LASTx, and the registers outside R20-R56. It uses R20-R56
+  for its work and clears them at the end: keep nothing you need there.
 
 ## Start
 
@@ -64,6 +64,10 @@ temperature, boiling point, group with its name, and the electron configuration.
 With the box open, **8 4 6 2** move the cursor as before and the box shows the new element at once
 (here **6**: from Fe to Co). **5** closes the box, **0** ends; other keys are ignored.
 
+The keys under the line at the bottom of the box: **F1**, **F2** or **F3** ends ELEM47 and puts a value of the element in X,
+on top of your stack: **F1** the atomic number, **F2** the standard atomic weight, **F3** the boiling point in
+kelvin. A value shown as "-" is not put: ELEM47 ends with your stack as it was.
+
 ![The box of Fe, then 6: the box of Co](docs/ELEM47_detail_co.png)
 
 The longest configuration, Og (oganesson):
@@ -74,8 +78,9 @@ The longest configuration, Og (oganesson):
 
 ## End
 
-**0** ends ELEM47: the normal calculator screen comes back, with R00-R99 and the stack cleared and the
-matrix PT (the table's map) deleted.
+**0** ends ELEM47: the normal calculator screen comes back with your stack and LASTx as they were, R20-R56
+cleared and the matrix PT (the table's map) deleted. **F1 F2 F3** in the detail box end it the same way, with
+the value of the element pushed on the stack (the top level goes, as for any number you key in).
 
 ## Keys
 
@@ -84,6 +89,7 @@ matrix PT (the table's map) deleted.
 | **8 4 6 2** | move the cursor | move, the box of the new element |
 | **5** | open the box | close the box |
 | **0** | end | end |
+| **F1 F2 F3** | - | end, Z / mass / boiling point to X |
 
 ## Where the data come from
 

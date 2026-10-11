@@ -431,6 +431,50 @@
   still needs ATEXT and GRFNT, which the DM42 builds do not keep for sure. Getting ELEM47 to 10 IF would be the
   other way to fit the DM42 STRUCT limit.
 
+## Oct 11, 2026 - Branch keep-stack: the user's stack kept, F1 F2 F3 push a value (C47 only)
+
+- Victor: ELEM47 keeps the user's stack (no CLSTK at the end) and clears only its own registers R20-R56 (no
+  CLREGS); in the detail box F1 F2 F3 end the program with Z, the mass or the boiling point in X. A value "-"
+  is not pushed (the end only). No Free42 version (build/free42 stays v1.1.0: tools/build_free42.py does not
+  know LocR, R-CLR, local flags). Within the original DM42 STRUCT limit: still 10 IF (DO 5 -> 6, of 10).
+- How the stack is kept (programs_rem/ELEM47.txt, the first steps and the end):
+  - `LocR 10` in the main part of ELEM47, then `STO R.00`, `R↓`, `STO R.01`, `R↓` ... `STO R.07`, `R↓`, and
+    `LASTx`, `STO R.08`. Local registers live in the level of the program that allocates them: every XEQ starts
+    a level without them (lblGtoXeq.c), so the save and the restore are both in the main part, never in a
+    routine. RTN at the end releases them: nothing is left in the user's registers.
+  - 8 times STO / R↓, with no test of the stack size: on 8 levels R.00-R.07 = X..T, A..D; on 4 levels R↓ goes
+    round twice, R.00-R.03 = X..T and R.04-R.07 the same again. After 8 R↓ the stack is as before on both.
+  - The end: `RCL R.08`, `STO L` (LASTx back), then `RCL R.07` ... `RCL R.00`: 8 RCL fill 8 levels exactly,
+    and on 4 levels the last four (R.03-R.00 = T..X) are what stays. Then the value of F1-F3: `FS? F.00`,
+    `RCL R.09`: a lift drops the top level, so the user keeps 7 of 8 (3 of 4) levels under the value, as for
+    any number keyed in. The test is a local flag (F.00, set before the restore from R49 ≠ 0): a test of X
+    would need X, which is the user's then; global flags are the user's too.
+  - R20-R56 cleared with `20.37`, `R-CLR` (X = sss.nn: nn registers from sss; registers.c fnRegClr), before
+    the restore (it needs X).
+- F1 F2 F3: KEY? gives 11 12 13 (keyboard.c setLastKeyCode: the function keys 38-43 -> 11-16, on the
+  PC build and on DMCP btnFnPressed the same). :FKEY: runs after every key: R36 = 0 (no box) or a key outside
+  11-13 returns at once (tests before RTN, no IF); else R33 = 82 (the loop ends as for 0) and R49 the value.
+  Z is R30; the mass is the text of R48 up to its CR (R48 = mass CR boiling point after :DETREC:), the
+  boiling point R46. The C47 has no text -> number command (αPARSE is itemToBeCoded), so :TONUM: reads the
+  digits: each character's place in "0123456789." (1 αLEFT, αPOS), 10 x + d, the divisor x 10 after the point.
+  R49 = 0 is "no value" (Z, mass and boiling point are never 0); "-" leaves it 0.
+- The box line: first tried in the tinyFont under Config, "Push & exit F1:Z - F2:Mass - F3:Boiling Point"
+  (270 columns); on the calculator too small (Victor). Now in GRFNT 21 under a line: "F1: Z  F2: Mass  F3: Boil"
+  (182 columns, x 109; capitals rows 61-72). For the room: the four lines of labels and values 4 rows up (ATEXT at
+  138, 4 rows under the header bar), the box bottom from row 60 down to 56 (the empty rows between period 7 at
+  63 and the lanthanides at 54: nothing to draw again there at :CLOSE:), the sides two halves of 62 rows. The
+  bottom line and the line over F1-F3 (rows 56 and 75) in one :HLINE: with the pattern of bits 0 and 19 (a second
+  :HLINE: was +330 steps a box: 1000 -> 1330; now 1008). :BOXCLR: clears rows 56-75 too: one more ATEXT of
+  42 spaces and one at x 343 (GRMOD 1 clears the glyph box, 20 rows from 56: not down to the lanthanides).
+  tests/test_opt.py leaves out the inside of the box under the header bar (x 50-349, rows 56-157) against the
+  optimize reference; test_elem47 and test_fw check the box.
+- Order: :FKEY: right after the main part (it runs at every key); :BOILTX: :TONUM: :DIGIT: (once, at the
+  end) last before the data, so that the routines of the table and the box do not move further from the start.
+- python/elem47sim.py lowers R-CLR, SF / FS? F.00 and LASTx for c47sim (not in Almanac 47's c47sim yet).
+- Checked: tests/test_elem47.py (F1-F3 of the 118 elements against python/elements.py; the end with a user
+  stack: stack, LASTx, R20-R56 cleared, other registers kept); tests/test_fw.py in T47 on 4 and 8 levels
+  (SSIZE4 / SSIZE8): 0, F1, F2, F3, "-" (Og F3), F1 with the box closed, every screen the same as c47sim.
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.

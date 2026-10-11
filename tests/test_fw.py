@@ -4,7 +4,8 @@
   - tests/calc/LTEST.txt: a 196-character text in a program (the longest the data may use)
   - the whole table, every row both ways: at each cell 5 (the detail box), then a key (the table again);
     every screen the same as python/c47sim.py, pixel for pixel, and the table back after each box
-  - the end: R00-R99 and the stack cleared, no error
+  - F1 F2 F3 with the box open: the value pushed on the user's stack (4 and 8 levels), LASTx kept; "-": none
+  - the end: R20-R56 cleared, the other registers and the stack (4 and 8 levels) as they were, no error
 The key waits (PAUSE n / KEY? r / GTO, or DO / PAUSE n / KEY? r / WHILE / ENDDO) are replaced in a test copy by PAUSE 1 (the firmware puts the drawing
 on the screen at a PAUSE), SNAP (a .bmp) and the next key from the text in the variable TKS (α→x takes its
 first character). rejig writes the .p47 files (in a temporary folder, never committed).
@@ -65,26 +66,30 @@ def bmp(fn):
     return on
 
 
-def run(prog, keys, regs=(), label='ELEM47'):
-    """ELEM47 (or label) of prog in T47 with the keys; the screens, the registers asked, the error lines."""
+STK = 'XYZTABCDL'
+
+
+def run(prog, keys, regs=(), label='ELEM47', setup=()):
+    """ELEM47 (or label) of prog in T47 with the keys; the screens, the registers asked, the error lines.
+    setup: steps run before ELEM47 (in TSET, after its CLSTK: the user's stack); S<reg> the stack and LASTx."""
     d = tempfile.mkdtemp(prefix='elem47fw_')
     try:
         testcopy(prog, os.path.join(d, 'E.txt'))
         t = ''.join(map(chr, keys)); parts = [t[i:i + 150] for i in range(0, len(t), 150)]
         body = ['"%s"' % parts[0]] + sum((['"%s"' % q, '+'] for q in parts[1:]), [])
         open(os.path.join(d, 'TSET.txt'), 'w', encoding='utf-8').write(
-            '\n'.join(['LBL "TSET"'] + body + ['STO "TKS"', 'CLSTK', 'RTN', 'END']) + '\n')
+            '\n'.join(['LBL "TSET"'] + body + ['STO "TKS"', 'CLSTK'] + list(setup) + ['RTN', 'END']) + '\n')
         for f in ('E', 'TSET'):
             p47(os.path.join(d, f + '.txt'), os.path.join(d, f + '.p47'))
         tcl = ['readp %s/E.p47' % d, 'readp %s/TSET.p47' % d, 'xeq TSET']
         tcl += ['reg %02d %d' % (r, v) for r, v in regs] + ['xeq %s' % label, 'puts "X=[reg X]"']
-        tcl += ['puts "R%02d=[reg %02d]"' % (r, r) for r, _ in regs] + ['puts "S%s=[reg %s]"' % (k, k) for k in 'XYZT']
+        tcl += ['puts "R%02d=[reg %02d]"' % (r, r) for r, _ in regs] + ['puts "S%s=[reg %s]"' % (k, k) for k in STK]
         open(os.path.join(d, 't.tcl'), 'w').write('\n'.join(tcl) + '\n')
         r = subprocess.run([SIM, '--headless', '--reset', '--script', os.path.join(d, 't.tcl')], cwd=d,
                            capture_output=True, text=True, timeout=1800)
         out = (r.stdout + r.stderr).split('\n')
         shots = [bmp(f) for f in sorted(glob.glob(os.path.join(d, '*.bmp')))]
-        got = {m.group(1): m.group(2).strip() for l in out for m in [re.match(r'([RS][\dXYZT]+)=(.*)', l)] if m}
+        got = {m.group(1): m.group(2).strip() for l in out for m in [re.match(r'([RS][\d%s]+)=(.*)' % STK, l)] if m}
         err = [l for l in out if any(w in l for w in ERRORS)]
         return shots, got, err
     finally:
@@ -132,10 +137,26 @@ def main():
     check(not err and fw == py, 'moves inside the detail box (every cell), 5: %d screens the same as c47sim %s' % (len(py), err[:2]))
     fw, _, err = run(prog, [E.INFO, ANY, E.RIGHT, E.INFO, E.END])
     check(not err and len(fw) == 5 and fw[2] == fw[1] != fw[3], 'key 1 with the box open: ignored; He after the move')
+    # the end: the user's stack (4 or 8 levels) and LASTx as they were, the value of F1-F3 pushed on it (the top
+    # level goes); R20-R56 cleared, the other registers kept
     regs = [(r, 1000 + r) for r in range(100)]
-    _, got, err = run(prog, [E.RIGHT, E.INFO, E.INFO, E.END], regs)
-    clear = all(got.get('R%02d' % r) == '0' for r, _ in regs) and all(got.get('S' + k) == '0' for k in 'XYZT')
-    check(clear and not err, 'the end: R00-R99 and the stack cleared (they held numbers before), no error %s' % err[:2])
+    fe = [E.DOWN] * 3 + [E.RIGHT] * 7 + [E.INFO]
+    og = [E.DOWN] * 6 + [E.LEFT, E.INFO]
+    for size in (4, 8):
+        user = [str(11 * (i + 1)) for i in range(size)]
+        setup = ['SSIZE%d' % size, '77', 'ABS'] + user[::-1]            # ABS: LASTx = 77
+        for keys, top, what in [([E.RIGHT, E.INFO, E.INFO, E.END], None, 'He, 5, 5, 0'),
+                                (fe + [11], '26', 'Fe, F1: Z'), (fe + [12], '55.845', 'Fe, F2: the mass'),
+                                (fe + [13], '3134', 'Fe, F3: the boiling point'),
+                                (og + [13], None, 'Og, F3: "-", nothing pushed'),
+                                ([11, E.END], None, 'F1 with the box closed: ignored, then 0')]:
+            _, got, err = run(prog, keys, regs, setup=setup)
+            want = user if top is None else [top] + user[:-1]
+            stack = [got.get('S' + k) for k in STK[:size]]
+            kept = all(got.get('R%02d' % r) == ('0' if 20 <= r <= 56 else str(v)) for r, v in regs)
+            check(not err and stack == want and got.get('SL') == '77' and kept,
+                  'the end, %d levels, %s: stack %s, LASTx %s, R20-R56 cleared, the others kept %s'
+                  % (size, what, ' '.join(map(str, stack)), got.get('SL'), err[:2]))
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))
     return 1 if fails else 0
 

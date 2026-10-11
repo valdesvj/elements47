@@ -1,14 +1,18 @@
-REM ELEM47 v1.1.0 - Elements 47: the periodic table on the C47 / R47
+REM ELEM47 v1.2.0 - Elements 47: the periodic table on the C47 / R47
 REM The 118 elements in an 18 x 9 grid (rows 1-7 the periods, 8 lanthanides, 9 actinides),
 REM cells 23 x 26 pixels sharing their edges (pitch 22 x 25). The empty space of periods 1-3
 REM holds the title, the selected element (name, Z, mass) and the keys.
 REM Keys: 8 4 6 2 move the cursor (gaps skipped, around the edges), 5 the detail box (8 4 6 2 move in it, 5 closes it), 0 the end.
+REM In the box F1 F2 F3: the end with Z, the mass or the boiling point (K) in X (no value for "-": the end only).
 REM Screen 400 x 240, row 0 = bottom (as in Almanac 47). ATEXT in GRFNT 21, numbers in GRFNT 10.
 REM GRMOD and GRFNT take X (rejig writes "GRMOD r" as GRMOD and the number r: Almanac 47).
 REM Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
-REM At the end (key 0) the registers and the stack are cleared (CLREGS, CLSTK), as Almanac 47 v2.2.0.
+REM The user's stack is kept: X..T (and A..D on 8 levels) and LASTx saved in local registers at the start
+REM (R.00-R.08; R.09 the value of F1-F3), given back at the end; F1-F3 push their value on top of it.
+REM At the end the work registers R20-R56 are cleared (R-CLR), the other registers are the user's.
 REM Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
-REM Z row column, R33 key, R34-R51 text and work (R36 = 1: the detail box open), R52-R53 the rows of the
+REM Z row column, R33 key, R34-R51 text and work (R36 = 1: the detail box open; R49 the value of F1-F3,
+REM 0: none), R52-R53 the rows of the
 REM number and the symbol of a cell, R54 the column of the number, R55 text (the box), R56 the column of the
 REM cell - 48 (the symbol: + the code of its digit).
 REM Branch struct, C47 only: the control flow in the C47 STRUCT commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO,
@@ -18,6 +22,27 @@ REM data (XEQ IND). A test before a single step (X<0? RTN, X≠0? XEQ) stays as 
 REM Branch struct-pixel (development): the horizontal lines of the table by PIXEL (full rows, :GRID: and
 REM :ROWS:), the cells only their left edge. tools/build_pixel.py -> build/pixel/.
 LBL "ELEM47"
+REM the user's stack in the local registers of this level (the main part: no XEQ level reaches them):
+REM X..T, A..D one by one with R↓; 8 R↓ give the stack back on 4 levels (twice round) as on 8. Then LASTx
+LocR 10
+STO R.00
+R↓
+STO R.01
+R↓
+STO R.02
+R↓
+STO R.03
+R↓
+STO R.04
+R↓
+STO R.05
+R↓
+STO R.06
+R↓
+STO R.07
+R↓
+LASTx
+STO R.08
 REM the main part first: the key loop calls the routines of a move and of the box, and each RTN goes back by
 REM counting the steps from the start of the program
 XEQ :INIT:
@@ -29,6 +54,8 @@ DO
     KEY? 33
   WHILE
   ENDDO
+  REM F1-F3 with the box open: the value in R49, R33 = 82 (the end)
+  XEQ :FKEY:
   RCL 33
   82
   X≠Y?
@@ -84,15 +111,69 @@ WHILE
     ENDIF
   ENDIF
 ENDDO
-REM ---- 0: the end: GRMOD 0, GRFNT 20, PT deleted, the screen, the registers and the stack cleared ----
+REM ---- 0 (or F1-F3): the end: the value of F1-F3 (R49, 0: none) to R.09 and the local flag F.00, R20-R56
+REM cleared, GRMOD 0, GRFNT 20, PT deleted, the screen; then the user's stack and LASTx back, and the value
+REM pushed on it (the top level goes, as for any number keyed in). RTN releases the local registers ----
+RCL 49
+STO R.09
+X≠0?
+SF F.00
+20.37
+R-CLR
 0
 GRMOD
 20
 GRFNT
 DELITM "PT"
 CLLCD
-CLREGS
-CLSTK
+RCL R.08
+STO L
+RCL R.07
+RCL R.06
+RCL R.05
+RCL R.04
+RCL R.03
+RCL R.02
+RCL R.01
+RCL R.00
+FS? F.00
+RCL R.09
+RTN
+REM ---- LBL :FKEY: F1 F2 F3 (codes 11-13) with the box open: R33 = 82 (the end), R49 = Z, the mass or the
+REM boiling point (LBL :TONUM:; 0 for "-"). Tests before single steps only (the original DM42: 10 IF) ----
+LBL :FKEY:
+RCL 36
+X=0?
+RTN
+RCL 33
+10
+-
+X≤0?
+RTN
+3
+X<Y?
+RTN
+R↓
+STO 41
+82
+STO 33
+RCL 30
+STO 49
+RCL 41
+1
+X=Y?
+RTN
+REM F2: the mass, the text of R48 up to its CR (R48 = mass CR boiling point); F3: the boiling point (R46)
+"↵"
+αPOS 48
+αLEFT 48
+STO 34
+RCL 41
+3
+X=Y?
+XEQ :BOILTX:
+RCL 34
+XEQ :TONUM:
 RTN
 REM ---- LBL :CURSOR: the cursor, the inside of the cell inverted (XOR, unrolled); twice = off ----
 LBL :CURSOR:
@@ -262,7 +343,7 @@ MOD
 αSL 34
 RTN
 REM ---- LBL :DETAIL: the detail box (symbol, mass, state, boiling point, group, configuration),
-REM x 50-349, rows 60-179, over the table ----
+REM x 50-349, rows 56-179, over the table ----
 LBL :DETAIL:
 REM the element first, then the box (a move with the box open: the box changes at once, no empty box)
 REM the data of the element: name and mass (LBL :RECORD:; the mass to R48), state, boiling point, configuration
@@ -346,27 +427,29 @@ RCL 47
 x→α 38
 REM then the box: cleared, the frame, the header, the labels and the two value texts
 XEQ :BOXCLR:
-REM the frame (GRMOD 0): the sides (two halves of 60 rows), the bottom line; the top line comes
+REM the frame (GRMOD 0): the sides (two halves of 62 rows, 56-179), the bottom line (row 56: the empty rows
+REM between periods 7 and 8, above the lanthanides at 54), the line over F1-F3 (row 75); the top line comes
 REM with the header bar
 0
 GRMOD
-111111111111111111111111111111111111111111111111111111111111#2
+11111111111111111111111111111111111111111111111111111111111111#2
 STO 20
-60
+56
 50
 AGRAPH 20
-120
+118
 50
 AGRAPH 20
-60
+56
 349
 AGRAPH 20
-120
+118
 349
 AGRAPH 20
-1#2
+REM the bottom line and the line over F1-F3 in one: rows 56 and 75 (bits 0 and 19)
+10000000000000000001#2
 STO 20
-60
+56
 51
 XEQ :HLINE:
 REM header: Z (in R55), name, and the key hint in the tinyFont
@@ -396,21 +479,26 @@ REM   State  Solid       Boil 3134 K
 REM   Group  8  Transition metals
 REM   Config [Ar] 3d6 4s2
 "Symbol↵State↵Group↵Config"
-134
+138
 58
 ATEXT Z
 "Mass↵Boil"
-134
+138
 226
 ATEXT Z
 REM the right values (R48), the left values (R38)
 RCL 48
-134
+138
 272
 ATEXT Z
 RCL 38
-134
+138
 130
+ATEXT Z
+REM under the line: the keys that push a value and end (182 columns, x 109-290; the capitals rows 61-72)
+"F1: Z  F2: Mass  F3: Boil"
+57
+109
 ATEXT Z
 REM header bar and top line: XOR (GRMOD 3) rows 158-179 over the inside, white text on black
 3
@@ -511,6 +599,7 @@ STO 23
 STO 51
 0
 STO 36
+STO 49
 1
 STO 30
 STO 31
@@ -907,8 +996,9 @@ ATEXT Z
 46
 ATEXT Z
 RTN
-REM ---- LBL :BOXCLR: the box area x 50-349, rows 60-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
-REM x 20 rows each): 42 spaces from x 50 and one more column of spaces at x 343. Leaves GRMOD 1, GRFNT 21 ----
+REM ---- LBL :BOXCLR: the box area x 50-349, rows 56-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
+REM x 20 rows each, rows 60-179): 42 spaces from x 50 and one more column of spaces at x 343; then one line
+REM more at row 56 (rows 56-75: the bottom of the box). Leaves GRMOD 1, GRFNT 21 ----
 LBL :BOXCLR:
 1
 GRMOD
@@ -927,6 +1017,14 @@ RCL 55
 ATEXT Z
 " ↵ ↵ ↵ ↵ ↵ "
 160
+343
+ATEXT Z
+"                                          "
+56
+50
+ATEXT Z
+" "
+56
 343
 ATEXT Z
 RTN
@@ -990,6 +1088,59 @@ STO 35
 x→α 35
 "Chalcogens/Halogens/Noble gases/Lanthanides/Actinides"
 x→α 35
+RTN
+REM ---- the number of F2 / F3 (LBL :FKEY:), once at the end: last in the program ----
+REM LBL :BOILTX: F3: the boiling point text
+LBL :BOILTX:
+RCL 46
+STO 34
+RTN
+REM ---- LBL :TONUM: the number of the text in X (digits and one point) to R49; "-": R49 = 0. Each character
+REM is its place in "0123456789." (R35): a digit d: R43 = 10 R43 + d and R45 x R44 (R44 = 10 after the
+REM point, 1 before); the point: R44 = 10. Then R43 / R45 ----
+LBL :TONUM:
+STO 34
+0
+STO 49
+"-"
+αPOS 34
+X≥0?
+RTN
+0
+STO 43
+1
+STO 44
+STO 45
+"0123456789."
+STO 35
+DO
+  αLENG 34
+  X≠0?
+WHILE
+  1
+  αLEFT 34
+  αPOS 35
+  10
+  X=Y?
+  STO 44
+  X>Y?
+  XEQ :DIGIT:
+  1
+  αSL 34
+ENDDO
+RCL 43
+RCL÷ 45
+STO 49
+RTN
+LBL :DIGIT:
+R↓
+RCL 43
+10
+×
++
+STO 43
+RCL 44
+STO× 45
 RTN
 REM ==== DATA: written by tools/build_elem47.py from python/elements.py, do not edit below ====
 REM the symbols: 65 elements per label

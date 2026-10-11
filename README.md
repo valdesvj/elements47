@@ -4,12 +4,13 @@ An interactive, memory-optimized Periodic Table of Elements built for the **C47 
 
 ---
 
-## Elements 47 v1.1.0 (C47 / R47)
+## Elements 47 v1.2.0 (C47 / R47)
 
 `ELEM47` draws all 118 elements in an 18 × 9 grid. **8 4 6 2** move the cursor (gaps skipped; at an edge it goes
 around to the other side), **5** opens the detail box (symbol, mass, state, boiling point, group number and name,
 electron configuration); with the box open **8 4 6 2** move to the next element and show its box, **5** closes
-it, **0** ends.
+it, **F1 F2 F3** end with Z, the mass or the boiling point (K) pushed on the stack, **0** ends. Your stack and
+LASTx are kept.
 The empty space of periods 1–3 holds the title, the selected element's name, Z and mass, and the keys
 (the digit cross 8 4 6 2 with 5 and 0, beside the same places in arrows and words).
 Masses: the abridged standard atomic weights of the IUPAC periodic table (CIAAW 2024); "-" for the 34
@@ -21,28 +22,37 @@ How to use it, with the screens: **[MANUAL.md](MANUAL.md)** (`MANUAL.html` in th
 | | C47 / R47 |
 |---|---|
 | File (release zip) | `C47_R47/ELEM47.p47` (rejig, from `build/pixel/ELEM47.txt`), the listing `C47_R47/ELEM47.txt` |
-| Programs | `ELEM47` (the code, 868 steps), `ELD1` and `ELD2` (the element records, one per label: Z 1–60 and 61–118) |
+| Programs | `ELEM47` (the code, 998 steps), `ELD1` and `ELD2` (the element records, one per label: Z 1–60 and 61–118) |
 | Needs | firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0: ATEXT, GRFNT, PIXEL and the STRUCT commands (IF / DO / REPEAT, app note AN0007) |
 | Memory | R20–R56 and the matrix `PT` (9 × 18) |
-| At the end (0) | `PT` deleted, **the registers and the stack cleared** (CLREGS, CLSTK), GRFNT 20 and GRMOD 0 restored |
+| At the end (0) | `PT` deleted, R20–R56 cleared (R-CLR); **the user's stack (4 or 8 levels), LASTx and the other registers kept**; GRFNT 20 and GRMOD 0 restored |
+| F1 F2 F3 (detail box) | the end, with Z, the mass or the boiling point (K) pushed on the user's stack; "-": nothing pushed |
 
-What is new since v1.0.0:
+What is new in v1.2.0:
+- The user's stack (4 or 8 levels) and LASTx are kept: saved in local registers at the start, given back at the
+  end. Only ELEM47's work registers R20–R56 are cleared (R-CLR); the other registers are the user's.
+- In the detail box **F1 F2 F3** end ELEM47 and push Z, the standard atomic weight or the boiling point (K) on
+  the user's stack (a value shown as "-" is not pushed). The box shows them under a line at its bottom.
+- Still within the original DM42 STRUCT limit (10 IF). The same speed: C47 simulator steps, v1.1.0 → v1.2.0:
+  the table 5 254 → 5 274, the detail box 973 → 989, closing it 2 737 → 2 755.
+
+What was new in v1.1.0 (since v1.0.0):
 - The arrows go around the edges (H up → Fr, H left → He, Ac down → Sc, ...).
 - C47 / R47 only: the control flow in the C47 STRUCT commands (no GTO), one element record per data label,
   the table's horizontal lines by PIXEL (one full screen row in one step). C47 simulator steps, v1.0.0 → v1.1.0:
   the table 7 900 → 5 254 (-33 %), the detail box 1 040 → 991, closing it 4 070 → 2 737 (-33 %), a move 245 → 235.
 - The user's manual with the screens.
 
-**Free42 / DM42 (stock firmware):** Free42 has no STRUCT commands, so v1.1.0 is not converted for it. Use
+**Free42 / DM42 (stock firmware):** Free42 has no STRUCT commands, so v1.1.0 and v1.2.0 are not converted for it. Use
 release [v1.0.0](https://github.com/valdesvj/elements47/releases/tag/v1.0.0) (`Free42_DM42/ELEM47.raw`): the
 same table and keys, without going around the edges.
 
 ### Which calculators (STRUCT, ATEXT and GRFNT in the firmware)
 
-ELEM47 v1.1.0 needs three things from the C47 firmware: the STRUCT commands (IF / DO / REPEAT, app note AN0007),
+ELEM47 v1.1.0 and v1.2.0 need three things from the C47 firmware: the STRUCT commands (IF / DO / REPEAT, app note AN0007),
 ATEXT and GRFNT. Whether a calculator has them depends on the hardware and the firmware version:
 
-| Calculator | Firmware | STRUCT | ATEXT, GRFNT | ELEM47 v1.1.0 |
+| Calculator | Firmware | STRUCT | ATEXT, GRFNT | ELEM47 v1.2.0 |
 |---|---|---|---|---|
 | R47, DM42n (DM32 board, `C47.pg5` / `R47.pg5`) | 00.109.05.00a0.ALPHA (5 Oct 2026) or later | in | in | **runs** (tested in the firmware and on a C47) |
 | original DM42 (not n), `C47.pgm` **packages 1, 2, 3** | 00.109.05.00a0.ALPHA or later | in, at most 10 IF, 10 DO and 10 REPEAT per program, 10 levels | in | **should run** (ELEM47: 10 IF, 5 DO, 1 REPEAT); not tried on a real DM42 |

@@ -9,6 +9,8 @@
   - the cursor: 8 4 6 2, gaps skipped, the edges of the table
   - 5: the detail box (frame), 5 again: the table again with the cursor kept; the arrows with the box open:
     the box of the next element; other keys ignored; 0: the end
+  - F1 F2 F3 with the box open (LBL :FKEY:): Z, the mass, the boiling point of every element (none for "-");
+    the end: the user's stack and LASTx back (the value pushed on it), R20-R56 cleared, the other registers kept
   python3 tests/test_elem47.py"""
 import os, sys
 from decimal import Decimal as D
@@ -19,6 +21,8 @@ from elements import ELEMENTS, EXTRA, position
 from build_elem47 import label_numbers, plain_steps
 
 DETAIL = '0_%d' % label_numbers()['DETAIL']    # its local number in ELEM47 (c47sim: program 0, no leading 0)
+FKEY = '0_%d' % label_numbers()['FKEY']
+F1, F2, F3 = 11, 12, 13                          # KEY? codes of the function keys (keyboard.c setLastKeyCode)
 
 fails = []
 
@@ -108,6 +112,23 @@ def main():
             wrong.append((z, c.reg[E.REG['NAME']], c.reg[E.REG['LEFT']].replace(CR, ' | '), c.reg[E.REG['RIGHT']].replace(CR, ' | ')))
     check(not wrong, 'detail box data of the 118 elements: name, symbol, state, group, config, mass, boil %s'
           % (wrong[:2] or ''))
+    # F1 F2 F3 on the box of every element: R49 = Z, the mass, the boiling point (0: "-", nothing pushed),
+    # R33 = 82 (the end)
+    wrong = []
+    for z in range(1, 119):
+        r, col = position(z); mass, boil = ELEMENTS[z - 1][2], EXTRA[z - 1][1]
+        for key, want in ((F1, D(z)), (F2, D(mass) if mass != '-' else D(0)),
+                          (F3, D(boil[:-2]) if boil != '-' else D(0))):
+            c.s = [D(0)] * 4; c.reg.update({E.REG['Z']: D(z), E.REG['ROW']: D(r), E.REG['COL']: D(col)})
+            c.run(DETAIL)
+            c.reg.update({'36': D(1), '33': D(key)})
+            c.run(FKEY)
+            if c.reg['49'] != want or c.reg['33'] != 82:
+                wrong.append((z, key, str(c.reg['49']), str(want)))
+    check(not wrong, 'F1 F2 F3: Z, mass, boiling point of the 118 elements (0 for "-") %s' % (wrong[:3] or ''))
+    c.reg.update({'36': D(0), '33': D(F1)}); c.run(FKEY)
+    check(c.reg['33'] == F1, 'F1 with the box closed: ignored')
+
     for z in (1, 26, 62, 118):
         c.s = [D(0)] * 4; r, col = position(z); c.reg.update({E.REG['Z']: D(z), E.REG['ROW']: D(r), E.REG['COL']: D(col)})
         c.run(DETAIL)
@@ -132,13 +153,13 @@ def main():
 
     shots, c = E.frames([E.DOWN] * 6 + [E.RIGHT] * 16 + [E.INFO])
     E.png(os.path.join(ROOT, 'docs', 'ELEM47_detail_og.png'), shots[-1])
-    line = [x for x, r in shots[-1] if 146 <= r <= 165 and 51 <= x <= 348]     # the Config line (rows from the top)
+    line = [x for x, r in shots[-1] if 142 <= r <= 161 and 51 <= x <= 348]     # the Config line (rows from the top)
     check(line and max(line) < 340, 'detail of Og: the longest configuration ends at x %d, inside the box (x 50-349)'
           % max(line or [0]))
 
     shots, c = E.frames([E.RIGHT, E.INFO, 1, E.INFO, E.END])
     check(len(shots) == 5, 'screens: table, He, detail, detail, table (%d)' % len(shots))
-    check(box(shots[2], 50, 349, 60, 179), 'detail: the frame, x 50-349, rows 60-179')
+    check(box(shots[2], 50, 349, 60, 183), "detail: the frame, x 50-349, rows 56-179")
     check(shots[3] == shots[2], 'key 1 on the detail box: ignored')
     check(shots[4] == shots[1], '5 on the detail box: the table again, the cursor still on He')
     inbox, _ = E.frames([E.INFO, E.RIGHT, E.INFO])
@@ -150,6 +171,24 @@ def main():
     check(getattr(c, 'grfnt', 20) == 20 and getattr(c, 'grmod', 0) == 0 and 'PT' not in c.mats,
           '0: the end, GRFNT 20 and GRMOD 0 restored, PT deleted')
     check(not c.keys, 'the end: all keys used')
+
+    # the user's stack, LASTx and registers: kept; the value of F1-F3 pushed (the top level goes); R20-R56 cleared
+    fe = [E.DOWN] * 3 + [E.RIGHT] * 7 + [E.INFO]
+    user = {'5': D(5), '19': D(19), '57': D(57), '99': D(99), '20': D(20), '56': D(56)}
+    for keys, top, what in [(fe + [E.END], None, 'Fe, 0'), (fe + [F1], D(26), 'Fe, F1: Z'),
+                            (fe + [F2], D('55.845'), 'Fe, F2: the mass'), (fe + [F3], D(3134), 'Fe, F3: the boiling point'),
+                            ([E.DOWN] * 6 + [E.LEFT, E.INFO, F3], None, 'Og, F3: "-", nothing pushed'),
+                            ([F1, E.END], None, 'F1 with the box closed: ignored, then 0')]:
+        c = c47sim.load(E.split(E.PROG))
+        c.s = [D(11), D(22), D(33), D(44)]; c.lastx = D(77); c.pix = []; c.keys = list(keys); c.steps = 0
+        c.frames = E._Frames(c); c.reg.update(user)
+        c.run('ELEM47')
+        want = [D(11), D(22), D(33), D(44)] if top is None else [top, D(11), D(22), D(33)]
+        regs = all(c.reg.get(k) == v for k, v in user.items() if not 20 <= int(k) <= 56)
+        work = all(c.reg.get(str(k), D(0)) in (D(0), '') for k in range(20, 57))
+        check(c.s == want and c.reg.get('L') == D(77) and regs and work and not c.keys,
+              'the end, %s: stack %s, LASTx %s, R20-R56 cleared, the user\'s registers kept'
+              % (what, ' '.join(str(v) for v in c.s), c.reg.get('L')))
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))
     return 1 if fails else 0
 

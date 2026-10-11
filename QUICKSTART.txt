@@ -1,4 +1,4 @@
-ELEMENTS 47 v1.1.0 - QUICKSTART
+ELEMENTS 47 v1.2.0 - QUICKSTART
 
 C47 / R47
 Needs a C47 / R47 firmware with ATEXT, GRFNT, PIXEL and the STRUCT commands (as Almanac 47 v2.2.0:
@@ -12,11 +12,14 @@ Needs a C47 / R47 firmware with ATEXT, GRFNT, PIXEL and the STRUCT commands (as 
                                        around to the other side)
      5      the detail box of the element under the cursor; with the box open 8 4 6 2 move
             (the box shows the new element) and 5 closes it
+     F1 F2 F3  (box open) the end, with Z, the mass or the boiling point (K) in X;
+            a value shown as "-": the end only
      0      the end
    The panel at the top shows the name, the atomic number and the mass of the selected element.
 
-Uses R20-R56 and a matrix "PT" (9 x 18). At the end (0) PT is deleted and THE REGISTERS AND THE
-STACK ARE CLEARED (CLREGS, CLSTK): keep nothing you need in R00-R99. WSIZE is set to 64.
+Uses R20-R56 and a matrix "PT" (9 x 18). At the end PT is deleted and R20-R56 are cleared: keep
+nothing you need there. Your stack (4 or 8 levels), LASTx and the other registers are kept.
+WSIZE is set to 64.
 The manual with the screens: MANUAL.html (MANUAL.md on GitHub).
 
 Which calculators

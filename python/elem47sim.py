@@ -79,6 +79,17 @@ def split(prog):
         if ln.strip() == 'CLREGS':           # c47sim has no CLREGS yet (Almanac 47): R00-R99 set to 0 here
             cur += ['0'] + ['STO %02d' % r for r in range(100)]
             continue
+        # nor R-CLR (X = sss.nn: nn registers from sss; ELEM47 clears R20-R56 with 20.37), local flags (F.nn:
+        # flag 99 here, one level uses it) and LASTx (its LASTX)
+        if ln.strip() == 'R-CLR':
+            cur += ['0'] + ['STO %02d' % r for r in range(20, 57)]
+            continue
+        if ln.strip() in ('SF F.00', 'FS? F.00'):
+            cur.append(ln.strip()[:-4] + '99')
+            continue
+        if ln.strip() == 'LASTx':
+            cur.append('LASTX')
+            continue
         cur.append(ln)
         if ln.strip() == 'END':
             files.append(os.path.join(d, 'p%d.txt' % len(files)))
