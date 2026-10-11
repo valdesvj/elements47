@@ -47,7 +47,7 @@ ATEXT and GRFNT. Whether a calculator has them depends on the hardware and the f
 | R47, DM42n (DM32 board, `C47.pg5` / `R47.pg5`) | 00.109.05.00a0.ALPHA (5 Oct 2026) or later | in | in | **runs** (tested in the firmware and on a C47) |
 | any | 00.109.04.00b0 and earlier | out | out | no |
 | original DM42 (not n), `C47.pgm` packages 1-4 | 00.109.05.00a0.ALPHA | packages 1-3: in, **at most 10 IF, 10 DO and 10 REPEAT per program**; package 4: out | in | **no**: ELEM47 has 11 IF |
-| original DM42 | master after the release | out on 8 Oct 2026, back on 10 Oct 2026 | out on 8 Oct, back on 10 Oct | not supported |
+| original DM42 | master after the release | out on 8 Oct 2026; on 10 Oct as in the release | out on 8 Oct; in on 10 Oct | no (11 IF) |
 | DM42 / DM42n, stock firmware (Free42) | Free42 3.3 | — | — | use v1.0.0 |
 
 - **The original DM42 is not supported.** Its flash is small, so its firmware packages leave features out

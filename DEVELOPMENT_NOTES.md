@@ -411,8 +411,10 @@
   ELEM47 has 11 IF (5 DO, 1 REPEAT): its 11th IF is past the limit, so it does not load on an original DM42.
 - master b160a7b (8 Oct 2026), defines.h:291-294: ATEXT, GRFNT and STRUCT out of every original DM42 package (ATEXT
   and GRFNT become itemToBeCoded, items.c:1864-1877; STRUCT shows "not available here", structured.c:114).
-  Reported from the Almanac 47 session: master of 10 Oct has them back, as in the release. They can go out again
-  whenever the DM42 is short of flash.
+  master 9fb8f63 (10 Oct 2026, checked): back as in the release: defines.h:214/233/252 STRUCT in packages 1-3,
+  :276 out of package 4, :302-303 ATEXT and GRFNT in every package; structured.h the same 10 / 10 / 4 on OLD_HW.
+  structWalkProgram (structured.c:1291) refuses an opener when its family already has STRUCT_MAX_NUMBER (ifNext
+  >= 10): the 11th IF. They can go out again whenever the DM42 is short of flash.
 - Nobody has run ELEM47 (or Almanac 47's NAVLITTLE, measured on a DM42n) on a real original DM42; there is no
   simulator of it. README, QUICKSTART and the manual say: original DM42 with the C47 firmware not supported.
 - Tried and dropped (Victor's decision): a DM42 build of the PIXEL program with the structures written as LBL /
