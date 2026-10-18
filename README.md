@@ -1,6 +1,6 @@
 # Elements 47 🧪
 
-An interactive, memory-optimized Periodic Table of Elements built for the **C47 / R47** RPN calculator firmware (release v1.0.0 also runs in **Free42**: SwissMicros DM42 / DM42n stock firmware and the emulators).
+An interactive, memory-optimized Periodic Table of Elements built for the **C47 / R47** RPN calculator firmware (and in **Free42**: SwissMicros DM42 / DM42n stock firmware and the emulators: release v1.0.0, and on main a Free42 build of v1.2.0 in `build/free42/`, not released yet).
 
 ---
 
@@ -43,9 +43,12 @@ What was new in v1.1.0 (since v1.0.0):
   the table 7 900 → 5 254 (-33 %), the detail box 1 040 → 991, closing it 4 070 → 2 737 (-33 %), a move 245 → 235.
 - The user's manual with the screens.
 
-**Free42 / DM42 (stock firmware):** Free42 has no STRUCT commands, so v1.1.0 and v1.2.0 are not converted for it. Use
-release [v1.0.0](https://github.com/valdesvj/elements47/releases/tag/v1.0.0) (`Free42_DM42/ELEM47.raw`): the
-same table and keys, without going around the edges.
+**Free42 / DM42 (stock firmware):** Free42 has no STRUCT commands; `tools/build_free42.py` converts the v1.2.0 source
+(the PIXEL variant) for it: the structures as labels and GTO, the keys, the stack, ALPHA, SIZE and the registers kept
+(only R20-R56 cleared), F1-F3 in the box. `build/free42/ELEM47.txt` (paste into Free42, or rejig to .raw): tested in
+the Free42 3.3.10 core of the DM42 stock firmware (tests/test_f42.py), every screen as on the C47; not released yet.
+The last release for Free42 is [v1.0.0](https://github.com/valdesvj/elements47/releases/tag/v1.0.0)
+(`Free42_DM42/ELEM47.raw`).
 
 ### Which calculators (STRUCT, ATEXT and GRFNT in the firmware)
 
@@ -59,7 +62,7 @@ ATEXT and GRFNT. Whether a calculator has them depends on the hardware and the f
 | original DM42, `C47.pgm` **package 4** | any | out | in | no |
 | original DM42 | master of 8 Oct 2026 (a snapshot, not a release) | out | out | no |
 | any | 00.109.04.00b0 and earlier | out | out | no |
-| DM42 / DM42n, stock firmware (Free42) | Free42 3.3 | — | — | use v1.0.0 |
+| DM42 / DM42n, stock firmware (Free42) | Free42 3.3.10 (DM42 firmware 3.26) | — | — | `build/free42/` (v1.2.0, main), or release v1.0.0 |
 
 - **The original DM42: packages 1-3 only, not tried yet.** Its flash is small, so its firmware packages leave features
   out (c43 `src/c47/defines.h`, `TWO_FILE_PGM`, `res/PACKAGES.md`). Where STRUCT is in, the DM42 has room for only 10

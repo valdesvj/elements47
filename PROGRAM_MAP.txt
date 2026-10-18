@@ -5,11 +5,11 @@ FILE      GLOBAL LABELS   STEPS
 ELEM47    ELEM47           775   the code (build/ELEM47.txt); branch struct: C47 only, STRUCT commands
           ELD1             184   the records of Z 1-60, one per label (LBL 01-60)
           ELD2             178   the records of Z 61-118, one per label (LBL 01-58 = Z - 60)
-ELEM47    ELEM47          1016   Free42: build/free42/ELEM47.txt, as built on main (branch struct: the
-                                 Free42 build stops, Free42 has no STRUCT)
-          ELD1, ELD2      49 + 49  the records, as on the C47
-          E47T (E47B)     1884   the GRFNT 21 font, one local label per character; E47B the boxes
-          E47S             329   the GRFNT 10 font (tinyFont)
+ELEM47    ELEM47          1161   Free42: build/free42/ELEM47.txt (tools/build_free42.py from the PIXEL
+                                 source, v1.2.0: STRUCT as labels and GTO; the cells as whole AGRAPH bands)
+          ELD1, ELD2     184 + 178  the records, as on the C47
+          E47T (E47B)     1855   the GRFNT 21 font, one local label per character; E47B the boxes
+          E47S             319   the GRFNT 10 font (tinyFont)
 
 LOCAL LABELS OF ELEM47
   Written by name in programs_rem (LBL :PANEL:, XEQ :PANEL:); the build gives each a free local number
@@ -64,8 +64,8 @@ Folders:
                  ELEM47_labels.txt: the named labels and their numbers
   python/        c47sim.py (the C47 simulator of Almanac 47), elements.py (the data),
                  elem47sim.py (runs ELEM47: pictures, step counts)
-  tools/         build_elem47.py (also the STRUCT check and numbers); build_free42.py (Free42, not on
-                 branch struct); build_dev.py (programs_rem/dev -> build/dev);
+  tools/         build_elem47.py (also the STRUCT check and numbers); build_free42.py (Free42, from
+                 programs_rem/pixel); build_dev.py (programs_rem/dev -> build/dev);
                  bench_fw.py (the speed in the C47 firmware: T47 instructions, perf);
                  build_manual.py (MANUAL.md, MANUAL.html: the user's manual, two of its screens)
   tests/         test_elem47.py, test_opt.py (screens against the optimize build, tests/ref/), test_fw.py (the C47
