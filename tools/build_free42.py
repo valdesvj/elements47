@@ -38,7 +38,10 @@ the way Almanac 47 converts NAV (its tools/build_free42.py):
   programs     ELEM47, ELD1 and ELD2 as on the C47 (the code; the element records); E47T (the GRFNT 21
                glyphs, and E47B); E47S (the GRFNT 10 glyphs).
 
-Files: build/free42/ELEM47.txt (ELEM47, ELD1, ELD2, E47T, E47S; paste or rejig to .raw), listings/free42/.
+Files: build/free42/ELEM47.txt (ELEM47, ELD1, ELD2, E47T, E47S: paste it into Free42), listings/free42/, and
+build/free42/ELEM47.raw (the Free42 program file, not in git) when f42run is there (F42RUN, else
+~/opt/almanac47/tools/f42/f42run): pasted into the Free42 core and exported, as Almanac 47 makes its .raw files.
+rejig cannot make the .raw: its Free42 table does not know Free42's own commands (LSTO ...).
 Test: tests/test_f42.py (f42run, the Free42 3.3.10 core of the DM42, against python/c47sim.py).
   python3 tools/build_free42.py"""
 import os, re, sys
@@ -418,9 +421,25 @@ def build():
     return main, T, S
 
 
+def raw():
+    """build/free42/ELEM47.raw with f42run: paste the listing, export (Almanac 47's way)."""
+    import subprocess
+    f42 = os.environ.get('F42RUN', os.path.expanduser('~/opt/almanac47/tools/f42/f42run'))
+    if not os.path.exists(f42):
+        print('no f42run (%s; set F42RUN): ELEM47.raw not written' % f42)
+        return
+    txt = os.path.join(OUT, 'ELEM47.txt')
+    r = subprocess.run([f42], input='paste %s\nexport %s\n' % (txt, txt[:-4] + '.raw'), text=True,
+                       capture_output=True, cwd=OUT)
+    if r.returncode or not os.path.exists(txt[:-4] + '.raw'):
+        raise SystemExit('f42run export failed: %s' % (r.stdout + r.stderr)[-300:])
+    print('build/free42/ELEM47.raw (%d bytes)' % os.path.getsize(txt[:-4] + '.raw'))
+
+
 if __name__ == '__main__':
     m, t, s = build()
     for p in B.programs(m) + [t, s]:
         n = p[0][5:-1]
         print('%-7s %5d steps  about %5d bytes' % (n, len(p), B.estimate(p)))
     print('build/free42/ELEM47.txt')
+    raw()
