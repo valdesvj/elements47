@@ -45,7 +45,8 @@ What was new in v1.1.0 (since v1.0.0):
 
 **Free42 / DM42 (stock firmware):** Free42 has no STRUCT commands; `tools/build_free42.py` converts the v1.2.0 source
 (the PIXEL variant) for it: the structures as labels and GTO, the keys, the stack, ALPHA, SIZE and the registers kept
-(only R20-R56 cleared), F1-F3 in the box. `build/free42/ELEM47.txt` (paste into Free42, or rejig to .raw): tested in
+(only R20-R56 cleared), F1-F3 in the box. `build/free42/ELEM47.txt` (paste into Free42; `tools/build_free42.py` also writes `ELEM47.raw` with f42run, Almanac 47's
+headless Free42 core: rejig cannot, its Free42 table lacks LSTO and the other Free42 commands): tested in
 the Free42 3.3.10 core of the DM42 stock firmware (tests/test_f42.py), every screen as on the C47; not released yet.
 The last release for Free42 is [v1.0.0](https://github.com/valdesvj/elements47/releases/tag/v1.0.0)
 (`Free42_DM42/ELEM47.raw`).

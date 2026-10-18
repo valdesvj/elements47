@@ -505,6 +505,10 @@
   for v1.2.0: every screen of the whole table both ways (571), the box 190 times, the moves inside the box, RefLCD,
   the end (the stack, ALPHA, SIZE 100 / 30 and the registers kept, R20-R56 cleared), F1 F2 F3 on He and Rn the same
   values as the C47 simulator ("-": nothing): ALL OK.
+- rejig refuses build/free42/ELEM47.txt (Victor: no such op "LSTO \"L00\""): its Free42 table has no Free42
+  extensions. Almanac 47 makes its .raw files with f42run (paste, export); build_free42.py now does the same:
+  build/free42/ELEM47.raw (14 986 bytes, git-ignored) when f42run is there. The .raw imported into a fresh core:
+  the same screens as the C47, F1 pushes Z above the user's stack.
 
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
