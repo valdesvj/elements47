@@ -24,22 +24,11 @@ REG_V1 = dict(Z='36', ROW='37', COL='38', NAME='43', LEFT='44', RIGHT='54')     
 
 def split(prog):
     """The programs of a file (each ends with END) as separate files, so their numeric labels stay local
-    (c47sim.load: one program per file, as on the C47). c47sim (Almanac 47, Oct 11) runs the STRUCT commands
-    and CLREGS itself. Returns the file names."""
+    (c47sim.load: one program per file, as on the C47). c47sim (Almanac 47, Oct 18) runs the STRUCT commands,
+    CLREGS, R-CLR, the local flags F.nn and LASTx itself. Returns the file names."""
     import tempfile
     d = tempfile.mkdtemp(prefix='elem47_'); files, cur = [], []
     for ln in open(prog, encoding='utf-8').read().splitlines():
-        # c47sim has no R-CLR (X = sss.nn: nn registers from sss; ELEM47 clears R20-R56 with 20.37), local flags (F.nn:
-        # flag 99 here, one level uses it) and LASTx (its LASTX)
-        if ln.strip() == 'R-CLR':
-            cur += ['0'] + ['STO %02d' % r for r in range(20, 57)]
-            continue
-        if ln.strip() in ('SF F.00', 'FS? F.00'):
-            cur.append(ln.strip()[:-4] + '99')
-            continue
-        if ln.strip() == 'LASTx':
-            cur.append('LASTX')
-            continue
         cur.append(ln)
         if ln.strip() == 'END':
             files.append(os.path.join(d, 'p%d.txt' % len(files)))

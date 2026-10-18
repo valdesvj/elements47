@@ -509,6 +509,10 @@
   extensions. Almanac 47 makes its .raw files with f42run (paste, export); build_free42.py now does the same:
   build/free42/ELEM47.raw (14 986 bytes, git-ignored) when f42run is there. The .raw imported into a fresh core:
   the same screens as the C47, F1 pushes Z above the user's stack.
+- Then: c47sim.py again from Almanac 47 (main 1ca741d, PR #74, Oct 18): R-CLR (registers.c getRegParam), the local
+  flags F.nn of the running level, LASTx (and STO / RCL L as LASTx). elem47sim.split() keeps no workaround any more.
+  tests/test_elem47.py reads LASTx from c.lastx (the old split stored STO L in a register L): LASTx 77 comes back.
+  test_elem47, test_opt (release, PIXEL), test_dev, test_f42: ALL OK; the screens unchanged.
 
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"

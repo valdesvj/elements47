@@ -50,7 +50,7 @@ reference, since v1.2.0 moved it; test_elem47 and test_fw check it.
 6. Optional: programs_rem/pixel as the only source; faster moves (panel + record ~95 of 235 steps).
 7. Dropped on purpose: a LBL/GTO build for the DM42 (DEVELOPMENT_NOTES), the 9 x IP(row/8) form (+8 % table),
    (a Free42 version of v1.2.0: done after all on Oct 18, Victor's request).
-8. c47sim.py is Almanac's of Oct 11 (STRUCT native); R-CLR, local flags, LASTx still worked around in elem47sim.
+8. c47sim.py is Almanac's of Oct 18 (STRUCT, R-CLR, local flags, LASTx native): elem47sim has no workarounds left.
 9. Free42 release of v1.2.0 (the .raw by rejig, the zip): Victor's call. f42run: Almanac's tools/f42/setup.sh.
 10. Firmware PROGRAMS folder has ELEM47 v1.1.0: Jaymos to get v1.2.0 (item 2).
 11. Almanac 47 task: docs/ALMANAC47_STACK_KEYS_TASK.md (stack, NAV's registers only, keys 1-8 on ALMANAC / SPLIT).

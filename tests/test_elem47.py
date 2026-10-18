@@ -186,9 +186,9 @@ def main():
         want = [D(11), D(22), D(33), D(44)] if top is None else [top, D(11), D(22), D(33)]
         regs = all(c.reg.get(k) == v for k, v in user.items() if not 20 <= int(k) <= 56)
         work = all(c.reg.get(str(k), D(0)) in (D(0), '') for k in range(20, 57))
-        check(c.s == want and c.reg.get('L') == D(77) and regs and work and not c.keys,
+        check(c.s == want and c.lastx == D(77) and regs and work and not c.keys,
               'the end, %s: stack %s, LASTx %s, R20-R56 cleared, the user\'s registers kept'
-              % (what, ' '.join(str(v) for v in c.s), c.reg.get('L')))
+              % (what, ' '.join(str(v) for v in c.s), c.lastx))
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))
     return 1 if fails else 0
 
