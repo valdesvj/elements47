@@ -475,6 +475,37 @@
   stack: stack, LASTx, R20-R56 cleared, other registers kept); tests/test_fw.py in T47 on 4 and 8 levels
   (SSIZE4 / SSIZE8): 0, F1, F2, F3, "-" (Og F3), F1 with the box closed, every screen the same as c47sim.
 
+## Oct 18, 2026 - c47sim with STRUCT; the firmware of 17 Oct; Free42 build of v1.2.0 (branch claude/wonderful-shannon-qu84ke)
+- python/c47sim.py copied from Almanac 47 (main dd890c1, Oct 11): STRUCT natively (IF ... UNTIL with their numbers,
+  every test through Calc.test(), no skip of a structure step, KEY? a test), CLREGS, POINT, CLLCDxy from column
+  |X| (it cleared whole rows). Ours had nothing Almanac's lacks; stdfont / tinyfont the same. elem47sim.py: lower()
+  and the CLREGS expansion gone; R-CLR, the local flag F.00 and LASTx still worked around in split() (not in
+  Almanac's c47sim yet). The same screens (docs/*.png unchanged); test_elem47, test_opt (release and PIXEL),
+  test_dev: ALL OK. Simulator steps now with the structures run natively (ENDIF, DO jumps): table 7 750 (release),
+  5 380 (PIXEL), a move 248, the box 1 029.
+- The C47 firmware, c43 master 4d050f37 (17 Oct) against eb8fd0a (9 Oct): structured.c only FOR's counter
+  arithmetic (complex counters, p75) and an error text; IF / DO / REPEAT unchanged. screen.c: SNAP (PC) and display
+  texts; fnPixel, fnAGraph, fnAText, fnClLcd unchanged. registers.c getRegParam (R-CLR's sss.nn): a range check
+  rewritten, 20.37 still valid (the end may now reach R99). STRUCT on the DM42: packages 1-3, 10 / 10 / 10 as before.
+  res/PROGRAMS has ELEM47.p47u v1.1.0 ("Updated programs from Vitorio", 11 Oct), with ALMA47, NAVINIT, MOON47, C64FX.
+- Free42: a new Free42 (3.4, Oct 16, 2026; 3.3.12 May, 3.3.11 Jan: RLN / RRN in BSIGNED, GAMMA, 2 x 2 matrix
+  accuracy, statistics menus) touches nothing ELEM47 uses. The DM42 / DM42n stock firmware is still 3.26 with the
+  SwissMicros Free42 core 3.3.10 (github swissmicros/free42, Nov 2025): the target stays 3.3.10.
+- tools/build_free42.py now converts the v1.2.0 PIXEL source (Victor): the STRUCT steps numbered, then lowered to
+  named labels and GTO (lower(), as elem47sim had it); the key wait GETKEY with the Free42 code turned into the C47
+  code (KEYTAB, + 40 so the 37 characters are printable; F1-F3 = keys 1-3), so the key arithmetic is the source's;
+  R.00-R.09 local variables (LSTO "L00"), F.00 flag 81 (FS?C), STO L = STO ST L, LASTx; ALPHA kept (LXASTO);
+  REGS copied at the start (LSTO "LR"), SIZE 76 if smaller, at the end REGS back (the user's SIZE and registers,
+  also R60-R75 that E47T / E47S / E47B use), then R20-R56 cleared as far as SIZE goes (:RCLR:). The cells: whole
+  :FCELL: bands as before, no PIXEL rows (:GRID: / :ROWS: left out): Free42's AGRAPH draws up to 44 columns at once,
+  so a whole cell is 4 AGRAPH, as many as its left edge alone; the frame and the line over F1-F3 by E47B.
+  ELEM47 1 161 steps. Two mistakes found by the runs: ENTER then a number does not lift (the key table's SUBSTR got
+  the wrong arguments); the size check pushed values before the stack was saved (it now comes after).
+- f42run (Almanac 47 tools/f42, built in the scratchpad from swissmicros/free42 master = 3.3.10). tests/test_f42.py
+  for v1.2.0: every screen of the whole table both ways (571), the box 190 times, the moves inside the box, RefLCD,
+  the end (the stack, ALPHA, SIZE 100 / 30 and the registers kept, R20-R56 cleared), F1 F2 F3 on He and Rn the same
+  values as the C47 simulator ("-": nothing): ALL OK.
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.

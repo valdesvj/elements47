@@ -15,7 +15,9 @@ one "Branch keep-stack"). The Almanac 47 handoff (STRUCT branch there) is docs/A
   QUICKSTART. Zip and notes: build/release/ (untracked).
 - Checked: test_elem47, test_opt, test_fw (T47, stack on 4 and 8 levels) on both builds. The final box (GRFNT 21
   line) not yet run on Victor's C47 (the tiny-font try was, "too small"); the release notes say "on a C47".
-- Free42 / DM42 stock firmware: v1.0.0 (build/free42/ is still the v1.0.0 build; build_free42.py stops on STRUCT,
+- Free42 / DM42 stock firmware (Oct 18): build/free42/ is now the v1.2.0 PIXEL source converted (STRUCT as labels
+  and GTO, the stack / ALPHA / registers kept, F1-F3), tests/test_f42.py ALL OK in f42run (Free42 3.3.10); not
+  released yet (the last Free42 release is v1.0.0). Before Oct 18: build/free42/ was the v1.0.0 build; build_free42.py stopped on STRUCT,
   and does not know LocR, R-CLR, local flags).
 
 ## Calculators (README "Which calculators", from the c43 sources)
@@ -47,7 +49,11 @@ reference, since v1.2.0 moved it; test_elem47 and test_fw check it.
    elem47sim.split() / lower().
 6. Optional: programs_rem/pixel as the only source; faster moves (panel + record ~95 of 235 steps).
 7. Dropped on purpose: a LBL/GTO build for the DM42 (DEVELOPMENT_NOTES), the 9 x IP(row/8) form (+8 % table),
-   a Free42 version of v1.2.0 (Victor).
+   (a Free42 version of v1.2.0: done after all on Oct 18, Victor's request).
+8. c47sim.py is Almanac's of Oct 11 (STRUCT native); R-CLR, local flags, LASTx still worked around in elem47sim.
+9. Free42 release of v1.2.0 (the .raw by rejig, the zip): Victor's call. f42run: Almanac's tools/f42/setup.sh.
+10. Firmware PROGRAMS folder has ELEM47 v1.1.0: Jaymos to get v1.2.0 (item 2).
+11. Almanac 47 task: docs/ALMANAC47_STACK_KEYS_TASK.md (stack, NAV's registers only, keys 1-8 on ALMANAC / SPLIT).
 Done since the last handoff: the v1.1.0 release text on GitHub has the DM42 paragraph (checked Oct 11).
 
 ## Branches

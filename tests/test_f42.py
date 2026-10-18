@@ -5,8 +5,9 @@ with the keys; a screen at every key wait (GETKEY), compared with python/c47sim.
   - build/free42/ is up to date with programs_rem/ELEM47.txt
   - every command survives Free42 Paste (it leaves out the steps it does not know)
   - the whole table, every row both ways, the detail box opened and closed at each cell
-  - the end: the registers and the stack cleared (CLRG, CLST); SIZE 30 becomes 76 (R20-R51, R60-R75 for
-    E47T, E47S and E47B); five programs: ELEM47, ELD1, ELD2, E47T (with E47B), E47S
+  - the end (v1.2.0): the user's stack, ALPHA, SIZE and registers kept, only R20-R56 cleared (ELEM47 keeps a
+    copy of REGS while it runs: SIZE 76 for E47T, E47S and E47B, R60-R75); F1 F2 F3 in the box push what the C47 pushes; five programs: ELEM47,
+    ELD1, ELD2, E47T (with E47B), E47S
   python3 tests/test_f42.py"""
 import os, re, subprocess, sys, tempfile, shutil
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -69,7 +70,7 @@ def main():
         return 0
     before = open(PROG, encoding='utf-8').read()
     subprocess.run([sys.executable, os.path.join(ROOT, 'tools', 'build_free42.py')], check=True, capture_output=True)
-    check(open(PROG, encoding='utf-8').read() == before, 'build/free42/ELEM47.txt up to date with programs_rem/ELEM47.txt')
+    check(open(PROG, encoding='utf-8').read() == before, 'build/free42/ELEM47.txt up to date with programs_rem/pixel/ELEM47.txt')
     d = tempfile.mkdtemp(prefix='elem47f42_')
     try:
         prog = open(PROG, encoding='utf-8').read().split('\n')
@@ -97,21 +98,40 @@ def main():
         end = pbm(os.path.join(d, 't_end.pbm'))
         check(len(film) > 5 and all(f == film[0] for f in film) and end != film[0] and end == py[0],
               'RefLCD: %d captures while the table is drawn, all the screen before it; then the whole table at once' % len(film))
-        # your registers: SIZE 100, R00-R99 marked; then SIZE 30
+        # v1.2.0: your stack, ALPHA and registers kept, only R20-R56 cleared (SIZE 100, then SIZE 30 -> 76)
         for size in (100, 30):
             setp = os.path.join(d, 'S.txt')
             open(setp, 'w').write('\n'.join(['LBL "ESET"', 'SIZE %d' % size] + sum(
-                (['%d' % (1000 + r), 'STO %02d' % r] for r in range(size)), []) + ['END']) + '\n')
+                (['%d' % (1000 + r), 'STO %02d' % r] for r in range(size)), [])
+                + ['CLA', '├"HELLO"', '11', '22', '33', '44', 'END']) + '\n')
             dimp = os.path.join(d, 'D.txt')
             open(dimp, 'w').write('LBL "EDIM"\nRCL "REGS"\nDIM?\nEND\n')
-            n = max(size, BF.SIZE)
+            n = size                                    # SIZE goes back to the user's
             out = f42(['paste %s' % PROG, 'paste S.txt', 'paste D.txt', 'xeq ESET', 'xeq ELEM47', 'key 26', 'key 25',
                        'key 25', 'key 34', 'stack', 'regs 0 %d' % (n - 1), 'xeq EDIM', 'stack'], d)
             regs = {m.group(1): m.group(2) for m in re.finditer(r'R(\d\d) (\S+)', out)}
-            st = re.findall(r'([XYZT]): (\S+)', out)[:4]
+            st = [float(v) for _, v in re.findall(r'([XYZT]): (\S+)', out)[:4]]
+            alpha = re.findall(r'ALPHA: (.*)', out)[0].strip()
             y = re.findall(r'Y: (\S+)', out)[-1]
-            clear = all(regs.get('%02d' % r) == '0' for r in range(n)) and all(float(v) == 0 for _, v in st)
-            check(clear and float(y) == n, 'SIZE %d: the end: R00-R%02d and the stack cleared, SIZE %d' % (size, n - 1, n))
+            want = {'%02d' % r: '0' if 20 <= r <= 56 else str(1000 + r) for r in range(size)}
+            kept = all(float(regs.get(k, 'nan')) == float(v) for k, v in want.items())
+            check(kept and st == [44, 33, 22, 11] and alpha == 'HELLO' and float(y) == size,
+                  'SIZE %d: the end: the stack, ALPHA, SIZE %d and the registers kept, R20-R%02d cleared' % (
+                      size, size, min(56, size - 1)))
+        # F1 F2 F3 in the detail box: the same value pushed as on the C47 (He: Z, mass, boiling point; At: no boiling
+        # point, nothing pushed), above the user's stack
+        fk = {11: 1, 12: 2, 13: 3}
+        for path, what in (([E.RIGHT], 'He'), ([E.DOWN] * 5 + [E.RIGHT] * 16, 'Rn')):
+            for k in (11, 12, 13):
+                keys = path + [E.INFO, k]
+                _, c = E.frames(keys)
+                cmds = ['paste %s' % PROG, 'num 11', 'num 22', 'num 33', 'num 44', 'xeq ELEM47'] + [
+                    'key %d' % (fk.get(x) or KM[x]) for x in keys] + ['stack']
+                out = f42(cmds, d)
+                st = [float(v) for _, v in re.findall(r'([XYZT]): (\S+)', out)[:4]]
+                x = float(c.s[0])                       # the C47 starts from a clear stack: x != 0 is the value pushed
+                want = [x, 44, 33, 22] if x else [44, 33, 22, 11]
+                check(st == want, '%s, F%d: the stack %s, the C47 pushes %s' % (what, k - 10, st, x if x else 'nothing'))
     finally:
         shutil.rmtree(d, ignore_errors=True)
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))

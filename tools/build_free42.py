@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""build_free42.py - ELEM47 for Free42 on the SwissMicros DM42 / DM42n (stock firmware, Free42 3.3).
+"""build_free42.py - ELEM47 for Free42 on the SwissMicros DM42 / DM42n (stock firmware, Free42 3.3.10).
 
-The same program as the C47 release (programs_rem/ELEM47.txt), converted step by step, the way
-Almanac 47 converts NAV (its tools/build_free42.py):
+The C47 release (v1.2.0, the PIXEL variant's source programs_rem/pixel/ELEM47.txt), converted step by step,
+the way Almanac 47 converts NAV (its tools/build_free42.py):
 
+  STRUCT       Free42 has none: the numbered structures become named local labels and GTO (lower(): a test
+               before IF / WHILE / UNTIL inverted where it can be), numbered with the other labels (00-99).
   screen       3 STO "GrMod": AGRAPH on the whole 400 x 240 screen (row 1 at the top, column 1 at
                the left; the C47 counts rows from the bottom, from 0: C47 row r = Free42 row 240 - r).
   AGRAPH       Free42 draws the ALPHA register, one character = one column of 8 pixels, bit 0 at the
-               top. The cells, the cursor and the detail box frame (C47 columns of 24 to 60 bits in a
-               register) become bands of 8 rows: :FCELL: (a cell), :FCURS: (the cursor), E47B (any box).
+               top, up to 44 columns in one AGRAPH. The cells, the cursor and the detail box frame become bands
+               of 8 rows: :FCELL: (a whole cell, 4 AGRAPH of 23 columns), :FCURS: (the cursor), E47B (any box).
+               So the C47's PIXEL rows (:GRID:, :ROWS:) and their clearing are left out: on Free42 a whole cell
+               takes as many AGRAPH as its left edge alone. The screens are the same.
   GRMOD        flags 34 and 35: CF CF = 0 (set the pixels), CF SF = 1 (write the pattern exactly),
                SF SF = 3 (flip). GRMOD 1 text: each character writes its whole box, as the C47 clears it.
   ATEXT Z      XEQ "E47T" (GRFNT 21) or "E47S" (GRFNT 10, the tinyFont): Z the text, Y the row of the
@@ -17,21 +21,25 @@ Almanac 47 converts NAV (its tools/build_free42.py):
                the columns of the glyph box in bands of 8 rows (20 rows: bands at 0, 8 and 12).
   texts        a C47 "..." goes on the stack: XSTR "..."; the CR glyph is character 13 (€0d).
                x→α r: RCL r X<>Y APPEND STO r;  αIP r: CLA AIP ASTO ST X, then the same;
-               αSL r: SUBSTR from X;  αLEFT r: SUBSTR 0 to X;  αPOS r: POS;  α→x r: HEAD r C→N.
+               αSL r: SUBSTR from X;  αLEFT r: SUBSTR 0 to X;  αPOS r: POS;  α→x r: HEAD r C→N; αLENG: LENGTH.
   matrix       STOSEQ: STOEL J+.
   LCD          as the C47: the screen shows only when ELEM47 waits for a key. RefLCD (DM42 / DM42n virtual
                variable, as Almanac 47's RLCD build): 0 at the start (no LCD refresh while drawing), -1 before
                each GETKEY (the screen shown once), 7 at the end (the normal refresh).
-  keys         PAUSE 50 / KEY? 33 / GTO: -1 STO "RefLCD", GETKEY, STO 33; the key codes of :KEYS: in Free42 codes
-               (8 20, 2 30, 4 24, 6 26, 5 25, 0 34).
-  registers    SIZE 76 if smaller (ELEM47 uses R20-R54, E47T, E47S and E47B R60-R75); at the end
-               CLRG and CLST, as CLREGS and CLSTK on the C47.
+  keys         the key wait DO / PAUSE 50 / KEY? 33 / WHILE / ENDDO: -1 STO "RefLCD", GETKEY, then the Free42 code
+               made the C47 code (KEYTAB: 8 4 6 2 5 0, F1-F3 = the keys under them), STO 33: the source's key
+               arithmetic stays as it is.
+  stack        v1.2.0 keeps the user's stack: the C47's local registers R.00-R.09 are local variables "L00" ...
+               of ELEM47 (LSTO), its local flag F.00 is flag 81 (FS?C at the end), STO L is STO ST L. ALPHA is
+               kept too (LXASTO "LA", ARCL at the end).
+  registers    ELEM47 keeps a copy of REGS ("LR") at the start, sets SIZE 76 if smaller (E47T, E47S and E47B
+               work in R60-R75); at the end REGS from the copy (the user's SIZE and registers back), then
+               R20-R56 cleared as the C47's 20.37 R-CLR (:RCLR:, as far as SIZE goes).
   programs     ELEM47, ELD1 and ELD2 as on the C47 (the code; the element records); E47T (the GRFNT 21
-               glyphs, and E47B); E47S (the GRFNT 10 glyphs). The glyph labels stay near the text loop that
-               calls them (the one-program build was slower).
-  labels       the named local labels numbered as in build/ELEM47.txt (Free42: 00-99 only).
+               glyphs, and E47B); E47S (the GRFNT 10 glyphs).
 
 Files: build/free42/ELEM47.txt (ELEM47, ELD1, ELD2, E47T, E47S; paste or rejig to .raw), listings/free42/.
+Test: tests/test_f42.py (f42run, the Free42 3.3.10 core of the DM42, against python/c47sim.py).
   python3 tools/build_free42.py"""
 import os, re, sys
 from decimal import Decimal as D
@@ -200,48 +208,112 @@ def text(s):
     return 'XSTR "%s"' % s[1:-1].replace('↵', '€0d')
 
 
+# Free42 GETKEY code (1-37) -> the C47 KEY? code, + 40 so that every character is printable (32 + 40: a
+# key ELEM47 ignores). 20 8, 30 2, 24 4, 26 6, 25 5, 34 0; 1-3 the keys under F1-F3 (Sigma+ 1/x sqrt).
+C47KEY = {20: 53, 30: 73, 24: 62, 26: 64, 25: 63, 34: 82, 1: 11, 2: 12, 3: 13}
+KEYTAB = ''.join(chr(C47KEY.get(k, 32) + 40) for k in range(1, 38))
+
+
+def lower(steps):
+    """The numbered STRUCT steps (IF 01 ...) as named labels and GTO (Free42 has no STRUCT): a test before
+    IF / WHILE / UNTIL inverted where it can be, else test + GTO + GTO + LBL; WHILE just before its ENDDO:
+    test + GTO back to the DO (DSE n WHILE ENDDO = DSE n GTO). The names (:I03E: ...) get local numbers
+    in B.resolve with the other named labels."""
+    inv = {'X=0?': 'X≠0?', 'X<0?': 'X≥0?', 'X>0?': 'X≤0?', 'X=Y?': 'X≠Y?', 'X<Y?': 'X≥Y?', 'X>Y?': 'X≤Y?'}
+    inv.update({v: k for k, v in list(inv.items())})
+    has_else = {s.split()[1] for s in steps if s.startswith('ELSE ')}
+    out, i = [], 0
+    while i < len(steps):
+        s = steps[i]
+        op, _, k = s.partition(' ')
+        lab = lambda kind, end='': ':%s%s%s:' % (kind, int(k), end)
+        if op in ('IF', 'WHILE', 'UNTIL'):
+            test = out.pop()
+            if op == 'IF':
+                go = lab('I', 'F' if k in has_else else 'E')
+            elif op == 'WHILE':
+                go = lab('D', 'E')
+                if steps[i + 1] == 'ENDDO ' + k:
+                    out += [test, 'GTO ' + lab('D'), 'LBL ' + lab('D', 'E')]
+                    i += 2
+                    continue
+            else:
+                go = lab('R')
+            if test in inv:
+                out += [inv[test], 'GTO ' + go]
+            else:
+                out += [test, 'GTO ' + lab(op[0], 'T'), 'GTO ' + go, 'LBL ' + lab(op[0], 'T')]
+        elif op == 'ELSE':
+            out += ['GTO ' + lab('I', 'E'), 'LBL ' + lab('I', 'F')]
+        elif op == 'ENDIF':
+            out.append('LBL ' + lab('I', 'E'))
+        elif op in ('DO', 'REPEAT'):
+            out.append('LBL ' + lab(op[0]))
+        elif op == 'ENDDO':
+            out += ['GTO ' + lab('D'), 'LBL ' + lab('D', 'E')]
+        else:
+            out.append(s)
+        i += 1
+    return out
+
+
 def main_program(steps):
-    S = list(steps)
-    # the registers: SIZE 76 at least; at the end CLRG, CLST (CLREGS, CLSTK on the C47)
-    i = S.index('LBL "ELEM47"')
-    S[i + 1:i + 1] = (['RCL "REGS"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"']
-                      + ['0', 'STO "RefLCD"'] + GRMOD[0])
-    S = replace(S, ['0', 'GRMOD', '20', 'GRFNT', 'DELITM "PT"'], GRMOD[0] + ['CLV "PT"'])
-    S = replace(S, ['CLLCD', 'CLREGS', 'CLSTK', 'RTN'], ['CLLCD', '0', 'STO "GrMod"', '7', 'STO "RefLCD"', 'CLRG', 'CLST',
-                                                       'CLD', 'RTN'])
-    # the patterns of the C47 columns: not needed
-    for pat in ('111111111111111111111111#2', '11111111111111111111111111#2', '10000000000000000000000001#2'):
-        while pat in S:
-            k = S.index(pat)
-            assert S[k + 1].startswith('STO '), S[k:k + 2]
+    """steps: the source steps of programs_rem/pixel/ELEM47.txt (named labels, STRUCT numbered)."""
+    S = B.structures(list(steps))                    # the partner numbers first (DO 02 ...)
+    # the start, after the source has saved the user's stack and LASTx (STO R.08): ALPHA saved too (Free42's
+    # text steps use it), SIZE 76 at least, the 400 x 240 screen, no LCD refresh while drawing, GRMOD 0, flag 81 clear
+    i = S.index('STO R.08', S.index('LBL "ELEM47"'))
+    S[i + 1:i + 1] = (['LXASTO "LA"', 'RCL "REGS"', 'LSTO "LR"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"']
+                      + ['0', 'STO "RefLCD"'] + GRMOD[0] + ['CF 81'])
+    # the key wait: GETKEY, its code made a C47 code (KEYTAB), so the source's key arithmetic is unchanged
+    wait = ['DO %s', 'PAUSE 50', 'KEY? 33', 'WHILE %s', 'ENDDO %s']
+    k = next(j for j in range(len(S)) if S[j].startswith('DO ') and S[j + 1:j + 3] == ['PAUSE 50', 'KEY? 33'])
+    n = S[k].split()[1]
+    assert S[k:k + 5] == [w % n if '%' in w else w for w in wait]
+    # (Z the table, Y k - 1, X k: SUBSTR gives character k - 1 from 0; RCL ST X keeps the stack lift on)
+    S[k:k + 5] = ['-1', 'STO "RefLCD"', 'GETKEY', 'XSTR "%s"' % KEYTAB, 'X<>Y', '1', '-', 'RCL ST X', '1', '+',
+                  'SUBSTR', 'C→N', '40', '-', 'STO 33']
+    # the end: GRMOD 0, PT deleted, the screen as Free42 shows it again
+    S = replace(S, ['0', 'GRMOD', '20', 'GRFNT', 'DELITM "PT"', 'CLLCD'],
+                GRMOD[0] + ['CLV "PT"', 'CLLCD', '0', 'STO "GrMod"', '7', 'STO "RefLCD"', 'CLD', 'CLA',
+                                'ARCL "LA"'])
+    # R-CLR (X = 20.37: R20-R56): the user's registers back first (the copy LR of the start: E47T, E47S, E47B
+    # work in R60-R75, and SIZE goes back to the user's), then R20-R56 cleared as far as SIZE goes (:RCLR:)
+    S = replace(S, ['20.37', 'R-CLR'], ['RCL "LR"', 'STO "REGS"', 'XEQ :RCLR:'])
+    # the patterns of the C47 columns: not needed (the cells, the cursor and the box are Free42 bands)
+    for k in range(len(S) - 1, -1, -1):
+        if S[k].endswith('#2') and S[k + 1] in ('STO 20', 'STO 21', 'STO 23'):
             del S[k:k + 2]
     S = [s for s in S if s != 'WSIZE 64']
-    # the cell box, the cursor, the detail frame and the header bar
-    # the C47 draws 22 columns per cell and the right edge of the last one after the segment; :FCELL: the whole box
-    S = replace(S, ['RCL 40', 'RCL 39', 'AGRAPH 20'] + ['AGRAPH 21'] * 21, ['XEQ :FCELL:'])
-    S = replace(S, ['GTO :SEGLOOP:', 'RCL 40', 'RCL 39', 'AGRAPH 20', 'RTN'], ['GTO :SEGLOOP:', 'RTN'])
+    # the table's horizontal lines: on Free42 each cell is drawn whole (:FCELL:, 4 AGRAPH of 23 columns: as many
+    # AGRAPH as its left edge alone), so the PIXEL rows of :GRID: / :ROWS: and their clearing are left out
+    S.remove('XEQ :GRID:')
+    S.remove('XEQ :ROWS:')
+    for name in (':GRID:', ':ROWS:'):
+        a = S.index('LBL ' + name)
+        b = S.index('RTN', a)
+        del S[a:b + 1]
+    a = S.index('LBL :SEGMENT:')
+    S[a:] = replace(S[a:], ['RCL 40', 'RCL 39', 'AGRAPH 20'], ['XEQ :FCELL:'])
+    S[a:] = replace(S[a:], ['RCL 40', 'RCL 39', 'AGRAPH 20', 'RTN'], ['RTN'])
+    # the cursor
     S = replace(S, ['3', 'GRMOD', 'RCL 53', 'RCL 39', '1', '+'] + ['AGRAPH 23'] * 21 + ['0', 'GRMOD'],
                 ['XEQ :FCURS:'])
-    i = S.index('111111111111111111111111111111111111111111111111111111111111#2')
-    j = S.index('XEQ :HLINE:')
-    assert S[i - 2:i] == ['0', 'GRMOD']
-    S[i - 2:j + 1] = fbx(50, 60, 1, 120, 0) + fbx(349, 60, 1, 120, 0) + fbx(51, 60, 298, 1, 0)
-    i = S.index('1111111111111111111111#2')
-    j = S.index('XEQ :HLINE:')
-    assert S[i - 2:i] == ['3', 'GRMOD'] and S[j + 1:j + 3] == ['0', 'GRMOD']
-    S[i - 2:j + 3] = fbx(51, 158, 298, 22, 3) + GRMOD[0]
-    i = S.index('LBL :HLINE:')                          # the C47 lines: E47B draws them on Free42
-    j = S.index('GTO :HLLOOP:', i)
-    assert S[j + 1] == 'RTN'
-    del S[i:j + 2]
-    # the key waits and the key codes
-    for lab in (':KEYS:',):
-        S = replace(S, ['PAUSE 50', 'KEY? 33', 'GTO ' + lab], ['-1', 'STO "RefLCD"', 'GETKEY', 'STO 33'])
-    i, j = S.index('LBL :KEYS:'), S.index('LBL :UP:')
-    for k in range(i, j):
-        if S[k] == 'X=Y?' and re.fullmatch(r'\d+', S[k - 1]) and int(S[k - 1]) in KEYS:
-            S[k - 1] = str(KEYS[int(S[k - 1])])
-    # step by step: fonts, GRMOD, texts, the text functions
+    # the detail box: the sides x 50 and 349 (rows 56-179), the bottom line (row 56) and the line over F1-F3
+    # (row 75), x 51-348; the header bar XOR rows 158-179
+    a = S.index('XEQ :BOXCLR:', S.index('LBL :DETREC:'))
+    b = S.index('XEQ :HLINE:', a)
+    assert S[a + 1:a + 3] == ['0', 'GRMOD']
+    S[a + 1:b + 1] = (fbx(50, 56, 1, 124, 0) + fbx(349, 56, 1, 124, 0) + fbx(51, 56, 298, 1, 0)
+                      + fbx(51, 75, 298, 1, 0))
+    b = S.index('XEQ :HLINE:', a)
+    assert S[b - 4:b - 2] == ['3', 'GRMOD'] and S[b + 1:b + 3] == ['0', 'GRMOD'], S[b - 5:b + 3]
+    S[b - 4:b + 3] = fbx(51, 158, 298, 22, 3) + GRMOD[0]
+    a = S.index('LBL :HLINE:')
+    del S[a:S.index('RTN', a) + 1]
+    # the structures as labels and GTO
+    S = lower(S)
+    # step by step: the local registers and flag, fonts, GRMOD, texts, the text functions
     out, font = [], 21
     for k, s in enumerate(S):
         nxt = S[k + 1] if k + 1 < len(S) else ''
@@ -254,6 +326,19 @@ def main_program(steps):
         if s == 'XEQ :BOXCLR:':
             font = 21                                   # :BOXCLR: leaves GRFNT 21
         op, _, arg = s.partition(' ')
+        m = re.fullmatch(r'(STO|RCL) R\.(\d\d)', s)
+        if m:                                           # the C47's local registers: local variables of ELEM47
+            out.append(('LSTO "L%s"' if m.group(1) == 'STO' else 'RCL "L%s"') % m.group(2)); continue
+        if s == 'LocR 10':
+            continue
+        if s == 'SF F.00':
+            out.append('SF 81'); continue
+        if s == 'FS? F.00':
+            out.append('FS?C 81'); continue
+        if s == 'STO L':
+            out.append('STO ST L'); continue
+        if s == 'LASTx':
+            out.append('LASTX'); continue
         if s == 'ATEXT Z':
             out.append('XEQ "E47T"' if font == 21 else 'XEQ "E47S"')
         elif s.startswith('"'):
@@ -268,24 +353,32 @@ def main_program(steps):
             out += ['RCL ' + arg, 'X<>Y', '0', 'X<>Y', 'SUBSTR']
         elif op == 'αPOS':
             out += ['RCL ' + arg, 'X<>Y', 'POS']
+        elif op == 'αLENG':
+            out += ['RCL ' + arg, 'LENGTH']
         elif op == 'α→𝑥':
             out += ['HEAD ' + arg, 'C→N']
         elif s == 'STOSEQ':
             out += ['STOEL', 'J+']
-        elif s == 'CLSTK':
-            out.append('CLST')
         elif s == 'CHS':
             out.append('+/-')
         else:
             out.append(s)
     k = next(i for i, s in enumerate(out) if s == 'LBL %02d' % B.SYM0)
-    out = out[:k] + cell_routine() + cursor_routine() + out[k:]
+    out = out[:k] + cell_routine() + cursor_routine() + rclr_routine() + out[k:]
     bad = [s for s in out if s.endswith('#2') or s.split(' ')[0] in (
-        'GRMOD', 'GRFNT', 'ATEXT', 'KEY?', 'PAUSE', 'LocR', 'WSIZE', 'x→α', 'αIP', 'αSL', 'αLEFT', 'αPOS',
-        'α→𝑥', 'DELITM', 'CLSTK', 'CLREGS', 'CHS', 'STOSEQ') or s.startswith('AGRAPH ') or 'R.' in s]
+        'GRMOD', 'GRFNT', 'ATEXT', 'KEY?', 'PAUSE', 'LocR', 'WSIZE', 'x→α', 'αIP', 'αSL', 'αLEFT', 'αPOS', 'αLENG',
+        'α→𝑥', 'DELITM', 'CLSTK', 'CLREGS', 'R-CLR', 'CHS', 'STOSEQ', 'LASTx') + B.STRUCT
+        or s.startswith('AGRAPH ') or re.search(r'\b[RF]\.\d', s) or s == 'PIXEL']
     if bad:
         raise SystemExit('free42: C47 steps left: %s' % bad[:5])
     return out
+
+
+def rclr_routine():
+    """:RCLR: R20-R56 cleared (the C47's 20.37 R-CLR) as far as the user's SIZE goes, a local variable the index."""
+    return ['LBL :RCLR:', 'RCL "REGS"', 'DIM?', 'R↓', '1', '-', '56', 'X>Y?', 'X<>Y', '1000', '÷', '20', '+',
+            'LSTO "I"', 'LBL :RCLRL:', 'RCL "I"', 'IP', 'RCL "REGS"', 'DIM?', 'R↓', 'X≤Y?', 'RTN', 'R↓', 'R↓',
+            '0', 'STO IND "I"', 'DROP', 'ISG "I"', 'GTO :RCLRL:', 'RTN']
 
 
 def chars_used(steps):
@@ -304,11 +397,9 @@ def chars_used(steps):
 
 
 def build():
-    lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'ELEM47.txt'), encoding='utf-8')]
+    """The Free42 build of the release, the PIXEL variant's source (programs_rem/pixel/ELEM47.txt)."""
+    lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', 'pixel', 'ELEM47.txt'), encoding='utf-8')]
     steps = B.source_steps(lines)
-    if any(s.split(' ')[0] in B.STRUCT for s in steps):
-        raise SystemExit('free42: programs_rem/ELEM47.txt uses the C47 STRUCT commands (branch struct, C47 only): '
-                         'Free42 has none; build/free42/ stays as built on main')
     main, num = B.resolve(main_program(steps))
     big, tiny = chars_used(steps)
     T = textprog('E47T', 21, big) + box_routine() + ['END']
