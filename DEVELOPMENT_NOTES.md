@@ -514,6 +514,16 @@
   tests/test_elem47.py reads LASTx from c.lastx (the old split stored STO L in a register L): LASTx 77 comes back.
   test_elem47, test_opt (release, PIXEL), test_dev, test_f42: ALL OK; the screens unchanged.
 
+## Oct 23, 2026 - the user's stack saved with STOS / RCLS (branch elem47-stos)
+
+- From the forum: STOS R.00 saves X..T, A..D in R.00-R.07 in one step, RCLS R.00 gives them back, in place of
+  STO R.00 R↓ ... (8 times) and RCL R.07 ... R.00. Victor ran STOS / RCLS on his C47 (Oct 23): the stack and
+  LASTx came back. LocR 10 stays (R.08 LASTx, R.09 the value of F1-F3). 22 steps fewer.
+- c47sim: STOS / RCLS copied from Almanac 47 (branch c47sim-stos-rcls).
+- Free42 has no STOS / RCLS: build_free42.py turns them back into the steps of before (LSTO "L00" R↓ ...,
+  RCL "L07" ... "L00"); build/free42 unchanged. Tests: test_elem47, test_opt ALL OK; test_f42 and test_fw not
+  run here (no f42run, no firmware build in the cloud session).
+
 ## Next
 - Branch struct: tests/test_fw.py and tools/bench_fw.py in T47 (rejig with the STRUCT patch); then XEQ "ELEM47"
   on the C47 itself.
