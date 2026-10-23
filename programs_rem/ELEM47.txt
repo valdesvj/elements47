@@ -21,24 +21,9 @@ REM checks them and gives the partner numbers (IF 01 ...). No GTO: the labels ar
 REM data (XEQ IND). A test before a single step (X<0? RTN, X≠0? XEQ) stays as it is.
 LBL "ELEM47"
 REM the user's stack in the local registers of this level (the main part: no XEQ level reaches them):
-REM X..T, A..D one by one with R↓; 8 R↓ give the stack back on 4 levels (twice round) as on 8. Then LASTx
+REM STOS R.00 (X..T, A..D in R.00-R.07; R.08 LASTx, R.09 the value of F1-F3). Free42: LSTO with R↓
 LocR 10
-STO R.00
-R↓
-STO R.01
-R↓
-STO R.02
-R↓
-STO R.03
-R↓
-STO R.04
-R↓
-STO R.05
-R↓
-STO R.06
-R↓
-STO R.07
-R↓
+STOS R.00
 LASTx
 STO R.08
 REM the main part first: the key loop calls the routines of a move and of the box, and each RTN goes back by
@@ -126,14 +111,7 @@ DELITM "PT"
 CLLCD
 RCL R.08
 STO L
-RCL R.07
-RCL R.06
-RCL R.05
-RCL R.04
-RCL R.03
-RCL R.02
-RCL R.01
-RCL R.00
+RCLS R.00
 FS? F.00
 RCL R.09
 RTN

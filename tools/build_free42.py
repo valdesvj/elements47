@@ -263,6 +263,13 @@ def lower(steps):
 def main_program(steps):
     """steps: the source steps of programs_rem/pixel/ELEM47.txt (named labels, STRUCT numbered)."""
     S = B.structures(list(steps))                    # the partner numbers first (DO 02 ...)
+    # STOS / RCLS R.00 (the user's stack, the C47's 8 levels): Free42 has neither; the stack one level at a time
+    # (8 R↓ on 4 levels go round twice), recalled from the top
+    for k in range(len(S) - 1, -1, -1):
+        if S[k] == 'STOS R.00':
+            S[k:k + 1] = sum((['STO R.%02d' % j, 'R↓'] for j in range(8)), [])
+        elif S[k] == 'RCLS R.00':
+            S[k:k + 1] = ['RCL R.%02d' % j for j in range(7, -1, -1)]
     # the start, after the source has saved the user's stack and LASTx (STO R.08): ALPHA saved too (Free42's
     # text steps use it), SIZE 76 at least, the 400 x 240 screen, no LCD refresh while drawing, GRMOD 0, flag 81 clear
     i = S.index('STO R.08', S.index('LBL "ELEM47"'))
