@@ -530,3 +530,17 @@
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).
 - Free42: time the table on a DM42; build/free42/ELEM47.txt goes in by Paste in Free42 (export a .raw there).
+
+## Oct 24, 2026 - the standby check (Victor: a program waiting for a key went to standby, then needed several
+## presses to come back)
+
+- Thought (not yet confirmed on the C47): the power-off timer runs from the last key, a PAUSE does not reset it,
+  and the press that wakes the calculator does not reach KEY?, so the next PAUSE sends it back to standby.
+- LBL :WAKE: after KEY? with no key: the clock's JD (Date→ⅅ Time→ℸ ⅅℸ→J, as Zones 47) against the last pass's
+  (R57); more than 30 s: the program ends as with 0 (R33 = 82); the key wait loops on R58 (1 wait on, 0 end).
+  R-CLR 20.39 (R20-R58). Both C47 sources (programs_rem/ELEM47.txt and the release's programs_rem/pixel/); the
+  Free42 build leaves LBL :WAKE: and the clock read out (GETKEY: build/free42 unchanged).
+  The same in Zones 47, Logic 47, MH-10M 47 and Watch 47.
+- elem47sim and the end test run with maxsteps 10**8: c47sim's Date→ⅅ sets the run's step counter to the day
+  number (as Zones 47 noted; to fix in Almanac 47). Tests: 10 min of standby ends ELEM47 (the stack back), 5 s
+  does not; test_opt's end check now R20-R58.
