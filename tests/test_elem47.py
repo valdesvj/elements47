@@ -10,7 +10,7 @@
   - 5: the detail box (frame), 5 again: the table again with the cursor kept; the arrows with the box open:
     the box of the next element; other keys ignored; 0: the end
   - F1 F2 F3 with the box open (LBL :FKEY:): Z, the mass, the boiling point of every element (none for "-");
-    the end: the user's stack and LASTx back (the value pushed on it), R20-R58 cleared, the other registers kept
+    the end: the user's stack and LASTx back (the value pushed on it), R20-R56 cleared, the other registers kept
   python3 tests/test_elem47.py"""
 import os, sys
 from decimal import Decimal as D
@@ -172,42 +172,23 @@ def main():
           '0: the end, GRFNT 20 and GRMOD 0 restored, PT deleted')
     check(not c.keys, 'the end: all keys used')
 
-    # the user's stack, LASTx and registers: kept; the value of F1-F3 pushed (the top level goes); R20-R58 cleared
+    # the user's stack, LASTx and registers: kept; the value of F1-F3 pushed (the top level goes); R20-R56 cleared
     fe = [E.DOWN] * 3 + [E.RIGHT] * 7 + [E.INFO]
-    user = {'5': D(5), '19': D(19), '59': D(59), '99': D(99), '20': D(20), '58': D(58)}
+    user = {'5': D(5), '19': D(19), '57': D(57), '99': D(99), '20': D(20), '56': D(56)}
     for keys, top, what in [(fe + [E.END], None, 'Fe, 0'), (fe + [F1], D(26), 'Fe, F1: Z'),
                             (fe + [F2], D('55.845'), 'Fe, F2: the mass'), (fe + [F3], D(3134), 'Fe, F3: the boiling point'),
                             ([E.DOWN] * 6 + [E.LEFT, E.INFO, F3], None, 'Og, F3: "-", nothing pushed'),
                             ([F1, E.END], None, 'F1 with the box closed: ignored, then 0')]:
         c = c47sim.load(E.split(E.PROG))
         c.s = [D(11), D(22), D(33), D(44)]; c.lastx = D(77); c.pix = []; c.keys = list(keys); c.steps = 0
-        c.frames = E._Frames(c); c.reg.update(user); c.clock = 2461338.0
-        c.run('ELEM47', maxsteps=10 ** 8)
+        c.frames = E._Frames(c); c.reg.update(user)
+        c.run('ELEM47')
         want = [D(11), D(22), D(33), D(44)] if top is None else [top, D(11), D(22), D(33)]
-        regs = all(c.reg.get(k) == v for k, v in user.items() if not 20 <= int(k) <= 58)
-        work = all(c.reg.get(str(k), D(0)) in (D(0), '') for k in range(20, 59))
+        regs = all(c.reg.get(k) == v for k, v in user.items() if not 20 <= int(k) <= 56)
+        work = all(c.reg.get(str(k), D(0)) in (D(0), '') for k in range(20, 57))
         check(c.s == want and c.lastx == D(77) and regs and work and not c.keys,
-              'the end, %s: stack %s, LASTx %s, R20-R58 cleared, the user\'s registers kept'
+              'the end, %s: stack %s, LASTx %s, R20-R56 cleared, the user\'s registers kept'
               % (what, ' '.join(str(v) for v in c.s), c.lastx))
-    # the standby check: a key wait with no key and the clock 10 min on (the calculator was in standby) ends the
-    # program as 0 does; 5 s: it waits on
-    for gap, ends in ((600, True), (5, False)):
-        c = c47sim.load(E.split(E.PROG))
-        c.s = [D(11), D(22), D(33), D(44)]; c.lastx = D(77); c.pix = []; c.frames = []; c.clock = 2461338.0
-        script = [E.RIGHT, None, E.RIGHT, E.END]
-
-        def count(op, x, c=c, script=script, gap=gap):
-            if op == 'KEY?':
-                k = script.pop(0) if script else E.END
-                if k is None:
-                    c.keys = []; c.keyskip = True; c.clock += gap / 86400.0
-                else:
-                    c.keys = [k]; c.keyskip = False
-        c.count = count
-        c.run('ELEM47', maxsteps=10 ** 8)
-        ok = (script == [E.RIGHT, E.END]) if ends else (script == [])
-        check(ok and c.s == [D(11), D(22), D(33), D(44)] and c.lastx == D(77) and c.pix == [],
-              'standby: a gap of %d s %s (keys left %s), the stack back' % (gap, 'ends it' if ends else 'waits on', script))
     print('\n%s' % ('ALL OK' if not fails else '%d FAILED' % len(fails)))
     return 1 if fails else 0
 

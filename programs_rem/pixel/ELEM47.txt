@@ -9,7 +9,7 @@ REM GRMOD and GRFNT take X (rejig writes "GRMOD r" as GRMOD and the number r: Al
 REM Matrix "PT" 9 x 18: the Z of each cell (0 = empty), deleted at the end.
 REM The user's stack is kept: X..T (and A..D on 8 levels) and LASTx saved in local registers at the start
 REM (R.00-R.08; R.09 the value of F1-F3), given back at the end; F1-F3 push their value on top of it.
-REM At the end the work registers R20-R58 are cleared (R-CLR), the other registers are the user's.
+REM At the end the work registers R20-R56 are cleared (R-CLR), the other registers are the user's.
 REM Registers: R20-R23 boxes and patterns, R24 index, R25-R28 drawing, R29 symbol, R30-R32 cursor
 REM Z row column, R33 key, R34-R51 text and work (R36 = 1: the detail box open; R49 the value of F1-F3,
 REM 0: none), R52-R53 the rows of the
@@ -49,15 +49,9 @@ XEQ :INIT:
 REM ---- keys: 8 up, 2 down, 4 left, 6 right, 5 the detail box, 0 the end; other keys ignored ----
 DO
   REM wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Almanac 47
-  REM with no key LBL :WAKE: (the standby check) sets R58 = 1 to wait on, 0 to end (R33 = 82, as 0)
   DO
-    0
-    STO 58
     PAUSE 50
     KEY? 33
-    XEQ :WAKE:
-    RCL 58
-    X≠0?
   WHILE
   ENDDO
   REM F1-F3 with the box open: the value in R49, R33 = 82 (the end)
@@ -117,14 +111,14 @@ WHILE
     ENDIF
   ENDIF
 ENDDO
-REM ---- 0 (or F1-F3): the end: the value of F1-F3 (R49, 0: none) to R.09 and the local flag F.00, R20-R58
+REM ---- 0 (or F1-F3): the end: the value of F1-F3 (R49, 0: none) to R.09 and the local flag F.00, R20-R56
 REM cleared, GRMOD 0, GRFNT 20, PT deleted, the screen; then the user's stack and LASTx back, and the value
 REM pushed on it (the top level goes, as for any number keyed in). RTN releases the local registers ----
 RCL 49
 STO R.09
 X≠0?
 SF F.00
-20.39
+20.37
 R-CLR
 0
 GRMOD
@@ -590,45 +584,9 @@ XEQ :SEGMENT:
 4
 XEQ :SEGMENT:
 RTN
-REM ---- LBL :WAKE: the standby check: the calculator's clock (JD, R57 the last pass's); more than 30 s since
-REM the last pass (one is about 5 s): the calculator was in standby, and the key that woke it ends the program
-REM cleanly (R33 = 82, as 0), so it is left in its normal state (a program left waiting went back
-REM to standby at each press). R58 = 1 - (IP(gap / 30 s) not 0) ----
-LBL :WAKE:
-Date→ⅅ
-Time→ℸ
-ⅅℸ→J
-RCL 57
-X<>Y
-STO 57
-X<>Y
--
-86400
-×
-30
-÷
-IP
-X≠0?
-1
-1
-X<>Y
--
-STO 58
-1
-RCL 58
--
-82
-×
-STO 33
-RTN
 REM ---- LBL :INIT: the start: the matrix PT, the patterns, the cursor on H, the table ----
 LBL :INIT:
 WSIZE 64
-REM the clock now, for the standby check (LBL :WAKE:)
-Date→ⅅ
-Time→ℸ
-ⅅℸ→J
-STO 57
 9
 18
 NEWMAT

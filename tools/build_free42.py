@@ -276,26 +276,20 @@ def main_program(steps):
     S[i + 1:i + 1] = (['LXASTO "LA"', 'RCL "REGS"', 'LSTO "LR"', 'DIM?', 'R↓', str(SIZE), 'X>Y?', 'SIZE %d' % SIZE, '3', 'STO "GrMod"']
                       + ['0', 'STO "RefLCD"'] + GRMOD[0] + ['CF 81'])
     # the key wait: GETKEY, its code made a C47 code (KEYTAB), so the source's key arithmetic is unchanged
-    # (the C47's standby check, LBL :WAKE: and the clock read at the start, is left out: GETKEY waits without a
-    # PAUSE loop, and the DM42 sleeps and wakes as with any key wait)
-    wait = ['DO %s', '0', 'STO 58', 'PAUSE 50', 'KEY? 33', 'XEQ :WAKE:', 'RCL 58', 'X≠0?', 'WHILE %s', 'ENDDO %s']
-    k = next(j for j in range(len(S)) if S[j].startswith('DO ') and S[j + 1:j + 4] == ['0', 'STO 58', 'PAUSE 50'])
+    wait = ['DO %s', 'PAUSE 50', 'KEY? 33', 'WHILE %s', 'ENDDO %s']
+    k = next(j for j in range(len(S)) if S[j].startswith('DO ') and S[j + 1:j + 3] == ['PAUSE 50', 'KEY? 33'])
     n = S[k].split()[1]
-    assert S[k:k + 10] == [w % n if '%' in w else w for w in wait]
-    a = S.index('LBL :WAKE:'); b = S.index('RTN', a)
-    del S[a:b + 1]
-    S = replace(S, ['Date→ⅅ', 'Time→ℸ', 'ⅅℸ→J', 'STO 57'], [])
-    k = next(j for j in range(len(S)) if S[j].startswith('DO ') and S[j + 1:j + 4] == ['0', 'STO 58', 'PAUSE 50'])
+    assert S[k:k + 5] == [w % n if '%' in w else w for w in wait]
     # (Z the table, Y k - 1, X k: SUBSTR gives character k - 1 from 0; RCL ST X keeps the stack lift on)
-    S[k:k + 10] = ['-1', 'STO "RefLCD"', 'GETKEY', 'XSTR "%s"' % KEYTAB, 'X<>Y', '1', '-', 'RCL ST X', '1', '+',
+    S[k:k + 5] = ['-1', 'STO "RefLCD"', 'GETKEY', 'XSTR "%s"' % KEYTAB, 'X<>Y', '1', '-', 'RCL ST X', '1', '+',
                   'SUBSTR', 'C→N', '40', '-', 'STO 33']
     # the end: GRMOD 0, PT deleted, the screen as Free42 shows it again
     S = replace(S, ['0', 'GRMOD', '20', 'GRFNT', 'DELITM "PT"', 'CLLCD'],
                 GRMOD[0] + ['CLV "PT"', 'CLLCD', '0', 'STO "GrMod"', '7', 'STO "RefLCD"', 'CLD', 'CLA',
                                 'ARCL "LA"'])
-    # R-CLR (X = 20.39 on the C47: R20-R58; R57 R58 are its standby check, not used here: R20-R56): the user's registers back first (the copy LR of the start: E47T, E47S, E47B
+    # R-CLR (X = 20.37: R20-R56): the user's registers back first (the copy LR of the start: E47T, E47S, E47B
     # work in R60-R75, and SIZE goes back to the user's), then R20-R56 cleared as far as SIZE goes (:RCLR:)
-    S = replace(S, ['20.39', 'R-CLR'], ['RCL "LR"', 'STO "REGS"', 'XEQ :RCLR:'])     # (R57 R58: C47 only)
+    S = replace(S, ['20.37', 'R-CLR'], ['RCL "LR"', 'STO "REGS"', 'XEQ :RCLR:'])
     # the patterns of the C47 columns: not needed (the cells, the cursor and the box are Free42 bands)
     for k in range(len(S) - 1, -1, -1):
         if S[k].endswith('#2') and S[k + 1] in ('STO 20', 'STO 21', 'STO 23'):

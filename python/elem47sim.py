@@ -47,11 +47,10 @@ def frames(keys=(RIGHT, INFO, INFO, END), prog=PROG, regs=None, label='ELEM47'):
     c.at_steps: the steps run before each screen (the work of each key = the difference)."""
     c = c47sim.load(split(prog))
     c.s = [D(0)] * 4; c.pix = []; c.keys = list(keys); c.steps = 0; c.frames = _Frames(c)
-    c.clock = 2461338.0                        # the calculator's clock (a JD): read by the standby check
     if regs:
         c.reg.update(regs)                     # the user's registers before ELEM47 runs
     try:
-        c.run(label, maxsteps=10 ** 8)     # 10**8: c47sim's Date→ⅅ sets the step counter n to the day number (Zones 47 notes)
+        c.run(label, maxsteps=10 ** 6)
     except StopIteration:
         pass
     shots = [{(x, H - 1 - y) for y, x in f if 0 <= y < H and 0 <= x < W} for f in c.frames]

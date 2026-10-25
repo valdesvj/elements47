@@ -24,13 +24,9 @@ How to use it, with the screens: **[MANUAL.md](MANUAL.md)** (`MANUAL.html` in th
 | File (release zip) | `C47_R47/ELEM47.p47` (rejig, from `build/pixel/ELEM47.txt`), the listing `C47_R47/ELEM47.txt` |
 | Programs | `ELEM47` (the code, 998 steps), `ELD1` and `ELD2` (the element records, one per label: Z 1–60 and 61–118) |
 | Needs | firmware 00.109.05.00a0.ALPHA (5 Oct 2026) or later, as Almanac 47 v2.2.0: ATEXT, GRFNT, PIXEL and the STRUCT commands (IF / DO / REPEAT, app note AN0007) |
-| Memory | R20–R58 and the matrix `PT` (9 × 18) |
-| At the end (0) | `PT` deleted, R20–R58 cleared (R-CLR); **the user's stack (4 or 8 levels), LASTx and the other registers kept**; GRFNT 20 and GRMOD 0 restored |
+| Memory | R20–R56 and the matrix `PT` (9 × 18) |
+| At the end (0) | `PT` deleted, R20–R56 cleared (R-CLR); **the user's stack (4 or 8 levels), LASTx and the other registers kept**; GRFNT 20 and GRMOD 0 restored |
 | F1 F2 F3 (detail box) | the end, with Z, the mass or the boiling point (K) pushed on the user's stack; "-": nothing pushed |
-
-**Standby**: if the calculator goes to standby while ELEM47 waits for a key, the key that wakes it ends the
-program cleanly (more than 30 s between two passes of the key wait: the clock is read at each one), so the
-calculator is back in its normal state (a program left waiting could need several presses to come back).
 
 What is new in v1.2.0:
 - The user's stack (4 or 8 levels) and LASTx are kept: saved in local registers at the start, given back at the

@@ -65,19 +65,13 @@ LASTx
 STO R.08
 @ the main part first: the key loop calls the routines of a move and of the box, and each RTN goes back by
 @ counting the steps from the start of the program
-XEQ 13
+XEQ 12
 @ ---- keys: 8 up, 2 down, 4 left, 6 right, 5 the detail box, 0 the end; other keys ignored ----
 DO 01
   @ wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Almanac 47
-  @ with no key LBL :WAKE: (the standby check) sets R58 = 1 to wait on, 0 to end (R33 = 82, as 0)
   DO 02
-    0
-    STO 58
     PAUSE 50
     KEY? 33
-    XEQ 12
-    RCL 58
-    X≠0?
   WHILE 02
   ENDDO 02
   @ F1-F3 with the box open: the value in R49, R33 = 82 (the end)
@@ -111,7 +105,7 @@ WHILE 01
   X=Y?
   IF 01
     XEQ 04
-    XEQ 20
+    XEQ 19
     XEQ 03
     XEQ 05
     RCL 36
@@ -137,14 +131,14 @@ WHILE 01
     ENDIF 03
   ENDIF 02
 ENDDO 01
-@ ---- 0 (or F1-F3): the end: the value of F1-F3 (R49, 0: none) to R.09 and the local flag F.00, R20-R58
+@ ---- 0 (or F1-F3): the end: the value of F1-F3 (R49, 0: none) to R.09 and the local flag F.00, R20-R56
 @ cleared, GRMOD 0, GRFNT 20, PT deleted, the screen; then the user's stack and LASTx back, and the value
 @ pushed on it (the top level goes, as for any number keyed in). RTN releases the local registers ----
 RCL 49
 STO R.09
 X≠0?
 SF F.00
-20.39
+20.37
 R-CLR
 0
 GRMOD
@@ -197,9 +191,9 @@ STO 34
 RCL 41
 3
 X=Y?
-XEQ 29
+XEQ 28
 RCL 34
-XEQ 30
+XEQ 29
 RTN
 @ ---- LBL :CURSOR: the cursor, the inside of the cell inverted (XOR, unrolled); twice = off ----
 LBL 03
@@ -207,7 +201,7 @@ RCL 31
 STO 26
 RCL 32
 STO 27
-XEQ 17
+XEQ 16
 @ LBL :CURSXOR: the cursor drawn again where it was (R39, R40, R53 of the last one): off
 LBL 04
 3
@@ -295,18 +289,18 @@ ELSE 04
   XEQ "ELD1"
 ENDIF 04
 STO 44
-XEQ 18
+XEQ 17
 RCL 35
 STO 37
-XEQ 18
+XEQ 17
 RTN
 @ ---- LBL :CLOSE: the detail box off: the cursor off, the box area cleared (LBL :BOXCLR:), the cells
 @ under it drawn again (rows 3-7, columns 3-16: 5 segments, LBL :CLSYM: and LBL :SEGMENT:), then the keys, the cursor and the
 @ panel (the box covers part of the key legend and of the panel). The same screen as drawing the whole table ----
 LBL 07
 XEQ 04
-XEQ 24
 XEQ 23
+XEQ 22
 0
 GRMOD
 @ the cell patterns again (the detail box left its own in R20)
@@ -318,32 +312,32 @@ XEQ 08
 4
 3
 13
-XEQ 15
+XEQ 14
 21
 XEQ 08
 14
 4
 3
-XEQ 15
+XEQ 14
 39
 XEQ 08
 14
 5
 3
-XEQ 15
+XEQ 14
 72
 XEQ 08
 13
 6
 4
-XEQ 15
+XEQ 14
 104
 XEQ 08
 13
 7
 4
-XEQ 15
 XEQ 14
+XEQ 13
 XEQ 03
 XEQ 05
 RTN
@@ -378,10 +372,10 @@ XEQ 06
 LBL 10
 RCL 35
 STO 48
-XEQ 18
+XEQ 17
 RCL 35
 STO 45
-XEQ 18
+XEQ 17
 RCL 35
 STO 46
 @ the configuration: what is left of the record
@@ -417,17 +411,17 @@ x→α 48
 αPOS 46
 @ no "-": " K" (LBL :KELVIN:, an XEQ, not an IF: the original DM42 holds 10 IF a program)
 X<0?
-XEQ 25
+XEQ 24
 @ the left values in R38: symbol, state (the letter in R45 -> a word of LBL :STATES:), group, config
 RCL 29
 STO 38
 "↵"
 x→α 38
-XEQ 26
+XEQ 25
 RCL 45
 αPOS 51
 STO 24
-XEQ 19
+XEQ 18
 RCL 35
 x→α 38
 "↵"
@@ -442,9 +436,9 @@ IF 05
   "  "
   x→α 38
 ENDIF 05
+XEQ 26
 XEQ 27
-XEQ 28
-XEQ 19
+XEQ 18
 RCL 35
 x→α 38
 "↵"
@@ -452,7 +446,7 @@ x→α 38
 RCL 47
 x→α 38
 @ then the box: cleared, the frame, the header, the labels and the two value texts
-XEQ 24
+XEQ 23
 @ the frame (GRMOD 0): the sides (two halves of 62 rows, 56-179), the bottom line (row 56: the empty rows
 @ between periods 7 and 8, above the lanthanides at 54), the line over F1-F3 (row 75); the top line comes
 @ with the header bar
@@ -477,7 +471,7 @@ AGRAPH 20
 STO 20
 56
 51
-XEQ 21
+XEQ 20
 @ header: Z (in R55), name, and the key hint in the tinyFont
 " "
 STO 55
@@ -533,7 +527,7 @@ GRMOD
 STO 20
 158
 51
-XEQ 21
+XEQ 20
 0
 GRMOD
 RTN
@@ -545,110 +539,74 @@ STO 20
 @ R21: rows 0, 25 and 50 of a column (three horizontal lines at once, cleared by AGRAPH in GRMOD 2)
 100000000000000000000000010000000000000000000000001#2
 STO 21
-XEQ 22
+XEQ 21
 1
 STO 25
 -1
 STO 50
-XEQ 16
+XEQ 15
 @ ==== SEGMENTS: written by tools/build_elem47.py from python/elements.py (count, row, first column, in
 @ the order of Z), do not edit up to the RTN ====
 1
 1
 1
-XEQ 15
+XEQ 14
 1
 1
 18
-XEQ 15
+XEQ 14
 2
 2
 1
-XEQ 15
+XEQ 14
 6
 2
 13
-XEQ 15
+XEQ 14
 2
 3
 1
-XEQ 15
+XEQ 14
 6
 3
 13
-XEQ 15
+XEQ 14
 18
 4
 1
-XEQ 15
+XEQ 14
 18
 5
 1
-XEQ 15
+XEQ 14
 2
 6
 1
-XEQ 15
+XEQ 14
 15
 8
 3
-XEQ 15
+XEQ 14
 15
 6
 4
-XEQ 15
+XEQ 14
 2
 7
 1
-XEQ 15
+XEQ 14
 15
 9
 3
-XEQ 15
+XEQ 14
 15
 7
 4
-XEQ 15
-RTN
-@ ---- LBL :WAKE: the standby check: the calculator's clock (JD, R57 the last pass's); more than 30 s since
-@ the last pass (one is about 5 s): the calculator was in standby, and the key that woke it ends the program
-@ cleanly (R33 = 82, as 0), so it is left in its normal state (a program left waiting went back
-@ to standby at each press). R58 = 1 - (IP(gap / 30 s) not 0) ----
-LBL 12
-Date→ⅅ
-Time→ℸ
-ⅅℸ→J
-RCL 57
-X<>Y
-STO 57
-X<>Y
--
-86400
-×
-30
-÷
-IP
-X≠0?
-1
-1
-X<>Y
--
-STO 58
-1
-RCL 58
--
-82
-×
-STO 33
+XEQ 14
 RTN
 @ ---- LBL :INIT: the start: the matrix PT, the patterns, the cursor on H, the table ----
-LBL 13
+LBL 12
 WSIZE 64
-@ the clock now, for the standby check (LBL :WAKE:)
-Date→ⅅ
-Time→ℸ
-ⅅℸ→J
-STO 57
 9
 18
 NEWMAT
@@ -669,12 +627,12 @@ STO 32
 @ the table
 CLLCD
 XEQ 11
-XEQ 14
+XEQ 13
 XEQ 03
 XEQ 05
 RTN
 @ ---- LBL :TITLE: the title (row 1, columns 13-17) and the keys, drawn once ----
-LBL 14
+LBL 13
 21
 GRFNT
 "ELEMENTS 47"
@@ -696,13 +654,13 @@ ATEXT Z
 RTN
 @ LBL :SEGMENT: a segment. Z = count, Y = row, X = first column; R25 = its first Z, R34 its symbols. The
 @ position once, then 22 columns to the right for each cell
-LBL 15
+LBL 14
 STO 27
 R↓
 STO 26
 R↓
 STO 28
-XEQ 17
+XEQ 16
 @ R54 the column of the number (4 to the left of the cell), R56 = R39 - 48 (the column of the symbol is R56
 @ + the code of its digit), 22 more for each cell
 RCL 39
@@ -724,7 +682,7 @@ DO 03
   @ the symbol, then a digit (the column of the symbol in the cell, so it is centred)
   66
   X=Y?
-  XEQ 16
+  XEQ 15
   @ the left edge of the cell (GRMOD 0; the top and the bottom are the PIXEL rows of :GRID:). Its right edge
   @ is the left edge of the next cell, or the last column of the segment (after the loop)
   RCL 40
@@ -768,7 +726,7 @@ RCL 39
 AGRAPH 20
 RTN
 @ LBL :SYMPCE: the next piece of symbols (labels 00-01, R50 the label), 65 elements
-LBL 16
+LBL 15
 1
 STO+ 50
 XEQ IND 50
@@ -777,7 +735,7 @@ RTN
 @ ---- LBL :CELLPOS: the cell at row R26, column R27: R39 left column, R40 bottom row (rows 8 and 9, the
 @ lanthanides and actinides: 9 rows lower, a gap under the periods); R53 = R40 + 1 (the symbol, the cursor),
 @ R52 = R40 + 18 (the number) ----
-LBL 17
+LBL 16
 RCL 27
 22
 ×
@@ -806,7 +764,7 @@ STO 53
 STO 52
 RTN
 @ LBL :FIELD: the next field of R44 in R35 (the last field: all that is left)
-LBL 18
+LBL 17
 RCL 44
 STO 35
 "/"
@@ -823,7 +781,7 @@ RCL 24
 αSL 44
 RTN
 @ ---- LBL :FIELDK: field R24 (from 0) of the text "a/b/c" in R35, left in R35 ----
-LBL 19
+LBL 18
 DO 04
   RCL 24
   X≠0?
@@ -846,7 +804,7 @@ RTN
 STO 35
 RTN
 @ ---- LBL :STEP: move the cursor by R41 rows, R42 columns, skipping empty cells ----
-LBL 20
+LBL 19
 RCL 31
 STO 26
 RCL 32
@@ -888,7 +846,7 @@ STO 32
 RTN
 @ LBL :HLINE: 298 columns of the pattern R20 from row Y, column X (the bottom line, the header bar):
 @ 2, then 8 times 37 (unrolled: 8 rounds of the loop, not 21 of 14). R22 the count
-LBL 21
+LBL 20
 AGRAPH 20
 AGRAPH 20
 8
@@ -941,7 +899,7 @@ RTN
 @ them are cleared again (the screen holds only these rows yet): AGRAPH in GRMOD 2 for columns 0, 398, 399,
 @ ATEXT of spaces in GRMOD 1 (GRFNT 21: 7 x 20 pixels each, from row Y up) for the rest. Rows of the table:
 @ 238 (the top of period 1) ... 63 (the bottom of period 7), 54, 29, 4 (rows 8-9, columns 3-17) ----
-LBL 22
+LBL 21
 -4
 0
 PIXEL
@@ -970,7 +928,7 @@ DROP
 AGRAPH 21
 AGRAPH 21
 @ rows 63-163 (with the same clearing, shared with :CLOSE:); leaves GRMOD 1, GRFNT 21
-XEQ 23
+XEQ 22
 @ rows 4, 29, 54: x 0-44 and 376-399 (rows 0-59). The last spaces at x 392, not 393: at 393 the firmware
 @ puts the space on the next line (x > 380 and x + 8 > 400, _doShowString), and columns 398-399 stay black
 "      ↵      ↵      "
@@ -1013,7 +971,7 @@ RTN
 @ ---- LBL :ROWS: rows 63, 88, 113, 138, 163 (PIXEL), then cleared again: columns 0, 398, 399 (AGRAPH 21 in
 @ GRMOD 2, rows 63-113 and 138-188) and column 3 of periods 6-7 (x 46-66, rows 63 and 88: ATEXT of spaces in
 @ GRMOD 1). The table, and closing the detail box (the rows under it). Leaves GRMOD 1, GRFNT 21 ----
-LBL 23
+LBL 22
 -63
 0
 PIXEL
@@ -1061,7 +1019,7 @@ RTN
 @ ---- LBL :BOXCLR: the box area x 50-349, rows 56-179 cleared: GRMOD 1, 6 lines of spaces (7 columns
 @ x 20 rows each, rows 60-179): 42 spaces from x 50 and one more column of spaces at x 343; then one line
 @ more at row 56 (rows 56-75: the bottom of the box). Leaves GRMOD 1, GRFNT 21 ----
-LBL 24
+LBL 23
 1
 GRMOD
 21
@@ -1091,18 +1049,18 @@ ATEXT Z
 ATEXT Z
 RTN
 @ LBL :KELVIN: " K" after the boiling point (LBL :DETREC:)
-LBL 25
+LBL 24
 " K"
 x→α 48
 RTN
 @ the names of the states, in the order of R51 "SLG-"
-LBL 26
+LBL 25
 "Solid/Liquid/Gas/-"
 STO 35
 RTN
 @ LBL :GROUP: the group name (R24, a field of LBL :GRPNAME:): 0 H, 1-2 columns 1-2, 3 columns 3-12,
 @ 4-9 columns 13-18, 10-11 rows 8-9
-LBL 27
+LBL 26
 RCL 31
 STO 24
 7
@@ -1143,7 +1101,7 @@ ELSE 07
 ENDIF 07
 RTN
 @ LBL :GRPNAME: the names of the groups in R35, "/" between them (texts of 64 characters at most)
-LBL 28
+LBL 27
 "Nonmetal/Alkali metals/Alkaline earth metals/"
 STO 35
 "Transition metals/Boron group/Carbon group/Pnictogens/"
@@ -1153,14 +1111,14 @@ x→α 35
 RTN
 @ ---- the number of F2 / F3 (LBL :FKEY:), once at the end: last in the program ----
 @ LBL :BOILTX: F3: the boiling point text
-LBL 29
+LBL 28
 RCL 46
 STO 34
 RTN
 @ ---- LBL :TONUM: the number of the text in X (digits and one point) to R49; "-": R49 = 0. Each character
 @ is its place in "0123456789." (R35): a digit d: R43 = 10 R43 + d and R45 x R44 (R44 = 10 after the
 @ point, 1 before); the point: R44 = 10. Then R43 / R45 ----
-LBL 30
+LBL 29
 STO 34
 0
 STO 49
@@ -1186,7 +1144,7 @@ WHILE 06
   X=Y?
   STO 44
   X>Y?
-  XEQ 31
+  XEQ 30
   1
   αSL 34
 ENDDO 06
@@ -1194,7 +1152,7 @@ RCL 43
 RCL÷ 45
 STO 49
 RTN
-LBL 31
+LBL 30
 R↓
 RCL 43
 10
