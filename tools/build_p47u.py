@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Write build/p47u/ELEM47.p47u, the file for the PROGRAMS folder of the C47 release (res/PROGRAMS of the
 firmware: BUILD.md there). A rejig source: the '@' header the index reads (Index, Author, Version) and the
-other fields, then the three programs of the PIXEL variant, build/pixel/ELEM47.txt (ELEM47, ELD1, ELD2), with
+other fields, the narrative of tools/forum/ELEM47.txt (in plain words: what it does, how to use it, what it
+changes on your calculator, its programs and labels), then the three programs of the PIXEL variant, build/pixel/ELEM47.txt (ELEM47, ELD1, ELD2), with
 the indentation and the comments of programs_rem/pixel/ELEM47.txt ('@' lines: not compiled). The steps are
 those of build/pixel/ELEM47.txt, numeric labels and numbered structures (tests/test_elem47.py checks it). The
 file name is the main program's name. SUB = '' would take the release (build/ELEM47.txt) instead.
@@ -26,6 +27,8 @@ HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 @ Output:  the periodic table on the screen; key 0 ends with the stack as it was; in the detail box
 @          F1 F2 F3 end with Z, the standard atomic weight or the boiling point (K) pushed on the stack
 @
+@@NARRATIVE@@
+@ ---- Technical notes ----
 @ The 118 elements in an 18 x 9 grid (periods 1-7, then the lanthanides and the actinides), the symbol
 @ and Z in each cell, the selected element (name, Z, standard atomic weight) in the empty part of periods 1-3.
 @ Keys: 8 4 6 2 move the cursor (empty cells skipped; at an edge around to the other side), 5 the detail
@@ -61,6 +64,12 @@ HEADER = '''@ Index:   Interactive periodic table of the 118 elements
 ''' % (VERSION, TESTED)
 
 
+def narrative(head):
+    """tools/forum/ELEM47.txt (what it does, how to use it, what it changes, the labels) after the '@' metadata."""
+    lines = open(os.path.join(ROOT, 'tools', 'forum', B.NAME + '.txt'), encoding='utf-8').read().rstrip('\n').split('\n')
+    return head.replace('@@NARRATIVE@@', '\n'.join('@ ' + l if l.strip() else '@' for l in lines) + '\n@')
+
+
 def build():
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', SUB, B.NAME + '.txt'), encoding='utf-8')]
     steps = B.plain_steps(lines)
@@ -72,7 +81,7 @@ def build():
             continue
         ind = ln[:len(ln) - len(ln.lstrip())]
         if ln.lstrip().startswith('REM'):
-            out.append(ind + '@ ' + ln.lstrip()[3:].strip())
+            out.append('@ ' + ind + ln.lstrip()[3:].strip())     # '@' in column 1, the indent after it
         else:
             out.append(ind + steps[n]); n += 1
     assert n == len(steps)
@@ -80,7 +89,7 @@ def build():
     os.makedirs(d, exist_ok=True)
     fn = os.path.join(d, B.NAME + '.p47u')
     with open(fn, 'w', encoding='utf-8') as fh:
-        fh.write(HEADER + '\n'.join(out) + '\n')
+        fh.write(narrative(HEADER) + '\n'.join(out) + '\n')
     return fn
 
 

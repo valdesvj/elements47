@@ -82,7 +82,9 @@ and the detail box) and on a C47 by the author. Screens: `docs/ELEM47_*.png`; th
 `PROGRAM_MAP.txt`.
 
 The `.p47u` for the PROGRAMS folder of the C47 firmware release: `build/p47u/ELEM47.p47u` (the same programs with
-the comments).
+the comments): how to use it in plain words first (`tools/forum/ELEM47.txt`), then the code with its comments in
+`@` lines (rejig does not compile them: no REM steps). `python3 tools/build_p47.py` (on your computer, with rejig)
+writes `build/p47/ELEM47.p47` from it and checks it against the plain listing; `python3 tests/test_forum.py`.
 
 ---
 

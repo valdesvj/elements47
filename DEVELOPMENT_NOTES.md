@@ -530,3 +530,13 @@
 - On the C47: time the table (TICKS); the screens are checked in T47 (tests/test_fw.py).
 - More data in the detail box (category, electronegativity, state).
 - Free42: time the table on a DM42; build/free42/ELEM47.txt goes in by Paste in Free42 (export a .raw there).
+
+## Oct 26, 2026 - the forum file for new users (branch claude/elements47-forum)
+
+- The forum asked contributors for plain-English instructions in the .p47u ('@' lines, not '#': rejig makes a '#'
+  line a REM step) and local labels. build_p47u.py: after the '@' metadata, tools/forum/ELEM47.txt (What it is, How
+  to use it, What it changes on your calculator, Programs and labels), then the old header as technical notes; the
+  comment lines '@' in column 1 (18 were indented with the code; the indent now follows the '@').
+- tools/build_p47.py (with rejig on Victor's computer): build/p47/ELEM47.p47 from build/p47u/ELEM47.p47u, checked
+  against build/pixel/ELEM47.txt's. tests/test_forum.py.
+
