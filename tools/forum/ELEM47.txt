@@ -1,0 +1,26 @@
+---- What it is ----
+Elements 47 is an interactive periodic table of the 118 elements for the C47 / R47. The table fills the screen
+(periods 1-7, then the lanthanides and the actinides), with the symbol and Z in each cell; the element under the
+cursor is named above the table with its Z and standard atomic weight. A detail box shows its symbol, mass, state,
+boiling point, group and electron configuration, and can hand a value back to your stack.
+
+---- How to use it ----
+Load ELEM47 (the file holds three programs: ELEM47, ELD1 and ELD2; all three are needed) and press XEQ ELEM47.
+  8 4 6 2   move the cursor up, left, right, down (empty cells are skipped; at an edge it comes round the other side)
+  5         open the detail box of the element; in the box 8 4 6 2 move on to the next element, 5 closes it
+  F1 F2 F3  in the box: end the program with Z, the standard atomic weight or the boiling point (K) pushed on
+            your stack (a value shown as "-" is not pushed)
+  0         the end
+Data: standard atomic weights CIAAW 2024 (abridged, as the IUPAC periodic table); state, boiling point and
+electron configuration from the PubChem periodic table.
+
+---- What it changes on your calculator ----
+Your stack (4 or 8 levels) and LASTx are given back at the end; with F1-F3 the value is pushed on top, as a number
+keyed in. ELEM47 uses the registers R20-R56 and a matrix PT while it runs, and clears R20-R56 and deletes PT at the
+end; the other registers are yours. GRMOD 0 and GRFNT 20 are set at the end.
+
+---- Programs and labels ----
+Three programs with one global label each: ELEM47 (the table and the keys) and ELD1, ELD2 (the element records,
+Z 1-60 and 61-118, one local label each, read with XEQ IND). Every routine is a local label. Written with the STRUCT
+commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL: no GTO), AGRAPH, PIXEL and ATEXT; it needs a C47 /
+R47 firmware with them (00.109.05.00a0.ALPHA of 5 Oct 2026 or later).

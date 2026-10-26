@@ -9,6 +9,34 @@
 @ Output:  the periodic table on the screen; key 0 ends with the stack as it was; in the detail box
 @          F1 F2 F3 end with Z, the standard atomic weight or the boiling point (K) pushed on the stack
 @
+@ ---- What it is ----
+@ Elements 47 is an interactive periodic table of the 118 elements for the C47 / R47. The table fills the screen
+@ (periods 1-7, then the lanthanides and the actinides), with the symbol and Z in each cell; the element under the
+@ cursor is named above the table with its Z and standard atomic weight. A detail box shows its symbol, mass, state,
+@ boiling point, group and electron configuration, and can hand a value back to your stack.
+@
+@ ---- How to use it ----
+@ Load ELEM47 (the file holds three programs: ELEM47, ELD1 and ELD2; all three are needed) and press XEQ ELEM47.
+@   8 4 6 2   move the cursor up, left, right, down (empty cells are skipped; at an edge it comes round the other side)
+@   5         open the detail box of the element; in the box 8 4 6 2 move on to the next element, 5 closes it
+@   F1 F2 F3  in the box: end the program with Z, the standard atomic weight or the boiling point (K) pushed on
+@             your stack (a value shown as "-" is not pushed)
+@   0         the end
+@ Data: standard atomic weights CIAAW 2024 (abridged, as the IUPAC periodic table); state, boiling point and
+@ electron configuration from the PubChem periodic table.
+@
+@ ---- What it changes on your calculator ----
+@ Your stack (4 or 8 levels) and LASTx are given back at the end; with F1-F3 the value is pushed on top, as a number
+@ keyed in. ELEM47 uses the registers R20-R56 and a matrix PT while it runs, and clears R20-R56 and deletes PT at the
+@ end; the other registers are yours. GRMOD 0 and GRFNT 20 are set at the end.
+@
+@ ---- Programs and labels ----
+@ Three programs with one global label each: ELEM47 (the table and the keys) and ELD1, ELD2 (the element records,
+@ Z 1-60 and 61-118, one local label each, read with XEQ IND). Every routine is a local label. Written with the STRUCT
+@ commands (IF / ELSE / ENDIF, DO / WHILE / ENDDO, REPEAT / UNTIL: no GTO), AGRAPH, PIXEL and ATEXT; it needs a C47 /
+@ R47 firmware with them (00.109.05.00a0.ALPHA of 5 Oct 2026 or later).
+@
+@ ---- Technical notes ----
 @ The 118 elements in an 18 x 9 grid (periods 1-7, then the lanthanides and the actinides), the symbol
 @ and Z in each cell, the selected element (name, Z, standard atomic weight) in the empty part of periods 1-3.
 @ Keys: 8 4 6 2 move the cursor (empty cells skipped; at an edge around to the other side), 5 the detail
@@ -68,20 +96,20 @@ STO R.08
 XEQ 12
 @ ---- keys: 8 up, 2 down, 4 left, 6 right, 5 the detail box, 0 the end; other keys ignored ----
 DO 01
-  @ wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Almanac 47
+@   wait for a key: PAUSE 50, KEY? 33 (true: no key yet), as Almanac 47
   DO 02
     PAUSE 50
     KEY? 33
   WHILE 02
   ENDDO 02
-  @ F1-F3 with the box open: the value in R49, R33 = 82 (the end)
+@   F1-F3 with the box open: the value in R49, R33 = 82 (the end)
   XEQ 02
   RCL 33
   82
   X≠Y?
 WHILE 01
-  @ the direction of a move from the key code k: R41 = k div 10 - 6 rows, R42 = k mod 10 - 3 columns
-  @ (8: 53 -> -1 0, 2: 73 -> 1 0, 4: 62 -> 0 -1, 6: 64 -> 0 1); |R41| + |R42| = 1 for these four keys only
+@   the direction of a move from the key code k: R41 = k div 10 - 6 rows, R42 = k mod 10 - 3 columns
+@   (8: 53 -> -1 0, 2: 73 -> 1 0, 4: 62 -> 0 -1, 6: 64 -> 0 1); |R41| + |R42| = 1 for these four keys only
   RCL 33
   10
   ÷
@@ -95,8 +123,8 @@ WHILE 01
   3
   -
   STO 42
-  @ a move: cursor off (XOR), the new cell, cursor on, the panel; the detail box open (R36): its new
-  @ element, from the record the panel has just read
+@   a move: cursor off (XOR), the new cell, cursor on, the panel; the detail box open (R36): its new
+@   element, from the record the panel has just read
   ABS
   RCL 41
   ABS
@@ -112,8 +140,8 @@ WHILE 01
     X≠0?
     XEQ 10
   ENDIF 01
-  @ 5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws only what
-  @ the box covered). The arrows with the box open: the cursor, the panel and the box of the new element
+@   5: the detail box (R36 = 1 while it is open); 5 again: the table again (LBL :CLOSE: draws only what
+@   the box covered). The arrows with the box open: the cursor, the panel and the box of the new element
   RCL 33
   63
   X=Y?
@@ -678,17 +706,17 @@ STOIJ
 DO 03
   RCL 25
   STOSEQ
-  @ the symbol: the next 3 characters of the symbols (a new piece at Z 66; STOSEQ keeps the Z in X):
-  @ the symbol, then a digit (the column of the symbol in the cell, so it is centred)
+@   the symbol: the next 3 characters of the symbols (a new piece at Z 66; STOSEQ keeps the Z in X):
+@   the symbol, then a digit (the column of the symbol in the cell, so it is centred)
   66
   X=Y?
   XEQ 15
-  @ the left edge of the cell (GRMOD 0; the top and the bottom are the PIXEL rows of :GRID:). Its right edge
-  @ is the left edge of the next cell, or the last column of the segment (after the loop)
+@   the left edge of the cell (GRMOD 0; the top and the bottom are the PIXEL rows of :GRID:). Its right edge
+@   is the left edge of the next cell, or the last column of the segment (after the loop)
   RCL 40
   RCL 39
   AGRAPH 20
-  @ the number, tinyFont: a space first (no empty string), row R52, column R54
+@   the number, tinyFont: a space first (no empty string), row R52, column R54
   10
   GRFNT
   " "
@@ -699,7 +727,7 @@ DO 03
   RCL 52
   RCL 54
   ATEXT Z
-  @ the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
+@   the symbol (αLEFT gives the text in X, the register stays as it was) at row R53, column R39 + the digit
   21
   GRFNT
   2
@@ -823,7 +851,7 @@ REPEAT 01
   1
   +
   STO 26
-  @ the row stays in Y for STOIJ
+@   the row stays in Y for STOIJ
   RCL 27
   RCL 42
   +
@@ -1066,7 +1094,7 @@ STO 24
 7
 X<Y?
 IF 07
-  @ rows 8-9: 10, 11
+@   rows 8-9: 10, 11
   2
   STO+ 24
 ELSE 07
@@ -1076,7 +1104,7 @@ ELSE 07
   1
   X=Y?
   IF 08
-    @ H: 0
+@     H: 0
     0
     STO 24
   ELSE 08
@@ -1084,7 +1112,7 @@ ELSE 07
     2
     X<Y?
     IF 09
-      @ columns 3-12: 3; columns 13-18: 4-9
+@       columns 3-12: 3; columns 13-18: 4-9
       3
       STO 24
       RCL 32
