@@ -28,6 +28,6 @@ ELEM47 local labels: name (programs_rem/ELEM47.txt), number (build/ELEM47.txt), 
 :GRPNAME:  27  the names of the groups in R35, "/" between them (texts of 64 characters at most)
 :BOILTX:   28  the number of F2 / F3 (LBL :FKEY:), once at the end: last in the program
 :TONUM:    29  the number of the text in X (digits and one point) to R49; "-": R49 = 0. Each character
-:DIGIT:    30  
+:DIGIT:    30  one digit (X, 0-9) into the number R43 = 10 x R43 + X; after the point R45 counts the deci
 
 Numeric data labels (XEQ IND): 00-01 the symbols; the records 01-60 in ELD1, 01-58 in ELD2.

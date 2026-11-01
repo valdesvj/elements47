@@ -69,7 +69,7 @@
 @ Data: standard atomic weights CIAAW 2024 (abridged, as the IUPAC periodic table; "-" where there is none),
 @ state, boiling point and configuration from the PubChem periodic table.
 @
-LBL "ELEM47"
+LBL "ELEM47"            ; ELEM47 - the start (the narrative above says what it does and how to use it)
 @ the user's stack in the local registers of this level (the main part: no XEQ level reaches them):
 @ X..T, A..D one by one with R↓; 8 R↓ give the stack back on 4 levels (twice round) as on 8. Then LASTx
 LocR 10
@@ -810,6 +810,7 @@ RCL 24
 RTN
 @ ---- LBL :FIELDK: field R24 (from 0) of the text "a/b/c" in R35, left in R35 ----
 LBL 18
+@ R24 fields to skip: one "/" and the text before it off a round (αPOS, αSL)
 DO 04
   RCL 24
   X≠0?
@@ -880,6 +881,7 @@ AGRAPH 20
 8
 STO 22
 R↓
+@ 8 rounds (R22) of 37 columns of the pattern R20: the line, unrolled for speed
 DO 05
   AGRAPH 20
   AGRAPH 20
@@ -1161,6 +1163,7 @@ STO 44
 STO 45
 "0123456789."
 STO 35
+@ the text R34 character by character (until it is empty): a digit adds to the number (:DIGIT:), the point starts the decimals
 DO 06
   αLENG 34
   X≠0?
@@ -1180,6 +1183,7 @@ RCL 43
 RCL÷ 45
 STO 49
 RTN
+@ LBL :DIGIT: one digit (X, 0-9) into the number R43 = 10 x R43 + X; after the point R45 counts the decimals
 LBL 30
 R↓
 RCL 43
@@ -1192,374 +1196,374 @@ STO× 45
 RTN
 @ ==== DATA: written by tools/build_elem47.py from python/elements.py, do not edit below ====
 @ the symbols: 65 elements per label
-LBL 00
+LBL 00                  ; the symbols of Z 1-65: two characters and the width of each in pixels
 "H 7He3Li6Be3B 7C 7N 7O 7F 7Ne2Na2Mg2Al5Si5P 7S 7Cl5Ar2K 7Ca3Sc3Ti5V 7Cr3Mn2Fe3Co3Ni5Cu3Zn3Ga3Ge3As2Se3Br3Kr2Rb3Sr3Y 7Zr3Nb2Mo2Tc3Ru3Rh3Pd3Ag2Cd3In5Sn3Sb3Te3I 9Xe3Cs3Ba3La3Ce3Pr3Nd2Pm2Sm2Eu3Gd3Tb3"
 RTN
-LBL 01
+LBL 01                  ; the symbols of Z 66-118: two characters and the width of each in pixels
 "Dy3Ho3Er3Tm2Yb3Lu3Hf3Ta3W 6Re3Os3Ir5Pt3Au2Hg3Tl5Pb3Bi5Po3At3Rn3Fr3Ra3Ac2Th3Pa3U 7Np2Pu3Am1Cm2Bk3Cf3Es3Fm2Md2No2Lr3Rf3Db3Sg3Bh3Hs3Mt2Ds3Rg3Cn3Nh2Fl5Mc2Lv3Ts3Og3"
 RTN
 END
 @ ==== ELD1: the records of Z 1-60, one per label: LBL Z - 0; R43 the label ====
-LBL "ELD1"
+LBL "ELD1"              ; ELD1 - the element records of Z 1-60: X = the label (Z), XEQ IND
 XEQ IND 43
 RTN
-LBL 01
+LBL 01                  ; Z 1: Hydrogen (name/mass/state/boiling point K/configuration)
 "Hydrogen/1.0080/G/20.3/1s1"
 RTN
-LBL 02
+LBL 02                  ; Z 2: Helium (name/mass/state/boiling point K/configuration)
 "Helium/4.0026/G/4.2/1s2"
 RTN
-LBL 03
+LBL 03                  ; Z 3: Lithium (name/mass/state/boiling point K/configuration)
 "Lithium/6.94/S/1615/[He] 2s1"
 RTN
-LBL 04
+LBL 04                  ; Z 4: Beryllium (name/mass/state/boiling point K/configuration)
 "Beryllium/9.0122/S/2744/[He] 2s2"
 RTN
-LBL 05
+LBL 05                  ; Z 5: Boron (name/mass/state/boiling point K/configuration)
 "Boron/10.81/S/4273/[He] 2s2 2p1"
 RTN
-LBL 06
+LBL 06                  ; Z 6: Carbon (name/mass/state/boiling point K/configuration)
 "Carbon/12.011/S/4098/[He] 2s2 2p2"
 RTN
-LBL 07
+LBL 07                  ; Z 7: Nitrogen (name/mass/state/boiling point K/configuration)
 "Nitrogen/14.007/G/77.4/[He] 2s2 2p3"
 RTN
-LBL 08
+LBL 08                  ; Z 8: Oxygen (name/mass/state/boiling point K/configuration)
 "Oxygen/15.999/G/90.2/[He] 2s2 2p4"
 RTN
-LBL 09
+LBL 09                  ; Z 9: Fluorine (name/mass/state/boiling point K/configuration)
 "Fluorine/18.998/G/85.0/[He] 2s2 2p5"
 RTN
-LBL 10
+LBL 10                  ; Z 10: Neon (name/mass/state/boiling point K/configuration)
 "Neon/20.180/G/27.1/[He] 2s2 2p6"
 RTN
-LBL 11
+LBL 11                  ; Z 11: Sodium (name/mass/state/boiling point K/configuration)
 "Sodium/22.990/S/1156/[Ne] 3s1"
 RTN
-LBL 12
+LBL 12                  ; Z 12: Magnesium (name/mass/state/boiling point K/configuration)
 "Magnesium/24.305/S/1363/[Ne] 3s2"
 RTN
-LBL 13
+LBL 13                  ; Z 13: Aluminium (name/mass/state/boiling point K/configuration)
 "Aluminium/26.982/S/2792/[Ne] 3s2 3p1"
 RTN
-LBL 14
+LBL 14                  ; Z 14: Silicon (name/mass/state/boiling point K/configuration)
 "Silicon/28.085/S/3538/[Ne] 3s2 3p2"
 RTN
-LBL 15
+LBL 15                  ; Z 15: Phosphorus (name/mass/state/boiling point K/configuration)
 "Phosphorus/30.974/S/554/[Ne] 3s2 3p3"
 RTN
-LBL 16
+LBL 16                  ; Z 16: Sulfur (name/mass/state/boiling point K/configuration)
 "Sulfur/32.06/S/718/[Ne] 3s2 3p4"
 RTN
-LBL 17
+LBL 17                  ; Z 17: Chlorine (name/mass/state/boiling point K/configuration)
 "Chlorine/35.45/G/239/[Ne] 3s2 3p5"
 RTN
-LBL 18
+LBL 18                  ; Z 18: Argon (name/mass/state/boiling point K/configuration)
 "Argon/39.95/G/87.3/[Ne] 3s2 3p6"
 RTN
-LBL 19
+LBL 19                  ; Z 19: Potassium (name/mass/state/boiling point K/configuration)
 "Potassium/39.098/S/1032/[Ar] 4s1"
 RTN
-LBL 20
+LBL 20                  ; Z 20: Calcium (name/mass/state/boiling point K/configuration)
 "Calcium/40.078/S/1757/[Ar] 4s2"
 RTN
-LBL 21
+LBL 21                  ; Z 21: Scandium (name/mass/state/boiling point K/configuration)
 "Scandium/44.956/S/3109/[Ar] 3d1 4s2"
 RTN
-LBL 22
+LBL 22                  ; Z 22: Titanium (name/mass/state/boiling point K/configuration)
 "Titanium/47.867/S/3560/[Ar] 3d2 4s2"
 RTN
-LBL 23
+LBL 23                  ; Z 23: Vanadium (name/mass/state/boiling point K/configuration)
 "Vanadium/50.942/S/3680/[Ar] 3d3 4s2"
 RTN
-LBL 24
+LBL 24                  ; Z 24: Chromium (name/mass/state/boiling point K/configuration)
 "Chromium/51.996/S/2944/[Ar] 3d5 4s1"
 RTN
-LBL 25
+LBL 25                  ; Z 25: Manganese (name/mass/state/boiling point K/configuration)
 "Manganese/54.938/S/2334/[Ar] 3d5 4s2"
 RTN
-LBL 26
+LBL 26                  ; Z 26: Iron (name/mass/state/boiling point K/configuration)
 "Iron/55.845/S/3134/[Ar] 3d6 4s2"
 RTN
-LBL 27
+LBL 27                  ; Z 27: Cobalt (name/mass/state/boiling point K/configuration)
 "Cobalt/58.933/S/3200/[Ar] 3d7 4s2"
 RTN
-LBL 28
+LBL 28                  ; Z 28: Nickel (name/mass/state/boiling point K/configuration)
 "Nickel/58.693/S/3186/[Ar] 3d8 4s2"
 RTN
-LBL 29
+LBL 29                  ; Z 29: Copper (name/mass/state/boiling point K/configuration)
 "Copper/63.546/S/2835/[Ar] 3d10 4s1"
 RTN
-LBL 30
+LBL 30                  ; Z 30: Zinc (name/mass/state/boiling point K/configuration)
 "Zinc/65.38/S/1180/[Ar] 3d10 4s2"
 RTN
-LBL 31
+LBL 31                  ; Z 31: Gallium (name/mass/state/boiling point K/configuration)
 "Gallium/69.723/S/2477/[Ar] 3d10 4s2 4p1"
 RTN
-LBL 32
+LBL 32                  ; Z 32: Germanium (name/mass/state/boiling point K/configuration)
 "Germanium/72.630/S/3106/[Ar] 3d10 4s2 4p2"
 RTN
-LBL 33
+LBL 33                  ; Z 33: Arsenic (name/mass/state/boiling point K/configuration)
 "Arsenic/74.922/S/887/[Ar] 3d10 4s2 4p3"
 RTN
-LBL 34
+LBL 34                  ; Z 34: Selenium (name/mass/state/boiling point K/configuration)
 "Selenium/78.971/S/958/[Ar] 3d10 4s2 4p4"
 RTN
-LBL 35
+LBL 35                  ; Z 35: Bromine (name/mass/state/boiling point K/configuration)
 "Bromine/79.904/L/332/[Ar] 3d10 4s2 4p5"
 RTN
-LBL 36
+LBL 36                  ; Z 36: Krypton (name/mass/state/boiling point K/configuration)
 "Krypton/83.798/G/120/[Ar] 3d10 4s2 4p6"
 RTN
-LBL 37
+LBL 37                  ; Z 37: Rubidium (name/mass/state/boiling point K/configuration)
 "Rubidium/85.468/S/961/[Kr] 5s1"
 RTN
-LBL 38
+LBL 38                  ; Z 38: Strontium (name/mass/state/boiling point K/configuration)
 "Strontium/87.62/S/1655/[Kr] 5s2"
 RTN
-LBL 39
+LBL 39                  ; Z 39: Yttrium (name/mass/state/boiling point K/configuration)
 "Yttrium/88.906/S/3618/[Kr] 4d1 5s2"
 RTN
-LBL 40
+LBL 40                  ; Z 40: Zirconium (name/mass/state/boiling point K/configuration)
 "Zirconium/91.222/S/4682/[Kr] 4d2 5s2"
 RTN
-LBL 41
+LBL 41                  ; Z 41: Niobium (name/mass/state/boiling point K/configuration)
 "Niobium/92.906/S/5017/[Kr] 4d4 5s1"
 RTN
-LBL 42
+LBL 42                  ; Z 42: Molybdenum (name/mass/state/boiling point K/configuration)
 "Molybdenum/95.95/S/4912/[Kr] 4d5 5s1"
 RTN
-LBL 43
+LBL 43                  ; Z 43: Technetium (name/mass/state/boiling point K/configuration)
 "Technetium/-/S/4538/[Kr] 4d5 5s2"
 RTN
-LBL 44
+LBL 44                  ; Z 44: Ruthenium (name/mass/state/boiling point K/configuration)
 "Ruthenium/101.07/S/4423/[Kr] 4d7 5s1"
 RTN
-LBL 45
+LBL 45                  ; Z 45: Rhodium (name/mass/state/boiling point K/configuration)
 "Rhodium/102.91/S/3968/[Kr] 4d8 5s1"
 RTN
-LBL 46
+LBL 46                  ; Z 46: Palladium (name/mass/state/boiling point K/configuration)
 "Palladium/106.42/S/3236/[Kr] 4d10"
 RTN
-LBL 47
+LBL 47                  ; Z 47: Silver (name/mass/state/boiling point K/configuration)
 "Silver/107.87/S/2435/[Kr] 4d10 5s1"
 RTN
-LBL 48
+LBL 48                  ; Z 48: Cadmium (name/mass/state/boiling point K/configuration)
 "Cadmium/112.41/S/1040/[Kr] 4d10 5s2"
 RTN
-LBL 49
+LBL 49                  ; Z 49: Indium (name/mass/state/boiling point K/configuration)
 "Indium/114.82/S/2345/[Kr] 4d10 5s2 5p1"
 RTN
-LBL 50
+LBL 50                  ; Z 50: Tin (name/mass/state/boiling point K/configuration)
 "Tin/118.71/S/2875/[Kr] 4d10 5s2 5p2"
 RTN
-LBL 51
+LBL 51                  ; Z 51: Antimony (name/mass/state/boiling point K/configuration)
 "Antimony/121.76/S/1860/[Kr] 4d10 5s2 5p3"
 RTN
-LBL 52
+LBL 52                  ; Z 52: Tellurium (name/mass/state/boiling point K/configuration)
 "Tellurium/127.60/S/1261/[Kr] 4d10 5s2 5p4"
 RTN
-LBL 53
+LBL 53                  ; Z 53: Iodine (name/mass/state/boiling point K/configuration)
 "Iodine/126.90/S/458/[Kr] 4d10 5s2 5p5"
 RTN
-LBL 54
+LBL 54                  ; Z 54: Xenon (name/mass/state/boiling point K/configuration)
 "Xenon/131.29/G/165/[Kr] 4d10 5s2 5p6"
 RTN
-LBL 55
+LBL 55                  ; Z 55: Caesium (name/mass/state/boiling point K/configuration)
 "Caesium/132.91/S/944/[Xe] 6s1"
 RTN
-LBL 56
+LBL 56                  ; Z 56: Barium (name/mass/state/boiling point K/configuration)
 "Barium/137.33/S/2170/[Xe] 6s2"
 RTN
-LBL 57
+LBL 57                  ; Z 57: Lanthanum (name/mass/state/boiling point K/configuration)
 "Lanthanum/138.91/S/3737/[Xe] 5d1 6s2"
 RTN
-LBL 58
+LBL 58                  ; Z 58: Cerium (name/mass/state/boiling point K/configuration)
 "Cerium/140.12/S/3697/[Xe] 4f1 5d1 6s2"
 RTN
-LBL 59
+LBL 59                  ; Z 59: Praseodymium (name/mass/state/boiling point K/configuration)
 "Praseodymium/140.91/S/3793/[Xe] 4f3 6s2"
 RTN
-LBL 60
+LBL 60                  ; Z 60: Neodymium (name/mass/state/boiling point K/configuration)
 "Neodymium/144.24/S/3347/[Xe] 4f4 6s2"
 RTN
 END
 @ ==== ELD2: the records of Z 61-118, one per label: LBL Z - 60; R43 the label ====
-LBL "ELD2"
+LBL "ELD2"              ; ELD2 - the element records of Z 61-118: X = the label (Z - 60), XEQ IND
 XEQ IND 43
 RTN
-LBL 01
+LBL 01                  ; Z 61: Promethium (name/mass/state/boiling point K/configuration)
 "Promethium/-/S/3273/[Xe] 4f5 6s2"
 RTN
-LBL 02
+LBL 02                  ; Z 62: Samarium (name/mass/state/boiling point K/configuration)
 "Samarium/150.36/S/2067/[Xe] 4f6 6s2"
 RTN
-LBL 03
+LBL 03                  ; Z 63: Europium (name/mass/state/boiling point K/configuration)
 "Europium/151.96/S/1802/[Xe] 4f7 6s2"
 RTN
-LBL 04
+LBL 04                  ; Z 64: Gadolinium (name/mass/state/boiling point K/configuration)
 "Gadolinium/157.25/S/3546/[Xe] 4f7 5d1 6s2"
 RTN
-LBL 05
+LBL 05                  ; Z 65: Terbium (name/mass/state/boiling point K/configuration)
 "Terbium/158.93/S/3503/[Xe] 4f9 6s2"
 RTN
-LBL 06
+LBL 06                  ; Z 66: Dysprosium (name/mass/state/boiling point K/configuration)
 "Dysprosium/162.50/S/2840/[Xe] 4f10 6s2"
 RTN
-LBL 07
+LBL 07                  ; Z 67: Holmium (name/mass/state/boiling point K/configuration)
 "Holmium/164.93/S/2973/[Xe] 4f11 6s2"
 RTN
-LBL 08
+LBL 08                  ; Z 68: Erbium (name/mass/state/boiling point K/configuration)
 "Erbium/167.26/S/3141/[Xe] 4f12 6s2"
 RTN
-LBL 09
+LBL 09                  ; Z 69: Thulium (name/mass/state/boiling point K/configuration)
 "Thulium/168.93/S/2223/[Xe] 4f13 6s2"
 RTN
-LBL 10
+LBL 10                  ; Z 70: Ytterbium (name/mass/state/boiling point K/configuration)
 "Ytterbium/173.05/S/1469/[Xe] 4f14 6s2"
 RTN
-LBL 11
+LBL 11                  ; Z 71: Lutetium (name/mass/state/boiling point K/configuration)
 "Lutetium/174.97/S/3675/[Xe] 4f14 5d1 6s2"
 RTN
-LBL 12
+LBL 12                  ; Z 72: Hafnium (name/mass/state/boiling point K/configuration)
 "Hafnium/178.49/S/4876/[Xe] 4f14 5d2 6s2"
 RTN
-LBL 13
+LBL 13                  ; Z 73: Tantalum (name/mass/state/boiling point K/configuration)
 "Tantalum/180.95/S/5731/[Xe] 4f14 5d3 6s2"
 RTN
-LBL 14
+LBL 14                  ; Z 74: Tungsten (name/mass/state/boiling point K/configuration)
 "Tungsten/183.84/S/5828/[Xe] 4f14 5d4 6s2"
 RTN
-LBL 15
+LBL 15                  ; Z 75: Rhenium (name/mass/state/boiling point K/configuration)
 "Rhenium/186.21/S/5869/[Xe] 4f14 5d5 6s2"
 RTN
-LBL 16
+LBL 16                  ; Z 76: Osmium (name/mass/state/boiling point K/configuration)
 "Osmium/190.23/S/5285/[Xe] 4f14 5d6 6s2"
 RTN
-LBL 17
+LBL 17                  ; Z 77: Iridium (name/mass/state/boiling point K/configuration)
 "Iridium/192.22/S/4701/[Xe] 4f14 5d7 6s2"
 RTN
-LBL 18
+LBL 18                  ; Z 78: Platinum (name/mass/state/boiling point K/configuration)
 "Platinum/195.08/S/4098/[Xe] 4f14 5d9 6s1"
 RTN
-LBL 19
+LBL 19                  ; Z 79: Gold (name/mass/state/boiling point K/configuration)
 "Gold/196.97/S/3129/[Xe] 4f14 5d10 6s1"
 RTN
-LBL 20
+LBL 20                  ; Z 80: Mercury (name/mass/state/boiling point K/configuration)
 "Mercury/200.59/L/630/[Xe] 4f14 5d10 6s2"
 RTN
-LBL 21
+LBL 21                  ; Z 81: Thallium (name/mass/state/boiling point K/configuration)
 "Thallium/204.38/S/1746/[Xe] 4f14 5d10 6s2 6p1"
 RTN
-LBL 22
+LBL 22                  ; Z 82: Lead (name/mass/state/boiling point K/configuration)
 "Lead/207.2/S/2022/[Xe] 4f14 5d10 6s2 6p2"
 RTN
-LBL 23
+LBL 23                  ; Z 83: Bismuth (name/mass/state/boiling point K/configuration)
 "Bismuth/208.98/S/1837/[Xe] 4f14 5d10 6s2 6p3"
 RTN
-LBL 24
+LBL 24                  ; Z 84: Polonium (name/mass/state/boiling point K/configuration)
 "Polonium/-/S/1235/[Xe] 4f14 5d10 6s2 6p4"
 RTN
-LBL 25
+LBL 25                  ; Z 85: Astatine (name/mass/state/boiling point K/configuration)
 "Astatine/-/S/-/[Xe] 4f14 5d10 6s2 6p5"
 RTN
-LBL 26
+LBL 26                  ; Z 86: Radon (name/mass/state/boiling point K/configuration)
 "Radon/-/G/211/[Xe] 4f14 5d10 6s2 6p6"
 RTN
-LBL 27
+LBL 27                  ; Z 87: Francium (name/mass/state/boiling point K/configuration)
 "Francium/-/S/-/[Rn] 7s1"
 RTN
-LBL 28
+LBL 28                  ; Z 88: Radium (name/mass/state/boiling point K/configuration)
 "Radium/-/S/1413/[Rn] 7s2"
 RTN
-LBL 29
+LBL 29                  ; Z 89: Actinium (name/mass/state/boiling point K/configuration)
 "Actinium/-/S/3471/[Rn] 6d1 7s2"
 RTN
-LBL 30
+LBL 30                  ; Z 90: Thorium (name/mass/state/boiling point K/configuration)
 "Thorium/232.04/S/5061/[Rn] 6d2 7s2"
 RTN
-LBL 31
+LBL 31                  ; Z 91: Protactinium (name/mass/state/boiling point K/configuration)
 "Protactinium/231.04/S/-/[Rn] 5f2 6d1 7s2"
 RTN
-LBL 32
+LBL 32                  ; Z 92: Uranium (name/mass/state/boiling point K/configuration)
 "Uranium/238.03/S/4404/[Rn] 5f3 6d1 7s2"
 RTN
-LBL 33
+LBL 33                  ; Z 93: Neptunium (name/mass/state/boiling point K/configuration)
 "Neptunium/-/S/4175/[Rn] 5f4 6d1 7s2"
 RTN
-LBL 34
+LBL 34                  ; Z 94: Plutonium (name/mass/state/boiling point K/configuration)
 "Plutonium/-/S/3501/[Rn] 5f6 7s2"
 RTN
-LBL 35
+LBL 35                  ; Z 95: Americium (name/mass/state/boiling point K/configuration)
 "Americium/-/S/2284/[Rn] 5f7 7s2"
 RTN
-LBL 36
+LBL 36                  ; Z 96: Curium (name/mass/state/boiling point K/configuration)
 "Curium/-/S/3400/[Rn] 5f7 6d1 7s2"
 RTN
-LBL 37
+LBL 37                  ; Z 97: Berkelium (name/mass/state/boiling point K/configuration)
 "Berkelium/-/S/-/[Rn] 5f9 7s2"
 RTN
-LBL 38
+LBL 38                  ; Z 98: Californium (name/mass/state/boiling point K/configuration)
 "Californium/-/S/-/[Rn] 5f10 7s2"
 RTN
-LBL 39
+LBL 39                  ; Z 99: Einsteinium (name/mass/state/boiling point K/configuration)
 "Einsteinium/-/S/-/[Rn] 5f11 7s2"
 RTN
-LBL 40
+LBL 40                  ; Z 100: Fermium (name/mass/state/boiling point K/configuration)
 "Fermium/-/S/-/[Rn] 5f12 7s2"
 RTN
-LBL 41
+LBL 41                  ; Z 101: Mendelevium (name/mass/state/boiling point K/configuration)
 "Mendelevium/-/S/-/[Rn] 5f13 7s2"
 RTN
-LBL 42
+LBL 42                  ; Z 102: Nobelium (name/mass/state/boiling point K/configuration)
 "Nobelium/-/S/-/[Rn] 5f14 7s2"
 RTN
-LBL 43
+LBL 43                  ; Z 103: Lawrencium (name/mass/state/boiling point K/configuration)
 "Lawrencium/-/S/-/[Rn] 5f14 6d1 7s2"
 RTN
-LBL 44
+LBL 44                  ; Z 104: Rutherfordium (name/mass/state/boiling point K/configuration)
 "Rutherfordium/-/S/-/[Rn] 5f14 6d2 7s2"
 RTN
-LBL 45
+LBL 45                  ; Z 105: Dubnium (name/mass/state/boiling point K/configuration)
 "Dubnium/-/S/-/[Rn] 5f14 6d3 7s2"
 RTN
-LBL 46
+LBL 46                  ; Z 106: Seaborgium (name/mass/state/boiling point K/configuration)
 "Seaborgium/-/S/-/[Rn] 5f14 6d4 7s2"
 RTN
-LBL 47
+LBL 47                  ; Z 107: Bohrium (name/mass/state/boiling point K/configuration)
 "Bohrium/-/S/-/[Rn] 5f14 6d5 7s2"
 RTN
-LBL 48
+LBL 48                  ; Z 108: Hassium (name/mass/state/boiling point K/configuration)
 "Hassium/-/S/-/[Rn] 5f14 6d6 7s2"
 RTN
-LBL 49
+LBL 49                  ; Z 109: Meitnerium (name/mass/state/boiling point K/configuration)
 "Meitnerium/-/S/-/[Rn] 5f14 6d7 7s2"
 RTN
-LBL 50
+LBL 50                  ; Z 110: Darmstadtium (name/mass/state/boiling point K/configuration)
 "Darmstadtium/-/-/-/[Rn] 5f14 6d8 7s2"
 RTN
-LBL 51
+LBL 51                  ; Z 111: Roentgenium (name/mass/state/boiling point K/configuration)
 "Roentgenium/-/-/-/[Rn] 5f14 6d9 7s2"
 RTN
-LBL 52
+LBL 52                  ; Z 112: Copernicium (name/mass/state/boiling point K/configuration)
 "Copernicium/-/-/-/[Rn] 5f14 6d10 7s2"
 RTN
-LBL 53
+LBL 53                  ; Z 113: Nihonium (name/mass/state/boiling point K/configuration)
 "Nihonium/-/-/-/[Rn] 5f14 6d10 7s2 7p1"
 RTN
-LBL 54
+LBL 54                  ; Z 114: Flerovium (name/mass/state/boiling point K/configuration)
 "Flerovium/-/-/-/[Rn] 5f14 6d10 7s2 7p2"
 RTN
-LBL 55
+LBL 55                  ; Z 115: Moscovium (name/mass/state/boiling point K/configuration)
 "Moscovium/-/-/-/[Rn] 5f14 6d10 7s2 7p3"
 RTN
-LBL 56
+LBL 56                  ; Z 116: Livermorium (name/mass/state/boiling point K/configuration)
 "Livermorium/-/-/-/[Rn] 5f14 6d10 7s2 7p4"
 RTN
-LBL 57
+LBL 57                  ; Z 117: Tennessine (name/mass/state/boiling point K/configuration)
 "Tennessine/-/-/-/[Rn] 5f14 6d10 7s2 7p5"
 RTN
-LBL 58
+LBL 58                  ; Z 118: Oganesson (name/mass/state/boiling point K/configuration)
 "Oganesson/-/-/-/[Rn] 5f14 6d10 7s2 7p6"
 RTN
 END
