@@ -7,7 +7,7 @@ the indentation and the comments of programs_rem/pixel/ELEM47.txt ('@' lines: no
 those of build/pixel/ELEM47.txt, numeric labels and numbered structures (tests/test_elem47.py checks it). The
 file name is the main program's name. SUB = '' would take the release (build/ELEM47.txt) instead.
   python3 tools/build_pixel.py && python3 tools/build_p47u.py"""
-import os, sys
+import os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import build_elem47 as B
@@ -70,6 +70,33 @@ def narrative(head):
     return head.replace('@@NARRATIVE@@', '\n'.join('@ ' + l if l.strip() else '@' for l in lines) + '\n@')
 
 
+COL = 24
+
+
+def note(line, steps, n):
+    """A ';' note on the labels the source's REM lines do not name: the program starts, the two symbol tables
+    (LBL 00 / 01 after the data marker) and each element record of ELD1 / ELD2 (its Z and name)."""
+    st = steps[n]
+    prog = next((s[5:-1] for s in reversed(steps[:n + 1]) if s.startswith('LBL "')), '')
+    nxt = steps[n + 1] if n + 1 < len(steps) else ''
+    text = ''
+    if st == 'LBL "ELEM47"':
+        text = 'ELEM47 - the start (the narrative above says what it does and how to use it)'
+    elif st in ('LBL "ELD1"', 'LBL "ELD2"'):
+        text = '%s - the element records of Z %s: X = the label (Z%s), XEQ IND' % (
+            st[5:-1], '1-60' if st.endswith('1"') else '61-118', '' if st.endswith('1"') else ' - 60')
+    elif re.fullmatch(r'LBL \d\d', st) and prog in ('ELD1', 'ELD2') and nxt.startswith('"'):
+        z = int(st[4:]) + (60 if prog == 'ELD2' else 0)
+        text = 'Z %d: %s (name/mass/state/boiling point K/configuration)' % (z, nxt.strip('"').split('/')[0])
+    elif re.fullmatch(r'LBL 0[01]', st) and nxt.startswith('"H 7'):
+        text = 'the symbols of Z 1-65: two characters and the width of each in pixels'
+    elif re.fullmatch(r'LBL 0[01]', st) and nxt.startswith('"Dy3'):
+        text = 'the symbols of Z 66-118: two characters and the width of each in pixels'
+    if not text:
+        return line
+    return line.ljust(COL) + '; ' + text if len(line) < COL else line + '  ; ' + text
+
+
 def build():
     lines = [ln.rstrip() for ln in open(os.path.join(ROOT, 'programs_rem', SUB, B.NAME + '.txt'), encoding='utf-8')]
     steps = B.plain_steps(lines)
@@ -83,7 +110,7 @@ def build():
         if ln.lstrip().startswith('REM'):
             out.append('@ ' + ind + ln.lstrip()[3:].strip())     # '@' in column 1, the indent after it
         else:
-            out.append(ind + steps[n]); n += 1
+            out.append(note(ind + steps[n], steps, n)); n += 1
     assert n == len(steps)
     d = os.path.join(ROOT, 'build', 'p47u')
     os.makedirs(d, exist_ok=True)
@@ -95,7 +122,7 @@ def build():
 
 def steps_of(fn):
     """The steps of a .p47u: no '@' lines, no indentation (for the test)."""
-    return [ln.strip() for ln in open(fn, encoding='utf-8') if ln.strip() and not ln.lstrip().startswith('@')]
+    return [ln.split(';', 1)[0].strip() for ln in open(fn, encoding='utf-8') if ln.strip() and not ln.lstrip().startswith('@')]
 
 
 if __name__ == '__main__':

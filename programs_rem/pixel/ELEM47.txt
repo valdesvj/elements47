@@ -762,6 +762,7 @@ RCL 24
 RTN
 REM ---- LBL :FIELDK: field R24 (from 0) of the text "a/b/c" in R35, left in R35 ----
 LBL :FIELDK:
+REM R24 fields to skip: one "/" and the text before it off a round (αPOS, αSL)
 DO
   RCL 24
   X≠0?
@@ -832,6 +833,7 @@ AGRAPH 20
 8
 STO 22
 R↓
+REM 8 rounds (R22) of 37 columns of the pattern R20: the line, unrolled for speed
 DO
   AGRAPH 20
   AGRAPH 20
@@ -1113,6 +1115,7 @@ STO 44
 STO 45
 "0123456789."
 STO 35
+REM the text R34 character by character (until it is empty): a digit adds to the number (:DIGIT:), the point starts the decimals
 DO
   αLENG 34
   X≠0?
@@ -1132,6 +1135,7 @@ RCL 43
 RCL÷ 45
 STO 49
 RTN
+REM LBL :DIGIT: one digit (X, 0-9) into the number R43 = 10 x R43 + X; after the point R45 counts the decimals
 LBL :DIGIT:
 R↓
 RCL 43
